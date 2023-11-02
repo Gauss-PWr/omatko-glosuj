@@ -1,0 +1,16 @@
+.img-box img{
+    object-fit: contain;
+    width: 100%;
+    height: auto;
+}
+
+.img-box {
+    max-width: 765px;
+}
+
+.App {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3rem;
+}
