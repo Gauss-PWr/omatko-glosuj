@@ -12,4 +12,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ${PWD}/postgress_data:/var/lib/postgresql/data
+      - postgres_volume:/var/lib/postgresql/data
+
+volumes:
+  postgres_volume:
