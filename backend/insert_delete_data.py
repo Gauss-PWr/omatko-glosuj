@@ -8,8 +8,8 @@ db = SessionLocal()
 
 def add_data():
     data = [
-        models_db.Votes(lecture_name='fajna1', category='merytoryka', points=7, user='user11'),
-        models_db.Votes(lecture_name='fajna1', category='forma prezentacji', points=4, user='user11'),
+        models_db.Votes(lecture_id=1115, category='merytoryka', points=7, user_id=7),
+        models_db.Votes(lecture_id=1115, category='forma prezentacji', points=4, user_id=7),
     ]
 
     db.add_all(data)
@@ -38,7 +38,7 @@ def display_all_data():
         if items:
             for item in items:
                 print(
-                    f"ID: {item.id}, Lecture Name: {item.lecture_name}, Category: {item.category}, Points: {item.points}, User: {item.user}")
+                    f"ID: {item.vote_id}, Lecture Name: {item.lecture_id}, Category: {item.category}, Points: {item.points}, User: {item.user_id}")
         else:
             print("no records.")
 
@@ -48,36 +48,35 @@ def display_all_data():
     finally:
         db.close()
 
+"""
+zeby usunac tabele jesli byly jakies zmiany i macie juz stworzone je w bazie to sqlalchemy ich nie edytuje bo jak widzi ze jej nie ma to ja tworzy ale 
+jak sa jakies zmiany w strukturze to tej struktury nie edytuje (zupelnie nie good practise ale tak najszybciej
+najszybszy) bo jak nie ma tabeli to komenda models_db.Base.metadata.create_all(bind=engine) ja stworzy z nową strukturą.
+"""
+
+#models_db.Users.__table__.drop(engine)
+
 
 # add_data()
 display_all_data()
 # delete_data(1)
 
 
+
+
 """sql
 mozecie
-INSERT INTO votes (lecture_name, category, points, "user")
+INSERT INTO votes (lecture_id, category, points, "user_id")
 VALUES
-    ('fajna1', 'merytoryka', 7, 'user1'),
-    ('fajna1', 'forma prezentacji', 4, 'user1'),
-    ('fajna2', 'merytoryka', 9, 'user2'),
-    ('fajna2', 'forma prezentacji', 2, 'user2'),
-    ('fajna3', 'merytoryka', 5, 'user3'),
-    ('fajna3', 'forma prezentacji', 8, 'user3'),
-    ('fajna4', 'merytoryka', 6, 'user4'),
-    ('fajna4', 'forma prezentacji', 3, 'user4'),
-    ('fajna5', 'merytoryka', 1, 'user5'),
-    ('fajna5', 'forma prezentacji', 10, 'user5'),
-    ('fajna6', 'merytoryka', 8, 'user6'),
-    ('fajna6', 'forma prezentacji', 4, 'user6'),
-    ('fajna5', 'merytoryka', 3, 'user7'),
-    ('fajna5', 'forma prezentacji', 7, 'user7'),
-    ('fajna4', 'merytoryka', 2, 'user8'),
-    ('fajna4', 'forma prezentacji', 9, 'user8'),
-    ('fajna5', 'merytoryka', 6, 'user9'),
-    ('fajna5', 'forma prezentacji', 1, 'user9'),
-    ('fajna1', 'merytoryka', 5, 'user10'),
-    ('fajna1', 'forma prezentacji', 8, 'user10');
-
-
+    (1, 'merytoryka', 7, 1),
+    (1, 'forma prezentacji', 4, 1),
+    (2, 'merytoryka', 9, 2),
+    (2, 'forma prezentacji', 2, 2),
+    (3, 'merytoryka', 5, 3),
+    (4, 'forma prezentacji', 8, 3),
+    (5, 'merytoryka', 6, '4'),
+    (6, 'forma prezentacji', 3, 4),
+    (6, 'merytoryka', 1, 5),
+    (1, 'forma prezentacji', 10, 5),
+    (1, 'merytoryka', 8, 6);
 """
