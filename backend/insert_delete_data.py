@@ -8,8 +8,16 @@ db = SessionLocal()
 
 def add_data():
     data = [
+        # votes
         models_db.Votes(lecture_id=1115, category='merytoryka', points=7, user_id=7),
         models_db.Votes(lecture_id=1115, category='forma prezentacji', points=4, user_id=7),
+
+        # users
+        models_db.Users(user_id=1, user_login="adminMK", user_mail="", user_password="admin-omatko23"),
+        models_db.Users(user_id=2, user_login="adminKB", user_mail="", user_password="admin-omatko23"),
+        models_db.Users(user_id=3, user_login="adminAS", user_mail="", user_password="admin-omatko23"),
+        models_db.Users(user_id=4, user_login="adminWT", user_mail="", user_password="admin-omatko23"),
+        models_db.Users(user_id=5, user_login="adminMM", user_mail="", user_password="admin-omatko23"),
     ]
 
     db.add_all(data)
