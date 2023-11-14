@@ -1,18 +1,16 @@
 import { ReactElement, useState } from "react";
 import './Login.css'
+import { useAuth, User } from "./Auth";
+import axios from "axios";
 
-interface Login {
-    login: string,
-    password: string
-}
-
-const loginData: Login = {
+const loginData: User = {
     login: '',
     password: ''
 }
 
 const Login = (): ReactElement => {
 
+    const {state, dispatch} = useAuth()
     const[formData, setFormData] = useState(loginData)
 
     const handleChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
@@ -20,12 +18,19 @@ const Login = (): ReactElement => {
         setFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
     }
 
-    const handleSubmit = (event: React.SyntheticEvent) => {
+    const handleSubmit = async (event: React.SyntheticEvent) => {
         event.preventDefault()
-        //dzwoni do centrali i sie pyta czy git
-        //cookies
-        //jak jest git to pobiera dane i sie zmienia w panel
-        console.log(formData)
+        try {
+            const res = await axios.post("http://localhost:5555/token", formData, {headers: {"content-type": "application/x-www-form-urlencoded"}})
+            if (await res.statusText === "OK") {
+                dispatch({type: 'LOGIN', payload: formData })
+            }
+            else {
+                alert('Bledne costam')
+            }
+        } catch (error) {
+            console.error(error)
+        }
     }
 
     return (
