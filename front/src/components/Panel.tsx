@@ -19,11 +19,7 @@ const Panel = (): ReactElement => {
 
     const [lectureList, setLectureList] = useState([])
 
-    useEffect(() => {
-        fetch('../test.json')
-        .then(response => response.json())
-        .then(data => setLectureList(data))
-    }, [])    
+    useEffect(() => { }, [])    
 
     const [activeLectureList, setActiveLectureList] = useState([])
     const [lectureCode, setLecture] = useState('')
