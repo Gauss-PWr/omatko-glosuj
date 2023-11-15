@@ -3,7 +3,7 @@ import './Login.css'
 import { useAuth, User } from "./Auth";
 import axios from "axios";
 
-const loginData: User = {
+const initialData: User = {
     login: '',
     password: ''
 }
@@ -11,7 +11,7 @@ const loginData: User = {
 const Login = (): ReactElement => {
 
     const {state, dispatch} = useAuth()
-    const[formData, setFormData] = useState(loginData)
+    const[formData, setFormData] = useState(initialData)
 
     const handleChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
         const { name, value } = event.target

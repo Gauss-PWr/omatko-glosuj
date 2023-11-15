@@ -1,18 +1,15 @@
 
 import { ReactElement } from 'react'
 import './App.css'
-import Login from './components/Login'
-import Panel from './components/Panel'
-
+import { Wrapper } from './components/Wrapper'
+import { AuthProvider } from './components/Auth'
 
 const App = (): ReactElement => {
   return (
         <div className='App'>
-          <div className="img-box">
-            <img src="/src/assets/omatko logo.jpg" alt="Logo OMatKo"/>
-          </div>
-          <Login/>
-          {/* <Panel/> */}
+          <AuthProvider>
+            <Wrapper />
+          </AuthProvider>
         </div>
   )
 }
