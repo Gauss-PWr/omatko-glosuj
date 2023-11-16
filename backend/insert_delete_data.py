@@ -9,15 +9,15 @@ db = SessionLocal()
 def add_data():
     data = [
         # votes
-        models_db.Votes(lecture_id=1115, category='merytoryka', points=7, user_id=7),
-        models_db.Votes(lecture_id=1115, category='forma prezentacji', points=4, user_id=7),
+        models_db.Votes(lecture_id=1, merytoryka_points=7, forma_points=5, user_id=7),
+        models_db.Votes(lecture_id=2, merytoryka_points=9, forma_points=6, user_id=7),
 
         # users
-        models_db.Users(user_id=1, user_login="adminMK", user_mail="", user_password="admin-omatko23"),
-        models_db.Users(user_id=2, user_login="adminKB", user_mail="", user_password="admin-omatko23"),
-        models_db.Users(user_id=3, user_login="adminAS", user_mail="", user_password="admin-omatko23"),
-        models_db.Users(user_id=4, user_login="adminWT", user_mail="", user_password="admin-omatko23"),
-        models_db.Users(user_id=5, user_login="adminMM", user_mail="", user_password="admin-omatko23"),
+        # models_db.Users(user_id=1, user_login="adminMK", user_mail="", user_password="admin-omatko23"),
+        # models_db.Users(user_id=2, user_login="adminKB", user_mail="", user_password="admin-omatko23"),
+        # models_db.Users(user_id=3, user_login="adminAS", user_mail="", user_password="admin-omatko23"),
+        # models_db.Users(user_id=4, user_login="adminWT", user_mail="", user_password="admin-omatko23"),
+        # models_db.Users(user_id=5, user_login="adminMM", user_mail="", user_password="admin-omatko23"),
     ]
 
     db.add_all(data)
@@ -62,11 +62,11 @@ jak sa jakies zmiany w strukturze to tej struktury nie edytuje (zupelnie nie goo
 najszybszy) bo jak nie ma tabeli to komenda models_db.Base.metadata.create_all(bind=engine) ja stworzy z nową strukturą.
 """
 
-#models_db.Users.__table__.drop(engine)
+models_db.Users.__table__.drop(engine)
 
 
-# add_data()
-display_all_data()
+#add_data()
+#isplay_all_data()
 # delete_data(1)
 
 

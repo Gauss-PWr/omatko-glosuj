@@ -15,7 +15,7 @@ port = "5432"
 
 database_url = f'postgresql+psycopg2://{user}:{password}@{host}:{port}/{database}'
 
-engine = create_engine(url=database_url, echo=True, pool_pre_ping=True)
+engine = create_engine(url=database_url, pool_pre_ping=True) #echo=True
 
 Base.metadata.create_all(bind=engine)
 SessionLocal = sessionmaker(bind=engine)

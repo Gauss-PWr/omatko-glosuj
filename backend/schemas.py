@@ -19,7 +19,6 @@ class User(BaseModel):
 class UserInDB(User):
     user_id: Optional[int] = Field(None, gt=0)
     username: str = Field(..., max_length=30)
-    email: Optional[str] = None
     password: str
 
 
