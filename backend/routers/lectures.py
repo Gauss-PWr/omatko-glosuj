@@ -20,50 +20,45 @@ db_dependency = Depends(get_db)
 async def add_lecture_to_user(lecture_request: schemas.LectureAddRequest, db: Session = Depends(get_db), user: Users = Depends(get_current_user)):
     lecture_code = lecture_request.lecture_code
     lecture = db.query(Lectures).filter(Lectures.lecture_code == lecture_code).first()
+
+
     if not lecture:
         raise HTTPException(status_code=404, detail="Lecture not found")
 
-    existing_votes = db.query(Votes).filter(
-        Votes.user_id == user.user_id,
-        Votes.lecture_id == lecture.lecture_id
-    ).all()
+    existing_vote = db.query(Votes).filter(Votes.user_id == user.user_id,Votes.lecture_id == lecture.lecture_id).first()
 
-    if len(existing_votes) >= 2:
+    if existing_vote:
         raise HTTPException(status_code=400, detail="Lecture already added by user")
 
-    new_vote_merytoryka = Votes(user_id=user.user_id, lecture_id=lecture.lecture_id, category='merytoryka')
-    new_vote_forma = Votes(user_id=user.user_id, lecture_id=lecture.lecture_id, category='forma prezentacji')
-    db.add(new_vote_merytoryka)
-    db.add(new_vote_forma)
+    new_vote = Votes(
+        user_id=user.user_id, 
+        lecture_id=lecture.lecture_id, 
+        merytoryka_points=None, 
+        forma_points=None
+    )
+    db.add(new_vote)
     db.commit()
 
     return {"message": "Lecture successfully added to user with initial votes"}
 
 
 
-
 @router.get("/user/lectures")
 async def get_user_lectures(db: Session = Depends(get_db), user: Users = Depends(get_current_user)):
-    user_votes = db.query(Votes).filter(Votes.user_id == user.user_id).all()
-    unique_lecture_ids = set(vote.lecture_id for vote in user_votes)
+    user_votes = db.query(Votes.lecture_id).filter(Votes.user_id == user.user_id).distinct().all()
 
     lectures_list = []
 
-    for lecture_id in unique_lecture_ids:
-        lecture = db.query(Lectures).filter(Lectures.lecture_id == lecture_id).first()
+    for vote in user_votes:
+        lecture = db.query(Lectures).filter(Lectures.lecture_id == vote.lecture_id).first()
         if lecture:
-            votes_for_lecture = db.query(Votes).filter(Votes.lecture_id == lecture_id, Votes.user_id == user.user_id).all()
-
-            vote_merytoryka = next((v for v in votes_for_lecture if v.category == "merytoryka"), None)
-            vote_forma = next((v for v in votes_for_lecture if v.category == "forma prezentacji"), None)
+            user_vote = db.query(Votes).filter(Votes.lecture_id == lecture.lecture_id, Votes.user_id == user.user_id).first()
 
             lecture_info = {
-                "lecture_id": lecture.lecture_id,
                 "lecture_name": lecture.lecture_name,
                 "speaker_name": lecture.speaker_name,
-                "lecture_code": lecture.lecture_code,
-                "vote_merytoryka": vote_merytoryka.points if vote_merytoryka else "No vote",
-                "vote_forma": vote_forma.points if vote_forma else "No vote"
+                "vote_merytoryka": user_vote.merytoryka_points if user_vote else "No vote",
+                "vote_forma": user_vote.forma_points if user_vote else "No vote"
             }
             lectures_list.append(lecture_info)
 
@@ -72,37 +67,23 @@ async def get_user_lectures(db: Session = Depends(get_db), user: Users = Depends
 
 
 
-@router.put("/votes/merytoryka/")
-async def update_vote_merytoryka(vote_request: schemas.VoteRequest, db: Session = Depends(get_db), user: Users = Depends(get_current_user)):
-    vote = db.query(Votes).filter(
-        Votes.user_id == user.user_id,
-        Votes.category == 'merytoryka'
-    ).first()
+@router.put("/votes/{lecture_id}/")
+async def update_vote(lecture_id: int, vote_request: schemas.VoteRequest, db: Session = Depends(get_db), user: Users = Depends(get_current_user)):
+    vote = db.query(Votes).filter(Votes.user_id == user.user_id,Votes.lecture_id == lecture_id).first()
 
     if not vote:
         raise HTTPException(status_code=404, detail="Vote not found")
 
-    vote.points = vote_request.points
+    if vote_request.merytoryka_points is not None:
+        vote.merytoryka_points = vote_request.merytoryka_points
+
+    if vote_request.forma_points is not None:
+        vote.forma_points = vote_request.forma_points
+
     db.commit()
 
-    return {"message": "Vote for merytoryka successfully updated"}
+    return {"message": "Vote successfully updated"}
 
-
-
-@router.put("/votes/forma/")
-async def update_vote_merytoryka(vote_request: schemas.VoteRequest, db: Session = Depends(get_db), user: Users = Depends(get_current_user)):
-    vote = db.query(Votes).filter(
-        Votes.user_id == user.user_id,
-        Votes.category == 'forma prezentacji'
-    ).first()
-
-    if not vote:
-        raise HTTPException(status_code=404, detail="Vote not found")
-
-    vote.points = vote_request.points
-    db.commit()
-
-    return {"message": "Vote for forma prezentacji successfully updated"}
 
 
 

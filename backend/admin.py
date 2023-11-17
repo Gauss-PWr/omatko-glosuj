@@ -113,7 +113,7 @@ def add_users_to_database():
     db.close()
 
 
-add_users_to_database()
+#add_users_to_database()
 
 
 def update_all_lecture_points():
@@ -125,28 +125,25 @@ def update_all_lecture_points():
 
     for lecture in lectures:
         votes = db.query(models_db.Votes).filter(models_db.Votes.lecture_id == lecture.lecture_id).all()
-        merytoryka_points, forma_points, merytoryka_count, forma_count = 0.0, 0.0, 0, 0
+        merytoryka_total, forma_total, merytoryka_count, forma_count = 0.0, 0.0, 0, 0
 
         for vote in votes:
-            merytoryka_points += vote.merytoryka_points
-            merytoryka_count += 1
-            forma_points += vote.forma_points
-            forma_count += 1
+            if vote.merytoryka_points is not None:
+                merytoryka_total += vote.merytoryka_points
+                merytoryka_count += 1
+            if vote.forma_points is not None:
+                forma_total += vote.forma_points
+                forma_count += 1
 
-        if merytoryka_count == 0 or forma_count == 0:
-            continue
-
-        merytoryka_average = merytoryka_points / merytoryka_count if merytoryka_count else 0
-        forma_average = forma_points / forma_count if forma_count else 0
+        merytoryka_average = merytoryka_total / merytoryka_count if merytoryka_count else 0
+        forma_average = forma_total / forma_count if forma_count else 0
         weighted_average = 0.6 * merytoryka_average + 0.4 * forma_average
-        print(forma_average)
-        print(merytoryka_average)
-        print(weighted_average)
+
         lecture.sum_points = weighted_average
 
     db.commit()
-    db.close()
     print("Lecture points updated successfully for all lectures")
 
 
-update_all_lecture_points()
+
+#update_all_lecture_points()

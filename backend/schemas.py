@@ -33,10 +33,8 @@ class PasswordChangeRequest(BaseModel):
 
 
 class LectureResponse(BaseModel):
-    lecture_id: Optional[int] = Field(None, gt=0)
     lecture_name: str = Field(..., max_length=200)
     speaker_name: str = Field(..., max_length=80)
-    lecture_code: str = Field(..., min_length=1, max_length=7)
     vote_merytoryka: Optional[int] = Field(None, ge=1, le=10)
     vote_forma: Optional[int] = Field(None, ge=1, le=10)
 
@@ -45,8 +43,8 @@ class LectureResponse(BaseModel):
 
 
 class VoteRequest(BaseModel):
-    lecture_id: Optional[int] = Field(None, gt=0)
-    points: Optional[int] = Field(None, ge=1, le=10)
+    merytoryka_points: Optional[int] = Field(None, ge=1, le=10)
+    forma_points: Optional[int] = Field(None, ge=1, le=10)
 
 
 class LectureAddRequest(BaseModel):
