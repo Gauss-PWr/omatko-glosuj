@@ -62,7 +62,7 @@ jak sa jakies zmiany w strukturze to tej struktury nie edytuje (zupelnie nie goo
 najszybszy) bo jak nie ma tabeli to komenda models_db.Base.metadata.create_all(bind=engine) ja stworzy z nową strukturą.
 """
 
-models_db.Users.__table__.drop(engine)
+#models_db.Posters.__table__.drop(engine)
 
 
 #add_data()

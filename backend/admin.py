@@ -29,7 +29,8 @@ def add_lectures_to_database():
         ("Natalia Olszewska", "Gry karciane a punkty na prostych – cap set na podstawie kolorów i kształtów",
          "teoretyczna"),
         (
-        "Michał Biesek", "Jak odgadnąć rozwiązanie, czyli o metodach iteracyjnych i wartościach własnych", "stosowana"),
+            "Michał Biesek", "Jak odgadnąć rozwiązanie, czyli o metodach iteracyjnych i wartościach własnych",
+            "stosowana"),
         ("Patryk Topór", "Teoria Indeksu Punktu Stałego", "teoretyczna"),
         ("Michał Wiliński", "Teoria informacji - klucz do głębokich sieci neuronowych", "stosowana"),
         ("Alexander Golys", "Przestrzenie moduli trójkątów", "teoretyczna"),
@@ -40,14 +41,16 @@ def add_lectures_to_database():
         ("Jacek Karolczak", "Duże trudności dużych modeli językowych i ich małe rozwiązanie", "stosowana"),
         ("Julia Ścisłowska", "Czarnoksiężnik z płaszczyzny zespolonej i jego topologiczne przygody", "teoretyczna"),
         (
-        "Jakub Koral", "Rozwiązanie standardowego i ułamkowego równania Fokkera-Plancka przy pomocy metody spektralnej",
-        "stosowana"),
+            "Jakub Koral",
+            "Rozwiązanie standardowego i ułamkowego równania Fokkera-Plancka przy pomocy metody spektralnej",
+            "stosowana"),
         ("Konrad Ochędzan", "Chaos w układach dynamicznych", "teoretyczna"),
         ("Olga Leśkiewicz", "Zastosowanie elementów teorii grafów w naukach biologicznych", "stosowana"),
         ("Olaf Kołodziejski", "Wpływ dużych liczb kardynalnych na teorie kategorii", "teoretyczna"),
         (
-        "Zuzanna Gawrysiak", "Text super-resolution: przegląd metod uczenia głębokiego do poprawy jakości zdjęć tekstu",
-        "stosowana"),
+            "Zuzanna Gawrysiak",
+            "Text super-resolution: przegląd metod uczenia głębokiego do poprawy jakości zdjęć tekstu",
+            "stosowana"),
         ("Bartłomiej Bychawski", "O grafach posiadających identyczne zbiory sąsiedztw", "teoretyczna"),
         ("Karol Warmiński", "Martyngały w ruletce, czyli gdy model zderza się z rzeczywistością", "stosowana"),
         ("Michalina Wytrzyszczak", "Kryptografia postkwantowa na krzywych eliptycznych", "teoretyczna"),
@@ -81,6 +84,34 @@ def add_lectures_to_database():
     db.close()
 
 
+def add_posters_to_database():
+    posters_list = [
+        ("Mateusz Zdunek",
+         "Implementacja matematyki w fizyce molekularnej: Metoda pasm Gaussa i równań różniczkowych drugiego rzędu w elektroabsorpcji."),
+        ("Zuzanna Zuzanna", "Głosowanie bez sensu? Badanie paradoksów i anomalii Teorii Wyboru Społecznego"),
+        ("Mateusz Maczka, Karol Maciejczyk", "Diagramów Younga w kontekście reprezentacji grup permutacji"),
+        ("Paulina Pasierb, Oliwia Jarosz", "Analiza matematyczna w badaniach ekonomicznych: Rola funkcji jednej zmiennej w ekonometrii i ekonomii matematycznej"),
+        ("Kinga Słysz, Weronika Tokarz",
+         "Wzór z którym mamy do czynienia na co dzień, czyli złoty podział w otaczającym nas świecie"),
+        ("Justyna Piecuch",
+         "Matematyka i sztuka, czyli ukryte piękno matematyki zawarte w wielu dziedzinach naszego życia."),
+        ("Joanna Michalska", "Model support vector machine w zwalczaniu propagandy"),
+        ("Agnieszka Widz", "Jeśli coś kochasz, puść to wolno. Wróci do Ciebie, jeśli było ergodyczne"),
+        ("Magda Wójtowicz", "Grafy przecięciowe i krawędziowe pokrycia klikowe."),
+        ("Dorota Chańko", "Dwuwymiarowe twierdzenie o podrozmaitości centralnej")]
+
+    for poster_author, poster_name in posters_list:
+        new_poster = models_db.Posters(
+            poster_name=poster_name,
+            poster_author=poster_author,
+        )
+        db.add(new_poster)
+
+    db.commit()
+    db.close()
+
+add_posters_to_database()
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
@@ -113,7 +144,7 @@ def add_users_to_database():
     db.close()
 
 
-#add_users_to_database()
+
 
 
 def update_all_lecture_points():
@@ -145,5 +176,33 @@ def update_all_lecture_points():
     print("Lecture points updated successfully for all lectures")
 
 
+def update_posters_points():
+    posters = db.query(models_db.Posters).all()
 
-#update_all_lecture_points()
+    if not posters:
+        print("No posters found")
+        return
+
+    for poster in posters:
+        votes = db.query(models_db.Votes_posters).filter(models_db.Votes_posters.poster_id == poster.poster_id).all()
+        merytoryka_total, estetyka_total, merytoryka_count, estetyka_count = 0.0, 0.0, 0, 0
+
+        for vote in votes:
+            if vote.merytoryka_points is not None:
+                merytoryka_total += vote.merytoryka_points
+                merytoryka_count += 1
+            if vote.forma_points is not None:
+                estetyka_total += vote.estetyka_total
+                estetyka_count += 1
+
+        merytoryka_average = merytoryka_total / merytoryka_count if merytoryka_count else 0
+        estetyka_average = estetyka_total / estetyka_count if estetyka_count else 0
+        weighted_average = 0.8 * merytoryka_average + 0.2 * estetyka_average
+
+        poster.sum_points = weighted_average
+
+    db.commit()
+    print("Posters points updated successfully for all posters")
+
+# update_all_lecture_points()
+update_posters_points()

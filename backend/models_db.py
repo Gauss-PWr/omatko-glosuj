@@ -21,6 +21,24 @@ class Lectures(Base):
     sum_points = Column("sum_points", Float)
 
 
+class Posters(Base):
+    __tablename__ = "posters"
+    poster_id = Column("poster_id", Integer, primary_key=True, autoincrement=True)
+    poster_name = Column("poster_name", String(200))
+    poster_author = Column("poster_author", String(80))
+    sum_points = Column("sum_points", Float)
+
+
+class Votes_posters(Base):
+    __tablename__ = "votes_posters"
+    vote_id = Column("vote_id", Integer, primary_key=True, autoincrement=True)
+    poster_id = Column("poster_id", Integer)
+    merytoryka_points = Column("mertytoryka_points", Float)
+    estetyka_points = Column("estetyka_points", Float)
+    user_id = Column("user_id", Integer)
+
+
+
 class Users(Base):
     __tablename__ = "users"
     user_id = Column("user_id", Integer, primary_key=True, autoincrement=True)

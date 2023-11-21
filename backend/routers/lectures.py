@@ -7,6 +7,7 @@ from database_connect import SessionLocal
 
 router = APIRouter(prefix='/lectures', tags=['lectures'])
 
+
 def get_db():
     db = SessionLocal()
     try:
@@ -14,33 +15,35 @@ def get_db():
     finally:
         db.close()
 
+
 db_dependency = Depends(get_db)
 
+
 @router.post("/lectures/add-to-user")
-async def add_lecture_to_user(lecture_request: schemas.LectureAddRequest, db: Session = Depends(get_db), user: Users = Depends(get_current_user)):
+async def add_lecture_to_user(lecture_request: schemas.LectureAddRequest, db: Session = Depends(get_db),
+                              user: Users = Depends(get_current_user)):
     lecture_code = lecture_request.lecture_code
     lecture = db.query(Lectures).filter(Lectures.lecture_code == lecture_code).first()
-
 
     if not lecture:
         raise HTTPException(status_code=404, detail="Lecture not found")
 
-    existing_vote = db.query(Votes).filter(Votes.user_id == user.user_id,Votes.lecture_id == lecture.lecture_id).first()
+    existing_vote = db.query(Votes).filter(Votes.user_id == user.user_id,
+                                           Votes.lecture_id == lecture.lecture_id).first()
 
     if existing_vote:
         raise HTTPException(status_code=400, detail="Lecture already added by user")
 
     new_vote = Votes(
-        user_id=user.user_id, 
-        lecture_id=lecture.lecture_id, 
-        merytoryka_points=None, 
+        user_id=user.user_id,
+        lecture_id=lecture.lecture_id,
+        merytoryka_points=None,
         forma_points=None
     )
     db.add(new_vote)
     db.commit()
 
     return {"message": "Lecture successfully added to user with initial votes"}
-
 
 
 @router.get("/user/lectures")
@@ -52,7 +55,8 @@ async def get_user_lectures(db: Session = Depends(get_db), user: Users = Depends
     for vote in user_votes:
         lecture = db.query(Lectures).filter(Lectures.lecture_id == vote.lecture_id).first()
         if lecture:
-            user_vote = db.query(Votes).filter(Votes.lecture_id == lecture.lecture_id, Votes.user_id == user.user_id).first()
+            user_vote = db.query(Votes).filter(Votes.lecture_id == lecture.lecture_id,
+                                               Votes.user_id == user.user_id).first()
 
             lecture_info = {
                 "lecture_name": lecture.lecture_name,
@@ -65,11 +69,10 @@ async def get_user_lectures(db: Session = Depends(get_db), user: Users = Depends
     return {"lectures": [schemas.LectureResponse(**lecture_info) for lecture_info in lectures_list]}
 
 
-
-
 @router.put("/votes/{lecture_id}/")
-async def update_vote(lecture_id: int, vote_request: schemas.VoteRequest, db: Session = Depends(get_db), user: Users = Depends(get_current_user)):
-    vote = db.query(Votes).filter(Votes.user_id == user.user_id,Votes.lecture_id == lecture_id).first()
+async def update_vote(lecture_id: int, vote_request: schemas.VoteRequest, db: Session = Depends(get_db),
+                      user: Users = Depends(get_current_user)):
+    vote = db.query(Votes).filter(Votes.user_id == user.user_id, Votes.lecture_id == lecture_id).first()
 
     if not vote:
         raise HTTPException(status_code=404, detail="Vote not found")
@@ -83,7 +86,3 @@ async def update_vote(lecture_id: int, vote_request: schemas.VoteRequest, db: Se
     db.commit()
 
     return {"message": "Vote successfully updated"}
-
-
-
-
