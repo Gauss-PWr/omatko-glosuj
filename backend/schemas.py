@@ -49,3 +49,14 @@ class VoteRequest(BaseModel):
 
 class LectureAddRequest(BaseModel):
     lecture_code: str = Field(..., min_length=1, max_length=7)
+
+
+class PosterResponse(BaseModel):
+    poster_name: str
+    poster_author: str
+    vote_merytoryka: Optional[float] = None
+    vote_estetyka: Optional[float] = None
+
+class VotePosterRequest(BaseModel):
+    merytoryka_points: Optional[int] = Field(None, ge=1, le=10)
+    estetyka_points: Optional[int] = Field(None, ge=1, le=10)

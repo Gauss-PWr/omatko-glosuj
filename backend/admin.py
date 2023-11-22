@@ -191,8 +191,8 @@ def update_posters_points():
             if vote.merytoryka_points is not None:
                 merytoryka_total += vote.merytoryka_points
                 merytoryka_count += 1
-            if vote.forma_points is not None:
-                estetyka_total += vote.estetyka_total
+            if vote.estetyka_points is not None:
+                estetyka_total += vote.estetyka_points
                 estetyka_count += 1
 
         merytoryka_average = merytoryka_total / merytoryka_count if merytoryka_count else 0

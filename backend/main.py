@@ -7,6 +7,7 @@ from database_connect import engine, SessionLocal
 from sqlalchemy.orm import Session
 from routers.auth import router as auth_router
 from routers.lectures import router as lectures_router
+from routers.posters import router as posters_router
 
 app = FastAPI()
 
@@ -14,6 +15,7 @@ models_db.Base.metadata.create_all(bind=engine)
 
 app.include_router(auth_router)
 app.include_router(lectures_router)
+app.include_router(posters_router)
 
 origins = [
     "http://localhost:5173"
