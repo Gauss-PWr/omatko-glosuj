@@ -1,41 +1,36 @@
 import { ReactElement, useState } from "react";
 import './Login.css'
+import { useAuth, User } from "./Auth";
 import axios from "axios";
 
-
-interface Login {
-    username: string,
-    password: string
-}
-
-const loginData: Login = {
-    username: '',
+const initialData: User = {
+    login: '',
     password: ''
 }
 
 const Login = (): ReactElement => {
 
-    const[formData, setFormData] = useState(loginData)
+    const {state, dispatch} = useAuth()
+    const[formData, setFormData] = useState(initialData)
 
     const handleChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
         const { name, value } = event.target
         setFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
     }
 
-    const handleSubmit = (event: React.SyntheticEvent) => {
+    const handleSubmit = async (event: React.SyntheticEvent) => {
         event.preventDefault()
-        //dzwoni do centrali i sie pyta czy git
-        //cookies
-        //jak jest git to pobiera dane i sie zmienia w panel
-        axios.post("http://localhost:5555/token", formData, {headers: {"content-type": "application/x-www-form-urlencoded"}})
-        .then((response) => {
-              console.log(response);
-              if (response.statusText == "OK") {
-                alert("Sukces!");
-              }
-            })
-        .catch(function (error) {alert("Złe dane logowania!")}) 
-        console.log(formData)
+        try {
+            const res = await axios.post("http://localhost:5555/token", formData, {headers: {"content-type": "application/x-www-form-urlencoded"}})
+            if (await res.statusText === "OK") {
+                dispatch({type: 'LOGIN', payload: formData })
+            }
+            else {
+                alert('Bledne costam')
+            }
+        } catch (error) {
+            console.error(error)
+        }
     }
 
     return (
