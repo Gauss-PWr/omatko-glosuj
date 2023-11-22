@@ -36,7 +36,7 @@ const Login = (): ReactElement => {
     return (
         <form className="Login" onSubmit={handleSubmit}>
             <div className="login-box">
-                <input type="text" placeholder="Login" name="login" onChange={handleChange} value={formData.login}/>
+                <input type="text" placeholder="Login" name="username" onChange={handleChange} value={formData.username}/>
                 <input type="password" placeholder="Hasło" name="password" onChange={handleChange} value={formData.password}/>
                 <button type="submit">Zaloguj</button>
             </div>
