@@ -123,8 +123,8 @@ def add_users_to_database():
         name_cell = worksheet.cell(row=row, column=1)
         full_name = name_cell.value
         print(full_name)
-        parts = full_name.split()
-        user_login = (parts[0] + parts[-1][:3]).replace(" ", "").lower()
+        # parts = full_name.split()
+        user_login = full_name.replace(" ", "").lower()
         print(user_login)
         worksheet.cell(row=row, column=2, value=user_login)
         password_length = 5
@@ -144,7 +144,7 @@ def add_users_to_database():
     db.close()
 
 
-
+#add_users_to_database()
 
 
 def update_all_lecture_points():
