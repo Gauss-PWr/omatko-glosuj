@@ -29,6 +29,7 @@ async def get_all_posters_for_user(db: Session = Depends(get_db), user: Users = 
                                                    Votes_posters.user_id == user.user_id).first()
 
         poster_info = {
+            "poster_id": poster.poster_id,
             "poster_name": poster.poster_name,
             "poster_author": poster.poster_author,
             "vote_merytoryka": user_vote.merytoryka_points if user_vote else None,

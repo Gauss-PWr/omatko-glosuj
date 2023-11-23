@@ -59,6 +59,7 @@ async def get_user_lectures(db: Session = Depends(get_db), user: Users = Depends
                                                Votes.user_id == user.user_id).first()
 
             lecture_info = {
+                "lecture_id": lecture.lecture_id,
                 "lecture_name": lecture.lecture_name,
                 "speaker_name": lecture.speaker_name,
                 "vote_merytoryka": user_vote.merytoryka_points if user_vote else "No vote",
