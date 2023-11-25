@@ -1,7 +1,7 @@
 import { ReactElement, useState, useEffect } from "react";
 import './Panel.css'
 import axios from "axios";
-import { useAuth } from "./Auth";
+import { Auth, useAuth } from "./Auth";
 
 const URL = 'http://localhost:5555'
 
@@ -44,6 +44,21 @@ const parseLectures = (lectures) => lectures.map((lecture: LectureResponse) =>
 })
 )
 
+const getLectures = async (state: Auth, setter: React.Dispatch<React.SetStateAction<Lecture[]>> ) => {
+    const res = await axios.get(URL + '/lectures/user/lectures', {
+        headers: {
+            'Authorization': `${state.user?.token?.tokenType} ${state.user?.token?.accessToken}`,
+            'Accept': 'application/json'                
+
+        }
+    } )
+    
+    if (await res.status === 200) {
+        setter(parseLectures(res.data.lectures))
+    }
+  }
+
+
 
 
 
@@ -51,25 +66,10 @@ const parseLectures = (lectures) => lectures.map((lecture: LectureResponse) =>
 const Panel = (): ReactElement => {
 
     const {state, dispatch} = useAuth()
-    const [activeLectureList, setActiveLectureList] = useState([])
+    const [activeLectureList, setActiveLectureList] = useState<Lecture[]>([])
     const [lectureCode, setLecture] = useState('')
     
-    useEffect(() => {
-      const getLectures = async () => {
-        const res = await axios.get(URL + '/lectures/user/lectures', {
-            headers: {
-                'Authorization': `${state.user?.token?.tokenType} ${state.user?.token?.accessToken}`,
-                'Accept': 'application/json'                
-    
-            }
-        } )
-        
-        if (await res.status === 200) {
-            setActiveLectureList(parseLectures(res.data.lectures))
-        }
-      }
-      getLectures()
-     }, [])    
+    useEffect(() =>  { getLectures(state, setActiveLectureList) }, [])    
 
 
     const searchLecture = async (code: string): Promise<void> => {
@@ -87,17 +87,7 @@ const Panel = (): ReactElement => {
             })
 
             if (await res.status === 200){
-                const res2 = await axios.get(URL + '/lectures/user/lectures',  {
-                    headers: {
-                        'Authorization': `${state.user?.token?.tokenType} ${state.user?.token?.accessToken}`,
-                        'Accept': 'application/json'                
-            
-                    }
-                })
-                if (await res2.status === 200) {
-                    setActiveLectureList(parseLectures(res2.data.lectures))
-                    
-                }
+                getLectures(state, setActiveLectureList)
             }
         } catch (error) {
             console.log(error)
@@ -120,7 +110,7 @@ const Lecture = (lecture: Lecture): ReactElement => {
     const {state, dispatch} = useAuth()
     const [ratings, setRatings] = useState(lecture.ratings)
 
-    const handleRatingChange = (index, newValue) => {
+    const handleRatingChange = (index: number, newValue: number) => {
         const updatedRatings = [...ratings];
         updatedRatings[index] = { ...updatedRatings[index], value: newValue };
         setRatings(updatedRatings);
@@ -149,8 +139,9 @@ const Lecture = (lecture: Lecture): ReactElement => {
                 
             }
         }
-        updateRatings()
-    }, [ratings])
+        const timeoutId = setTimeout(() => { updateRatings() }, 1500)
+        return () => clearTimeout(timeoutId)
+    }, [ratings, lecture.lecture_id, state.user?.token?.tokenType, state.user?.token?.accessToken])
 
     return (
         <div className="Lecture">
