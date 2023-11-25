@@ -78,7 +78,7 @@ const Panel = (): ReactElement => {
         if ( code.length !== 4)
             return
         try {
-            const res = await axios.post(URL + '/lectures/add-to-user', {'lecture_code': code}, {
+            const res = await axios.post(URL + '/lectures/add-to-user', {'lecture_code': code.toUpperCase()}, {
                 headers: {
                     'Authorization': `${state.user?.token?.tokenType} ${state.user?.token?.accessToken}`,
                     'Accept': 'application/json'                
@@ -88,6 +88,7 @@ const Panel = (): ReactElement => {
 
             if (await res.status === 200){
                 getLectures(state, setActiveLectureList)
+                setLecture('')
             }
         } catch (error) {
             console.log(error)
