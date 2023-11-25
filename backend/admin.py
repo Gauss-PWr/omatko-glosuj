@@ -78,11 +78,14 @@ def add_lectures_to_database():
             lecture_category=lecture_category,
             lecture_code=lecture_code,
         )
+        print(lecture_code)
         db.add(new_lecture)
 
     db.commit()
     db.close()
 
+
+add_lectures_to_database()
 
 def add_posters_to_database():
     posters_list = [
@@ -144,7 +147,7 @@ def add_users_to_database():
     db.close()
 
 
-#add_users_to_database()
+add_users_to_database()
 
 
 def update_all_lecture_points():
