@@ -16,7 +16,7 @@ interface LoginAction {
   payload: User
 }
   
-interface Auth {
+export interface Auth {
     user: User | null,
     isAuntheticated: boolean
   }
