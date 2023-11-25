@@ -4,8 +4,8 @@ import { useAuth, User } from "./Auth";
 import axios from "axios";
 
 const initialData: User = {
-    login: '',
-    password: ''
+    username: '',
+    password: '',
 }
 
 const Login = (): ReactElement => {
@@ -21,9 +21,16 @@ const Login = (): ReactElement => {
     const handleSubmit = async (event: React.SyntheticEvent) => {
         event.preventDefault()
         try {
-            const res = await axios.post("http://localhost:5555/token", formData, {headers: {"content-type": "application/x-www-form-urlencoded"}})
+            const res = await axios.post("http://localhost:5555/auth/token", formData, {headers: {"content-type": "application/x-www-form-urlencoded"}})
             if (await res.statusText === "OK") {
-                dispatch({type: 'LOGIN', payload: formData })
+                dispatch({type: 'LOGIN', payload: {
+                    ...formData,
+                    token: {
+                        accessToken: res.data.access_token,
+                        tokenType: res.data.token_type
+                    }
+                } 
+            })
             }
             else {
                 alert('Bledne costam')

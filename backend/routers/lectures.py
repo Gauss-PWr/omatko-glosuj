@@ -19,7 +19,7 @@ def get_db():
 db_dependency = Depends(get_db)
 
 
-@router.post("/lectures/add-to-user")
+@router.post("/add-to-user")
 async def add_lecture_to_user(lecture_request: schemas.LectureAddRequest, db: Session = Depends(get_db),
                               user: Users = Depends(get_current_user)):
     lecture_code = lecture_request.lecture_code

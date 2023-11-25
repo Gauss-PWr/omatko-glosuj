@@ -2,9 +2,14 @@ import {createContext, useContext, useReducer, ReactNode} from 'react'
 
 export interface User {
     login: string,
-    password: string
+    password: string,
+    token?: Token
   }
 
+interface Token {
+  accessToken: 'string',
+  tokenType: 'string'
+}
 
 interface LoginAction {
   type:  'LOGIN' | 'LOGOUT',
