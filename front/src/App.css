@@ -1,11 +1,14 @@
 .img-box img{
     object-fit: contain;
-    width: 100%;
+    max-width: 100%;
     height: auto;
 }
 
 .img-box {
-    max-width: 765px;
+    max-width: 1000px;
+    display: flex;
+    justify-content: center;
+    margin: 1.5rem;
 }
 
 .App {
