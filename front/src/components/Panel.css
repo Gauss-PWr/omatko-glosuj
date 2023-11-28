@@ -71,6 +71,10 @@ input[type="range"] {
     width: 65%;
 }
 
+.incorect-code input {
+    color: rgb(170, 0, 0);
+}
+
 @media(max-width: 1000px) {
     .Panel {
         width: 100%;
