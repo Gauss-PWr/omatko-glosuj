@@ -2,8 +2,8 @@ import { ReactElement, useState, useEffect } from "react";
 import './Panel.css'
 import axios from "axios";
 import { Auth, useAuth } from "./Auth";
+import API_CALL_URL from '../config.ts'
 
-const URL = 'http://localhost:5555'
 
 
 interface Rating {
@@ -22,11 +22,11 @@ interface LectureResponse {
     lecture_id: string,
     lecture_name: string
     speaker_name: string,
-    vote_merytoryka: number | null,
-    vote_forma: number | null
+    vote_merytoryka: number
+    vote_forma: number
 }
 
-const parseLectures = (lectures) => lectures.map((lecture: LectureResponse) => 
+const parseLectures = (lectures: LectureResponse[]) => lectures.map((lecture: LectureResponse) => 
 ({
     lecture_id: lecture.lecture_id,
     lecture_name: lecture.lecture_name,
@@ -45,7 +45,7 @@ const parseLectures = (lectures) => lectures.map((lecture: LectureResponse) =>
 )
 
 const getLectures = async (state: Auth, setter: React.Dispatch<React.SetStateAction<Lecture[]>> ) => {
-    const res = await axios.get(URL + '/lectures/user/lectures', {
+    const res = await axios.get(`${API_CALL_URL}/lectures/user/lectures`, {
         headers: {
             'Authorization': `${state.user?.token?.tokenType} ${state.user?.token?.accessToken}`,
             'Accept': 'application/json'                
@@ -78,11 +78,10 @@ const Panel = (): ReactElement => {
         if ( code.length !== 4)
             return
         try {
-            const res = await axios.post(URL + '/lectures/add-to-user', {'lecture_code': code.toUpperCase()}, {
+            const res = await axios.post(`${API_CALL_URL}/lectures/add-to-user`, {'lecture_code': code.toUpperCase()}, {
                 headers: {
                     'Authorization': `${state.user?.token?.tokenType} ${state.user?.token?.accessToken}`,
                     'Accept': 'application/json'                
-    
                 }
             })
 
@@ -120,7 +119,7 @@ const Lecture = (lecture: Lecture): ReactElement => {
     useEffect( () => {
         const updateRatings = async () => {
             try {
-                const res = await axios.put(URL + `/lectures/votes/${lecture.lecture_id}`, {
+                const res = await axios.put(`${API_CALL_URL}/lectures/votes/${lecture.lecture_id}`, {
                     'merytoryka_points': ratings[0].value === -1? null : ratings[0].value ,
                     'forma_points': ratings[1].value === -1? null : ratings[1].value,
                 },
@@ -134,6 +133,10 @@ const Lecture = (lecture: Lecture): ReactElement => {
 
                 if (await res.status === 200) {
                     console.log('git')
+                }
+                else {
+                    // moze ponowić polaczenie jak cos sie stanie czy cos
+                    console.log('błąd połączenia z serwerem')
                 }
             } catch (error) {
                 console.log(error);
