@@ -1,182 +1,332 @@
 import { ReactElement, useState, useEffect } from "react";
-import './Panel.css'
-import axios from "axios";
-import { Auth, useAuth } from "./Auth";
-import API_CALL_URL from '../config.ts'
+import "./Panel.css";
+import axios, { AxiosError } from "axios";
+import { useAuth } from "./Auth.tsx";
+import API_CALL_URL from "../config.ts";
 
+const parseLecturesResponse = (lectures: LectureResponse[]): Presentation[] =>
+  lectures.map((lecture: LectureResponse) => ({
+    id: lecture.lecture_id,
+    title: lecture.lecture_name,
+    name: lecture.speaker_name,
+    rating: [
+      {
+        name: "merytoryka",
+        value: lecture.vote_merytoryka !== null ? lecture.vote_merytoryka : -1,
+      },
+      {
+        name: "forma",
+        value: lecture.vote_forma !== null ? lecture.vote_forma : -1,
+      },
+    ],
+  }));
 
+const parsePosterResponse = (lectures: PosterResponse[]): Presentation[] =>
+  lectures.map((poster: PosterResponse) => ({
+    id: poster.poster_id,
+    title: poster.poster_name,
+    name: poster.poster_author,
+    rating: [
+      {
+        name: "merytoryka",
+        value: poster.vote_merytoryka !== null ? poster.vote_merytoryka : -1,
+      },
+      {
+        name: "estetyka",
+        value: poster.vote_estetyka !== null ? poster.vote_estetyka : -1,
+      },
+    ],
+  }));
 
-interface Rating {
-    name: string,
-    value: number
-}
-
-interface Lecture {
-    lecture_id: string,
-    lecture_name: string
-    lecturer_name: string
-    ratings: Array<Rating>
-}
-
-interface LectureResponse {
-    lecture_id: string,
-    lecture_name: string
-    speaker_name: string,
-    vote_merytoryka: number
-    vote_forma: number
-}
-
-const parseLectures = (lectures: LectureResponse[]) => lectures.map((lecture: LectureResponse) => 
-({
-    lecture_id: lecture.lecture_id,
-    lecture_name: lecture.lecture_name,
-    lecturer_name: lecture.speaker_name,
-    ratings: [
-        {
-            name: 'merytoryka',
-            value: lecture.vote_merytoryka !== null? lecture.vote_merytoryka : -1 
-        },
-        {
-            name: 'forma',
-            value: lecture.vote_merytoryka !== null? lecture.vote_forma : -1 
-        }
-    ]
-})
-)
-
-const getLectures = async (state: Auth, setter: React.Dispatch<React.SetStateAction<Lecture[]>> ) => {
-    const res = await axios.get(`${API_CALL_URL}/lectures/user/lectures`, {
-        headers: {
-            'Authorization': `${state.user?.token?.tokenType} ${state.user?.token?.accessToken}`,
-            'Accept': 'application/json'                
-
-        }
-    } )
-    
-    if (await res.status === 200) {
-        setter(parseLectures(res.data.lectures))
+const getDataFromApi = async (options: GetDataOptions, state: Auth) => {
+  try {
+    const res = await axios.get(options.url, {
+      headers: {
+        Authorization: `${state.user?.token?.tokenType} ${state.user?.token?.accessToken}`,
+        Accept: "application/json",
+      },
+    });
+    if (res.status === 200) {
+      options.setter(options.parser(res.data[options.data_name]));
+    }
+  } catch (err) {
+    if (!axios.isAxiosError(err)) {
+      console.log(err);
     }
   }
-
-
-
-
-
+};
 
 const Panel = (): ReactElement => {
+  const { state } = useAuth();
+  const [lectureList, setLectureList] = useState<Presentation[]>([]);
+  const [posterList, setPosterList] = useState<Presentation[]>([]);
+  const [showLectures, setShowLectures] = useState(true)
 
-    const {state, dispatch} = useAuth()
-    const [activeLectureList, setActiveLectureList] = useState<Lecture[]>([])
-    const [lectureCode, setLecture] = useState('')
+  useEffect(() => {
+    getDataFromApi(
+      {
+        data_name: "lectures",
+        url: `${API_CALL_URL}/lectures/user/lectures`,
+        setter: setLectureList,
+        parser: parseLecturesResponse,
+      },
+      state
+    );
+
+    getDataFromApi(
+      {
+        data_name: "posters",
+        url: `${API_CALL_URL}/posters/user/posters`,
+        setter: setPosterList,
+        parser: parsePosterResponse,
+      },
+      state
+    );
+  }, [state]);
+
+  return <div>
+    <button onClick={() => setShowLectures(prev => !prev)}>{showLectures? 'Prezentacje' : 'Wykłady'}</button>
+    {showLectures? <Lectures items={lectureList} setter={setLectureList}/> : <Posters items={posterList}/> }
+  </div>
+};
+
+const Lectures = ({items, setter}: ItemProp): ReactElement => {
+
+    const { state } = useAuth();
+    const [lectureCode, setLectureCode] = useState("");
+    const [isDataCorect, setIsDataCorect] = useState(true);
     
-    useEffect(() =>  { getLectures(state, setActiveLectureList) }, [])    
 
-
-    const searchLecture = async (code: string): Promise<void> => {
-        
-        setLecture(code)
-        if ( code.length !== 4)
-            return
-        try {
-            const res = await axios.post(`${API_CALL_URL}/lectures/add-to-user`, {'lecture_code': code.toUpperCase()}, {
-                headers: {
-                    'Authorization': `${state.user?.token?.tokenType} ${state.user?.token?.accessToken}`,
-                    'Accept': 'application/json'                
-                }
-            })
-
-            if (await res.status === 200){
-                getLectures(state, setActiveLectureList)
-                setLecture('')
-            }
-        } catch (error) {
-            console.log(error)
+  const searchLecture = async (code: string): Promise<void> => {
+    if (code.length <= 4) setIsDataCorect(true);
+    setLectureCode(code);
+    if (code.length !== 4) return;
+    try {
+      const res = await axios.post(
+        `${API_CALL_URL}/lectures/add-to-user`,
+        { lecture_code: code.toUpperCase() },
+        {
+          headers: {
+            Authorization: `${state.user?.token?.tokenType} ${state.user?.token?.accessToken}`,
+            Accept: "application/json",
+          },
         }
-         
-        
-    }
+      );
 
+      if ((await res.status) === 200) {
+        getDataFromApi(
+            {
+              data_name: "lectures",
+              url: `${API_CALL_URL}/lectures/user/lectures`,
+              setter: setter,
+              parser: parseLecturesResponse,
+            },
+            state
+          );
+        setLectureCode("");
+      }
+    } catch (err) {
+      if (!axios.isAxiosError(err)) {
+        console.log(err);
+      }
+      const error = err as AxiosError;
+      switch (error.response?.status) {
+        case 404:
+          setIsDataCorect(false);
+      }
+    }
+  };
+
+  return (
+    <div>
+      {items.map((item: Presentation, index) => (
+        <Lecture key={index} {...item} />
+      ))}
+      <div className={`Lecture add ${isDataCorect ? "" : "incorect-code"}`}>
+        <input
+          type="text"
+          placeholder="Dodaj wykład..."
+          value={lectureCode}
+          onChange={(e) => searchLecture(e.target.value)}
+        />
+      </div>
+    </div>
+  );
+};
+
+const Lecture = (lecture: Presentation): ReactElement => {
+    const { state } = useAuth();
+    const [ratings, setRatings] = useState(lecture.rating);
+    
+  
+    const handleRatingChange = (index: number, newValue: number) => {
+      const updatedRatings = [...ratings];
+      updatedRatings[index] = { ...updatedRatings[index], value: newValue };
+      setRatings(updatedRatings);
+    };
+  
+    useEffect(() => {
+      const updateRatings = async () => {
+        try {
+          await axios.put(
+            `${API_CALL_URL}/lectures/votes/${lecture.id}`,
+            {
+              merytoryka_points:
+                ratings[0].value < 0 ? null : Math.min(ratings[0].value, 10),
+              forma_points:
+                ratings[1].value < 0 ? null : Math.min(ratings[0].value, 10),
+            },
+            {
+              headers: {
+                Authorization: `${state.user?.token?.tokenType} ${state.user?.token?.accessToken}`,
+                Accept: "application/json",
+              },
+            }
+          );
+        } catch (error) {
+          console.log(error);
+        }
+      };
+      const timeoutId = setTimeout(() => {
+        updateRatings();
+      }, 1500);
+      return () => clearTimeout(timeoutId);
+    }, [
+      ratings,
+      lecture.id,
+      state.user?.token?.tokenType,
+      state.user?.token?.accessToken,
+    ]);
+  
     return (
-        <div className="Panel">
-            {activeLectureList.map((item: Lecture, _) => <Lecture key={item.lecture_id} {...item}/>)}
-            <div className="Lecture add">
-                <input type="text" placeholder="Dodaj wykład..." value={lectureCode} onChange={e => searchLecture(e.target.value)}/>
-            </div>
+      <div className="Lecture">
+        <div className="lecture-info">
+          <div className="name">{lecture.title}</div>
+          <div className="lecturer">{lecture.name}</div>
+        </div>
+        <div className="rating">
+          {ratings.map((item, index) => (
+            <RatingBar
+              key={index}
+              {...item}
+              onRatingChange={(newValue) => handleRatingChange(index, newValue)}
+            />
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+
+const RatingBar = (
+rating: Rating & { onRatingChange: (newValue: number) => void }
+): ReactElement => {
+return (
+    <div className="RatingBar">
+    <div>
+        <span>{rating.name + ': '}</span>
+        <span>{rating.value < 0 ? "Brak" : rating.value}</span>
+    </div>
+    <input
+        type="range"
+        name="rating"
+        min={1}
+        max={10}
+        onChange={(e) => rating.onRatingChange(parseInt(e.target.value))}
+        value={rating.value}
+    />
+    </div>
+);
+};
+
+const Posters = ({items}: ItemProp): ReactElement => {
+    return (
+        <div>
+            {items.map((item: Presentation, index: number) => (<Poster key={index} {...item}/>))}
         </div>
     )
 }
 
-const Lecture = (lecture: Lecture): ReactElement => {
-    const {state, dispatch} = useAuth()
-    const [ratings, setRatings] = useState(lecture.ratings)
+const Poster = (poster: Presentation):ReactElement => {
 
+    const [firstTime, setFirstTime] = useState((poster.rating[0].value < 1 && poster.rating[1].value < 1)) 
+    const { state } = useAuth();
+    const [ratings, setRatings] = useState(poster.rating);
+    
     const handleRatingChange = (index: number, newValue: number) => {
         const updatedRatings = [...ratings];
         updatedRatings[index] = { ...updatedRatings[index], value: newValue };
         setRatings(updatedRatings);
-    }
+      };
 
-    useEffect( () => {
+    useEffect(() => {
+        if (!(ratings[0].value >= 1 || ratings[1].value >= 1)) return
+
         const updateRatings = async () => {
-            try {
-                const res = await axios.put(`${API_CALL_URL}/lectures/votes/${lecture.lecture_id}`, {
-                    'merytoryka_points': ratings[0].value === -1? null : ratings[0].value ,
-                    'forma_points': ratings[1].value === -1? null : ratings[1].value,
+
+          try {
+            if (firstTime) {
+                await axios.post(`${API_CALL_URL}/posters/votes-posters/${poster.id}/`, {
+                    merytoryka_points: ratings[0].value < 1 ? null : Math.min(ratings[0].value, 10),
+                    estetyka_points: ratings[1].value < 1 ? null : Math.min(ratings[0].value, 10),
                 },
                 {
-                  headers: {
-                        'Authorization': `${state.user?.token?.tokenType} ${state.user?.token?.accessToken}`,
-                        'Accept': 'application/json'                
-        
-                }} 
+                    headers: {
+                      Authorization: `${state.user?.token?.tokenType} ${state.user?.token?.accessToken}`,
+                      Accept: "application/json",
+                    },
+                  }
                 )
-
-                if (await res.status === 200) {
-                    console.log('git')
-                }
-                else {
-                    // moze ponowić polaczenie jak cos sie stanie czy cos
-                    console.log('błąd połączenia z serwerem')
-                }
-            } catch (error) {
-                console.log(error);
-                
+                setFirstTime(false)
+            } else {
+                await axios.put(
+                    `${API_CALL_URL}/posters/votes-posters-update/${poster.id}/`,
+                    {
+                      merytoryka_points:
+                        ratings[0].value < 1 ? null : Math.min(ratings[0].value, 10),
+                      estetyka_points:
+                        ratings[1].value < 1 ? null : Math.min(ratings[0].value, 10),
+                    },
+                    {
+                      headers: {
+                        Authorization: `${state.user?.token?.tokenType} ${state.user?.token?.accessToken}`,
+                        Accept: "application/json",
+                      },
+                    }
+                  );
             }
-        }
-        const timeoutId = setTimeout(() => { updateRatings() }, 1500)
-        return () => clearTimeout(timeoutId)
-    }, [ratings, lecture.lecture_id, state.user?.token?.tokenType, state.user?.token?.accessToken])
+          } catch (error) {
+            console.log(error);
+          }
+        };
+        const timeoutId = setTimeout(() => {
+          updateRatings();
+        }, 1500);
+        return () => clearTimeout(timeoutId);
+      }, [
+        ratings,
+        poster.id,
+        state.user?.token?.tokenType,
+        state.user?.token?.accessToken,
+        firstTime
+      ]);
 
-    return (
+    return ( 
         <div className="Lecture">
-            <div className="lecture-info">
-                <div className="name">{lecture.lecture_name}</div>
-                <div className="lecturer">{lecture.lecturer_name}</div>
-            </div>
-            <div className="rating">
-            {ratings.map((item, index) => (
-                <RatingBar key={index} {...item} onRatingChange={(newValue) => handleRatingChange(index, newValue)} />
-            ))}
-            </div>
+        <div className="lecture-info">
+          <div className="name">{poster.title}</div>
+          <div className="lecturer">{poster.name}</div>
         </div>
-    )
-}
-
-//react.useCallback
-
-const RatingBar = (rating: Rating & { onRatingChange: (newValue: number) => void }): ReactElement => {
-    return (
-        <div className="RatingBar">
-            <span>{rating.name}</span>
-            <input 
-                   type="range" 
-                   name="rating" 
-                   min={0} 
-                   max={10} 
-                   onChange={e => rating.onRatingChange(parseInt(e.target.value))} 
-                   value={rating.value}
+        <div className="rating">
+          {ratings.map((item, index) => (
+            <RatingBar
+              key={index}
+              {...item}
+              onRatingChange={(newValue) => handleRatingChange(index, newValue)}
             />
+          ))}
         </div>
+      </div>
     )
 }
 

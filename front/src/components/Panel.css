@@ -28,6 +28,7 @@
 
 .name {
     font-size: 1.5rem;
+    
 }
 
 .rating {
@@ -42,8 +43,12 @@
 
 .lecture-info {
     width: 60%;
+    padding: 4px;
 }
 
+.RatingBar div {
+    width: 60%;
+}
 
 
 input[type="range"]::-webkit-slider-thumb,
@@ -71,6 +76,10 @@ input[type="range"] {
     width: 65%;
 }
 
+.incorect-code input {
+    color: rgb(170, 0, 0);
+}
+
 @media(max-width: 1000px) {
     .Panel {
         width: 100%;
@@ -94,7 +103,11 @@ input[type="range"] {
     }
 
     .RatingBar {
-        width: 40%;
+        width: 45%;
+    }
+    
+    .lecture-info {
+        width: 100%;
     }
 
 }
@@ -106,6 +119,10 @@ input[type="range"] {
 
     .RatingBar {
         width: 100%;
+    }
+
+    .RatingBar div {
+        width: 60%;
     }
 
 
