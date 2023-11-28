@@ -3,6 +3,7 @@ import Login from "./Login";
 import Panel from "./Panel";
 import "./Wrapper.css";
 import omatkoLogo from "../assets/omatko.svg";
+import { ReactElement } from "react";
 
 export const Wrapper: React.FC = () => {
   const { state, dispatch } = useAuth();
@@ -31,6 +32,16 @@ export const Wrapper: React.FC = () => {
       ) : (
         <Login />
       )}
+      <Footer/>
     </div>
   );
 };
+
+
+const Footer = (): ReactElement => {
+  return (
+    <div className="Footer">
+      OMatKo!!! 2023 | <a href="https://prac.im.pwr.edu.pl/~omatko/?page_id=358">Regulamin</a>
+    </div>
+  )
+}

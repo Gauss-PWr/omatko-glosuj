@@ -11,7 +11,7 @@ const initialData: User = {
 
 const Login = (): ReactElement => {
   const { dispatch } = useAuth();
-  const [formData, setFormData] = useState(initialData);
+  const [formData, setFormData] = useState<User>( JSON.parse((localStorage.getItem('user_data')) || JSON.stringify(initialData)));
   const [isDataCorect, setIsDataCorect] = useState(true);
 
   useEffect(() => {
@@ -25,12 +25,9 @@ const Login = (): ReactElement => {
       try {
         const res = await axios.post(
           `${API_CALL_URL}/auth/token`,
-          JSON.parse(
-            localStorage.getItem("user_data") || JSON.stringify(initialData)
-          ),
+          data,
           { headers: { "content-type": "application/x-www-form-urlencoded" } }
         );
-        console.log(await res.status);
 
         if ((await res.status) === 200) {
           dispatch({
