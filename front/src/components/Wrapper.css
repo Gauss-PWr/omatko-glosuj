@@ -1,0 +1,43 @@
+.Wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    padding: 2px;
+}
+
+
+.logout {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    min-width: 100px;
+    min-height: 30px;
+    border: none;
+    background-color: #F18D34;
+    color: white;
+    font-size: 24px;
+    text-transform: uppercase;
+}
+
+.img-box {
+    width: 1000px;
+    height: 200px;
+    display: flex;
+    justify-content: center;
+    margin: 1.5rem 0 ;
+}
+
+
+
+@media screen and (max-width: 1000px) {
+    .logout {
+        position:unset;
+        align-self: flex-end;
+        width: 100%;
+    }
+    .img-box {
+        max-width: 100%;
+        height: auto;
+    }
+}

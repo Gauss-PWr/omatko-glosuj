@@ -1,7 +1,7 @@
 import {createContext, useContext, useReducer, ReactNode} from 'react'
 
 export interface User {
-    login: string,
+    username: string,
     password: string,
     token?: Token
   }
@@ -42,6 +42,7 @@ const initialAuth: Auth = {
                 user: action.payload
             }
         case 'LOGOUT':
+            localStorage.setItem('user_data', '')
             return {
                 ...state,
                 isAuntheticated: false,

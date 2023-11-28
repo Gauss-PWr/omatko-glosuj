@@ -1,19 +1,22 @@
-.img-box img{
-    object-fit: contain;
-    max-width: 100%;
-    height: auto;
+* {
+    font-family: 'Quicksand Regular';
 }
 
-.img-box {
-    max-width: 1000px;
-    display: flex;
-    justify-content: center;
-    margin: 1.5rem;
+body {
+    height: 100%;
+    margin: 0;
+}
+
+#root {
+    height: 100%;
+}
+
+.img-box img{
+    object-fit: contain;
+    width: 100%;
 }
 
 .App {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3rem;
+    height: 100%;
 }
+
