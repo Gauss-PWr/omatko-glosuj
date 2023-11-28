@@ -46,3 +46,7 @@
 .login-box button:hover {
     box-shadow: none
 }
+
+.incorect input {
+    background-color: rgba(170, 0, 0, 0.3)
+}
