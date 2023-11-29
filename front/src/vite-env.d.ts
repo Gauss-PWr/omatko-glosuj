@@ -28,6 +28,7 @@ interface Lecture {
 
 interface LectureResponse {
   lecture_id: number,
+  lecture_category: string,
   lecture_name: string
   speaker_name: string,
   vote_merytoryka: number

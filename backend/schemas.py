@@ -34,6 +34,7 @@ class PasswordChangeRequest(BaseModel):
 
 class LectureResponse(BaseModel):
     lecture_id: int
+    lecture_category: str
     lecture_name: str = Field(..., max_length=200)
     speaker_name: str = Field(..., max_length=80)
     vote_merytoryka: Optional[int] = Field(None, ge=1, le=10)
