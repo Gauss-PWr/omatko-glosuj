@@ -1,5 +1,31 @@
+@font-face {
+    font-family: 'Quicksand Bold';
+    src: url('./assets/Quicksand/static/Quicksand-Bold.ttf');
+}
+
+@font-face {
+    font-family: 'Quicksand Light';
+    src: url('./assets/Quicksand/static/Quicksand-Light.ttf');
+}
+
+@font-face {
+    font-family: 'Quicksand Medium';
+    src: url('./assets/Quicksand/static/Quicksand-Medium.ttf');
+}
+
+@font-face {
+    font-family: 'Quicksand Regular';
+    src: url('./assets/Quicksand/static/Quicksand-Regular.ttf');
+}
+
+@font-face {
+    font-family: 'Quicksand SemiBold';
+    src: url('./assets/Quicksand/static/Quicksand-SemiBold.ttf');
+}
+
 * {
     font-family: 'Quicksand Regular';
+    color: #245254;
 }
 
 body {

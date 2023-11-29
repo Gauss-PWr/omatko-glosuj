@@ -7,7 +7,7 @@ import API_CALL_URL from "../config.ts";
 const parseLecturesResponse = (lectures: LectureResponse[]): Presentation[] =>
   lectures.map((lecture: LectureResponse) => ({
     id: lecture.lecture_id,
-    title: lecture.lecture_name,
+    title: `${lecture.lecture_name} (${lecture.lecture_category})`,
     name: lecture.speaker_name,
     rating: [
       {
@@ -84,13 +84,17 @@ const Panel = (): ReactElement => {
     );
   }, [state]);
 
-  return <div>
-    <button onClick={() => setShowLectures(prev => !prev)}>{showLectures? 'Prezentacje' : 'Wykłady'}</button>
+  return <div className="Panel">
+    <div className="button-wrapper">
+    <button className="changePanel lecture-button" onClick={() => setShowLectures(true)}>Wykłady</button>
+    <button className="changePanel poster-button" onClick={() => setShowLectures(false)}>Plakaty</button>
+
+    </div>
     {showLectures? <Lectures items={lectureList} setter={setLectureList}/> : <Posters items={posterList}/> }
   </div>
 };
 
-const Lectures = ({items, setter}: ItemProp): ReactElement => {
+const Lectures = ({items, setter}: ItemPropSetter): ReactElement => {
 
     const { state } = useAuth();
     const [lectureCode, setLectureCode] = useState("");
@@ -144,6 +148,7 @@ const Lectures = ({items, setter}: ItemProp): ReactElement => {
       ))}
       <div className={`Lecture add ${isDataCorect ? "" : "incorect-code"}`}>
         <input
+          className="lecture-code"
           type="text"
           placeholder="Dodaj wykład..."
           value={lectureCode}
@@ -201,8 +206,8 @@ const Lecture = (lecture: Presentation): ReactElement => {
     return (
       <div className="Lecture">
         <div className="lecture-info">
-          <div className="name">{lecture.title}</div>
-          <div className="lecturer">{lecture.name}</div>
+          <div className="title">{lecture.title}</div>
+          <div className="name">{lecture.name}</div>
         </div>
         <div className="rating">
           {ratings.map((item, index) => (
@@ -225,7 +230,7 @@ return (
     <div className="RatingBar">
     <div>
         <span>{rating.name + ': '}</span>
-        <span>{rating.value < 0 ? "Brak" : rating.value}</span>
+        <span className="rating-value">{rating.value < 0 ? "Brak" : rating.value}</span>
     </div>
     <input
         type="range"
@@ -314,8 +319,8 @@ const Poster = (poster: Presentation):ReactElement => {
     return ( 
         <div className="Lecture">
         <div className="lecture-info">
-          <div className="name">{poster.title}</div>
-          <div className="lecturer">{poster.name}</div>
+          <div className="title">{poster.title}</div>
+          <div className="name">{poster.name}</div>
         </div>
         <div className="rating">
           {ratings.map((item, index) => (

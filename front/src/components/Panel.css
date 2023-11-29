@@ -17,50 +17,73 @@
     justify-content: space-between;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.5rem
 }
 
 .RatingBar {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    height: 100%;
 }
 
-.name {
+.title {
     font-size: 1.5rem;
+    margin: 0.7rem;
+    font-style: italic;
     
 }
 
+.name {
+    font-weight: bold;
+    margin: 0.5rem;
+}
+
 .rating {
+    height: 100%;
+    width: 40%;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    gap: 1rem;
-    width: 40%;
+    justify-content:space-around;
     text-transform: uppercase;
     
 }
 
+.rating-value {
+    font-weight: bold;
+}
+
 .lecture-info {
     width: 60%;
-    padding: 4px;
 }
+
 
 .RatingBar div {
     width: 60%;
+
+}
+
+.button-wrapper {
+    width: 100%;
+    display: flex
+}
+
+.changePanel {
+    border: 0;
+    font-size: 24px;
+    transition: 0.5ms;
+    width: 100%;
+    font-weight: bold;
+}
+
+.lecture-button {
+    background-color: #91c140;
+}
+
+.poster-button {
+    background-color: #54bec3;
 }
 
 
-input[type="range"]::-webkit-slider-thumb,
-input[type="range"]::-moz-range-thumb,
-input[type="range"]::-ms-thumb {
-    display: none;
-}
-
-input[type="range"] {
-    border: none;
-    background: transparent;
-}
 
 .Lecture input {
     width: 100%;
@@ -79,6 +102,25 @@ input[type="range"] {
 .incorect-code input {
     color: rgb(170, 0, 0);
 }
+
+.Lecture .lecture-code {
+    font-weight: bolder;
+    padding-left: 1rem;
+}
+
+.Lecture .lecture-code::-webkit-input-placeholder {
+    font-weight: lighter;
+    color:#AFB2B3;
+}
+.Lecture .lecture-code::-moz-placeholder {
+    font-weight: lighter;
+    color:#AFB2B3;
+}
+.Lecture .lecture-code::-ms-input-placeholder {
+    font-weight: lighter;
+    color:#AFB2B3;
+}
+
 
 @media(max-width: 1000px) {
     .Panel {
@@ -112,7 +154,11 @@ input[type="range"] {
 
 }
 
-@media screen and (max-width:425px){
+@media screen and (max-width:450px){
+
+    .Panel{
+        max-width: 450px;
+    }
     .rating {
         flex-direction: column;
     }
@@ -125,5 +171,9 @@ input[type="range"] {
         width: 60%;
     }
 
+    .button-wrapper {
+        flex-direction: column;
+        gap: 0.5rem 0;
+    }
 
 }
