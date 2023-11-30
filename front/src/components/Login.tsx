@@ -16,12 +16,16 @@ const Login = (): ReactElement => {
 
   useEffect(() => {
     const login = async () => {
-      
       //wyglada to dziwnie ale no lepiej tak niz wcale
       const data = JSON.parse(
         localStorage.getItem("user_data") || JSON.stringify(initialData)
       );
-      if (data === initialData) return;
+
+      
+      if (JSON.stringify(data) === JSON.stringify(initialData)) {
+        return
+        
+      }
 
       try {
         const res = await axios.post(
@@ -47,7 +51,7 @@ const Login = (): ReactElement => {
       }
     };
     login();
-  });
+  }, []);
 
   const handleChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
     const { name, value } = event.target;

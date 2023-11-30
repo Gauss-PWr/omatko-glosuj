@@ -138,6 +138,9 @@
     background-image: none;
 }
 
+.Lectures, .Posters {
+    width: 100%;
+}
 
 @media(max-width: 1000px) {
     .Panel {

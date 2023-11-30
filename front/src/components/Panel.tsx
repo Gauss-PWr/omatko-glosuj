@@ -135,6 +135,8 @@ const Lectures = ({items, setter}: ItemPropSetter): ReactElement => {
       }
       const error = err as AxiosError;
       switch (error.response?.status) {
+        case 401:
+        case 400:
         case 404:
           setIsDataCorect(false);
       }
