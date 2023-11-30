@@ -16,11 +16,12 @@ const Login = (): ReactElement => {
 
   useEffect(() => {
     const login = async () => {
+      
       //wyglada to dziwnie ale no lepiej tak niz wcale
       const data = JSON.parse(
         localStorage.getItem("user_data") || JSON.stringify(initialData)
       );
-      if (data !== initialData) return;
+      if (data === initialData) return;
 
       try {
         const res = await axios.post(

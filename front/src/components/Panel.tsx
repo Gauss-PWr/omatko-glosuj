@@ -142,7 +142,7 @@ const Lectures = ({items, setter}: ItemPropSetter): ReactElement => {
   };
 
   return (
-    <div>
+    <div className="Lectures">
       {items.map((item: Presentation, index) => (
         <Lecture key={index} {...item} />
       ))}
@@ -246,7 +246,7 @@ return (
 
 const Posters = ({items}: ItemProp): ReactElement => {
     return (
-        <div>
+        <div className="Posters">
             {items.map((item: Presentation, index: number) => (<Poster key={index} {...item}/>))}
         </div>
     )
