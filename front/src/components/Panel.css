@@ -17,6 +17,7 @@
     justify-content: space-between;
     align-items: center;
     gap: 0.5rem;
+    margin: 0.5rem 0;
 }
 
 .RatingBar {
@@ -64,7 +65,11 @@
 
 .button-wrapper {
     width: 100%;
-    display: flex
+    display: flex;
+}
+
+.button-wrapper > * {
+    color: white;
 }
 
 .changePanel {
@@ -72,7 +77,7 @@
     font-size: 24px;
     transition: 0.5ms;
     width: 100%;
-    font-weight: bold;
+    padding: 0.25rem 0;
 }
 
 .lecture-button {
@@ -119,6 +124,18 @@
 .Lecture .lecture-code::-ms-input-placeholder {
     font-weight: lighter;
     color:#AFB2B3;
+}
+
+.Lectures > :nth-child(n),
+.Posters > :nth-child(n){
+    background-image: url('../assets/tlo2.png');
+    background-size: cover;
+    background-repeat:no-repeat;
+    background-position: right;
+}
+
+.Lectures > .add {
+    background-image: none;
 }
 
 
@@ -171,9 +188,13 @@
         width: 60%;
     }
 
+    .RatingBar > * {
+        margin: 0 .5rem;
+    }
+
     .button-wrapper {
-        flex-direction: column;
-        gap: 0.5rem 0;
+        top: 0;
+        position: sticky;
     }
 
 }
