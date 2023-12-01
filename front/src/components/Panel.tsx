@@ -181,7 +181,7 @@ const Lecture = (lecture: Presentation): ReactElement => {
               merytoryka_points:
                 ratings[0].value < 0 ? null : Math.min(ratings[0].value, 10),
               forma_points:
-                ratings[1].value < 0 ? null : Math.min(ratings[0].value, 10),
+                ratings[1].value < 0 ? null : Math.min(ratings[1].value, 10),
             },
             {
               headers: {
