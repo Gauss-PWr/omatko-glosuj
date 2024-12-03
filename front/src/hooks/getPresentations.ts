@@ -77,5 +77,26 @@ const parseLecturesResponse = (lectures: LectureResponse[]): Presentation[] =>
     }
   };
 
+const findLecture = async (code:string, state: Auth) => {
+  try {
+    const res = await axios.post(
+      `${API_CALL_URL}/lectures/add-to-user`,
+      { lecture_code: code.toUpperCase() },
+      {
+        headers: {
+          Authorization: `${state.user?.token?.tokenType} ${state.user?.token?.accessToken}`,
+          Accept: "application/json",
+        },
+      }
+    );
+    return res.status === 200;
+  } catch (err) {
+    if (!axios.isAxiosError(err)) {
+      console.log(err);
+    }
+  }
+}
+  
 
-  export { getLectures, getPosters };
+
+  export { getLectures, getPosters, findLecture};

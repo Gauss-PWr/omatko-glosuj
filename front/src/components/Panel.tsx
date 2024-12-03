@@ -2,15 +2,15 @@ import { ReactElement, useState, useEffect } from "react";
 import { useLectures, usePosters} from '../hooks/usePresentations.ts';
 import "./Panel.css";
 import { useAuth } from "./Auth.tsx";
-import { getLectures, getPosters} from "../hooks/getPresentations.ts";
-import { setLectureRating, setPosterRating, updateLectureRatings, updatePosterRatings } from "../store/slices/presentationsSlice.ts";
+import { getLectures, getPosters, findLecture} from "../hooks/getPresentations.ts";
+import { setLectureRating, setPosterRating, updateLectureRatings, updatePosterRatings} from "../store/slices/presentationsSlice.ts";
 import {store} from "../store/index.ts";
 
 const Panel = (): ReactElement => {
     const {state} = useAuth();
     const [showLectures, setShowLectures] = useState(true)
     useEffect(() => { 
-      getLectures(state);
+      getLectures(state); // zmien na dispatch
       getPosters(state);
 
       }, [state]);
@@ -26,12 +26,44 @@ const Panel = (): ReactElement => {
 
 }
 const Lectures = () => {
+    const {state} = useAuth();
+    const [lectureCode, setLectureCode] = useState("");
+    const [isDataCorect, setIsDataCorrect] = useState(true);
     const lectures = useLectures();
+
+
+    const searchLecture = async (code: string) => {
+      setIsDataCorrect(code.length >= 4? false : true);
+      setLectureCode(code);
+      if (code.length !== 4) return;
+
+      const res = findLecture(code, state)
+
+      if (await res) {
+        setLectureCode("");
+        setIsDataCorrect(true);
+        getLectures(state);
+      } else {
+        setIsDataCorrect(false);
+      }
+
+    }
+
+
     return (
         <div className="Lectures">
           {lectures.map((item: Presentation, index: number) => (
             <Lecture key={`lecture-${index}`} {...item} index={index}/>
           ))}
+        <div className={`Lecture add ${isDataCorect ? "" : "incorect-code"}`}>
+          <input
+            className="lecture-code"
+            type="text"
+            placeholder="Dodaj wykład..."
+            value={lectureCode}
+            onChange={(e) => searchLecture(e.target.value)}
+          />
+      </div>
         </div>
       );
 }
@@ -154,7 +186,7 @@ const Poster = (poster: Presentation): ReactElement => {
                 firstTime,
                 token: state.user?.token
               }))
-            };
+            }
             setFirstTime(false);
           }
         }, 1000);

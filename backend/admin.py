@@ -206,7 +206,7 @@ def update_posters_points():
 
 # add_users_to_database()
 add_lectures_to_database()
-add_posters_to_database()
+# add_posters_to_database()
 
 # update_all_lecture_points()
 # update_posters_points()
