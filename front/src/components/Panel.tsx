@@ -41,6 +41,7 @@ const Lecture = (lecture: Presentation & {index: number}): ReactElement => {
     const [ratings, setRatings] = useState(lecture.rating);
     const [updateTimeout, setUpdateTimeout] = useState<NodeJS.Timeout | null>(null);
 
+    
     const handleRatingChange = (rating_index: number, newValue: number) => {
       const updatedRatings = [...ratings];
       updatedRatings[rating_index] = { ...updatedRatings[rating_index], value: newValue };
@@ -50,15 +51,16 @@ const Lecture = (lecture: Presentation & {index: number}): ReactElement => {
       }
 
       const timeout = setTimeout(() => {
-        console.log('updating ratings');
-        console.log([ratings, lecture.rating]);
         if (!ratings.every((rating, idx) => rating.value === lecture.rating[idx].value)) {
           store.dispatch(setLectureRating({ id: lecture.id, rating: updatedRatings }));
-          store.dispatch(updateLectureRatings({ 
-            lectureId: lecture.id, 
-            ratings: updatedRatings, 
-            token: state.user?.token
-          }));
+          if(state.user?.token) {
+            store.dispatch(updateLectureRatings({ 
+              lectureId: lecture.id, 
+              ratings: updatedRatings, 
+              token: state.user?.token
+            })) //else token expired
+            
+          }
         }
       }, 1000);
 
@@ -145,12 +147,14 @@ const Poster = (poster: Presentation): ReactElement => {
         const timeout = setTimeout(() => {
           if (!ratings.every((rating, idx) => rating.value === poster.rating[idx].value)) {
             store.dispatch(setPosterRating({ id: poster.id, rating: updatedRatings }));
-            store.dispatch(updatePosterRatings({ 
-              posterId: poster.id, 
-              ratings: updatedRatings,
-              firstTime,
-              token: state.user?.token
-            }));
+            if(state.user?.token) {
+              store.dispatch(updatePosterRatings({ 
+                posterId: poster.id, 
+                ratings: updatedRatings,
+                firstTime,
+                token: state.user?.token
+              }))
+            };
             setFirstTime(false);
           }
         }, 1000);
