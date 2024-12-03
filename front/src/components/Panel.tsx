@@ -41,6 +41,7 @@ const Lecture = (lecture: Presentation & {index: number}): ReactElement => {
     const [ratings, setRatings] = useState(lecture.rating);
     const [updateTimeout, setUpdateTimeout] = useState<NodeJS.Timeout | null>(null);
 
+    
     const handleRatingChange = (rating_index: number, newValue: number) => {
       const updatedRatings = [...ratings];
       updatedRatings[rating_index] = { ...updatedRatings[rating_index], value: newValue };
@@ -50,8 +51,6 @@ const Lecture = (lecture: Presentation & {index: number}): ReactElement => {
       }
 
       const timeout = setTimeout(() => {
-        console.log('updating ratings');
-        console.log([ratings, lecture.rating]);
         if (!ratings.every((rating, idx) => rating.value === lecture.rating[idx].value)) {
           store.dispatch(setLectureRating({ id: lecture.id, rating: updatedRatings }));
           store.dispatch(updateLectureRatings({ 
