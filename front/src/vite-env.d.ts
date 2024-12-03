@@ -19,12 +19,7 @@ interface Rating {
   value: number
 }
 
-interface Lecture {
-  lecture_id: number,
-  lecture_name: string
-  lecturer_name: string
-  ratings: Array<Rating>
-}
+
 
 interface LectureResponse {
   lecture_id: number,
@@ -67,6 +62,7 @@ interface Presentation {
   rating: Rating[]
 }
 
+
 interface PosterResponse {
   poster_id: number,
   poster_name: string,
@@ -83,9 +79,23 @@ interface GetDataOptions {
   parser: LectureParser | PosterParser
 }
 
+interface RatingBarProps { 
+  rating: Rating, 
+  index: {i: number, j: number}, 
+  setList: React.Dispatch<React.SetStateAction<Presentation[]>>
+}
+
 interface ItemProp {
   items: Presentation[]
 }
-interface ItemPropSetter extends ItemProp{
-  setter: React.Dispatch<React.SetStateAction<Presentation[]>>,
+
+interface ItemsPropSetter {
+  items: Presentation[],
+  setter: React.Dispatch<React.SetStateAction<Presentation[]>>
 }
+
+interface LecturePropSetter {
+  lecture: Presentation,
+  setter: React.Dispatch<React.SetStateAction<Presentation[]>>
+}
+

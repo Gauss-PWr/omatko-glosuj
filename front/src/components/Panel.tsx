@@ -1,209 +1,78 @@
 import { ReactElement, useState, useEffect } from "react";
+import { useLectures, usePosters} from '../hooks/usePresentations.ts';
 import "./Panel.css";
-import axios, { AxiosError } from "axios";
 import { useAuth } from "./Auth.tsx";
-import API_CALL_URL from "../config.ts";
-
-const parseLecturesResponse = (lectures: LectureResponse[]): Presentation[] =>
-  lectures.map((lecture: LectureResponse) => ({
-    id: lecture.lecture_id,
-    title: `${lecture.lecture_name} (${lecture.lecture_category})`,
-    name: lecture.speaker_name,
-    rating: [
-      {
-        name: "merytoryka",
-        value: lecture.vote_merytoryka !== null ? lecture.vote_merytoryka : -1,
-      },
-      {
-        name: "forma",
-        value: lecture.vote_forma !== null ? lecture.vote_forma : -1,
-      },
-    ],
-  }));
-
-const parsePosterResponse = (lectures: PosterResponse[]): Presentation[] =>
-  lectures.map((poster: PosterResponse) => ({
-    id: poster.poster_id,
-    title: poster.poster_name,
-    name: poster.poster_author,
-    rating: [
-      {
-        name: "merytoryka",
-        value: poster.vote_merytoryka !== null ? poster.vote_merytoryka : -1,
-      },
-      {
-        name: "estetyka",
-        value: poster.vote_estetyka !== null ? poster.vote_estetyka : -1,
-      },
-    ],
-  }));
-
-const getDataFromApi = async (options: GetDataOptions, state: Auth) => {
-  try {
-    const res = await axios.get(options.url, {
-      headers: {
-        Authorization: `${state.user?.token?.tokenType} ${state.user?.token?.accessToken}`,
-        Accept: "application/json",
-      },
-    });
-    if (res.status === 200) {
-      options.setter(options.parser(res.data[options.data_name]));
-    }
-  } catch (err) {
-    if (!axios.isAxiosError(err)) {
-      console.log(err);
-    }
-  }
-};
+import { getLectures, getPosters} from "../hooks/getPresentations.ts";
+import { setLectureRating, setPosterRating, updateLectureRatings, updatePosterRatings } from "../store/slices/presentationsSlice.ts";
+import {store} from "../store/index.ts";
 
 const Panel = (): ReactElement => {
-  const { state } = useAuth();
-  const [lectureList, setLectureList] = useState<Presentation[]>([]);
-  const [posterList, setPosterList] = useState<Presentation[]>([]);
-  const [showLectures, setShowLectures] = useState(true)
+    const {state} = useAuth();
+    const [showLectures, setShowLectures] = useState(true)
+    useEffect(() => { 
+      getLectures(state);
+      getPosters(state);
 
-  useEffect(() => {
-    getDataFromApi(
-      {
-        data_name: "lectures",
-        url: `${API_CALL_URL}/lectures/user/lectures`,
-        setter: setLectureList,
-        parser: parseLecturesResponse,
-      },
-      state
-    );
+      }, [state]);
 
-    getDataFromApi(
-      {
-        data_name: "posters",
-        url: `${API_CALL_URL}/posters/user/posters`,
-        setter: setPosterList,
-        parser: parsePosterResponse,
-      },
-      state
-    );
-  }, [state]);
-
-  return <div className="Panel">
+      return <div className="Panel">
     <div className="button-wrapper">
     <button className="changePanel lecture-button" onClick={() => setShowLectures(true)}>Wykłady</button>
     <button className="changePanel poster-button" onClick={() => setShowLectures(false)}>Plakaty</button>
 
     </div>
-    {showLectures? <Lectures items={lectureList} setter={setLectureList}/> : <Posters items={posterList}/> }
+    {showLectures? <Lectures/> : <Posters/> }
   </div>
-};
 
-const Lectures = ({items, setter}: ItemPropSetter): ReactElement => {
-
-    const { state } = useAuth();
-    const [lectureCode, setLectureCode] = useState("");
-    const [isDataCorect, setIsDataCorect] = useState(true);
-    
-
-  const searchLecture = async (code: string): Promise<void> => {
-    if (code.length <= 4) setIsDataCorect(true);
-    setLectureCode(code);
-    if (code.length !== 4) return;
-    try {
-      const res = await axios.post(
-        `${API_CALL_URL}/lectures/add-to-user`,
-        { lecture_code: code.toUpperCase() },
-        {
-          headers: {
-            Authorization: `${state.user?.token?.tokenType} ${state.user?.token?.accessToken}`,
-            Accept: "application/json",
-          },
-        }
+}
+const Lectures = () => {
+    const lectures = useLectures();
+    return (
+        <div className="Lectures">
+          {lectures.map((item: Presentation, index: number) => (
+            <Lecture key={`lecture-${index}`} {...item} index={index}/>
+          ))}
+        </div>
       );
+}
 
-      if ((await res.status) === 200) {
-        getDataFromApi(
-            {
-              data_name: "lectures",
-              url: `${API_CALL_URL}/lectures/user/lectures`,
-              setter: setter,
-              parser: parseLecturesResponse,
-            },
-            state
-          );
-        setLectureCode("");
-      }
-    } catch (err) {
-      if (!axios.isAxiosError(err)) {
-        console.log(err);
-      }
-      const error = err as AxiosError;
-      switch (error.response?.status) {
-        case 401:
-        case 400:
-        case 404:
-          setIsDataCorect(false);
-      }
-    }
-  };
-
-  return (
-    <div className="Lectures">
-      {items.map((item: Presentation, index) => (
-        <Lecture key={index} {...item} />
-      ))}
-      <div className={`Lecture add ${isDataCorect ? "" : "incorect-code"}`}>
-        <input
-          className="lecture-code"
-          type="text"
-          placeholder="Dodaj wykład..."
-          value={lectureCode}
-          onChange={(e) => searchLecture(e.target.value)}
-        />
-      </div>
-    </div>
-  );
-};
-
-const Lecture = (lecture: Presentation): ReactElement => {
+const Lecture = (lecture: Presentation & {index: number}): ReactElement => {
     const { state } = useAuth();
     const [ratings, setRatings] = useState(lecture.rating);
-    
-  
-    const handleRatingChange = (index: number, newValue: number) => {
+    const [updateTimeout, setUpdateTimeout] = useState<NodeJS.Timeout | null>(null);
+
+    const handleRatingChange = (rating_index: number, newValue: number) => {
       const updatedRatings = [...ratings];
-      updatedRatings[index] = { ...updatedRatings[index], value: newValue };
+      updatedRatings[rating_index] = { ...updatedRatings[rating_index], value: newValue };
       setRatings(updatedRatings);
+      if (updateTimeout) {
+        clearTimeout(updateTimeout);
+      }
+
+      const timeout = setTimeout(() => {
+        console.log('updating ratings');
+        console.log([ratings, lecture.rating]);
+        if (!ratings.every((rating, idx) => rating.value === lecture.rating[idx].value)) {
+          store.dispatch(setLectureRating({ id: lecture.id, rating: updatedRatings }));
+          store.dispatch(updateLectureRatings({ 
+            lectureId: lecture.id, 
+            ratings: updatedRatings, 
+            token: state.user?.token
+          }));
+        }
+      }, 1000);
+
+      setUpdateTimeout(timeout)
+    
     };
-  
+
     useEffect(() => {
-      const updateRatings = async () => {
-        try {
-          await axios.put(
-            `${API_CALL_URL}/lectures/votes/${lecture.id}`,
-            {
-              merytoryka_points:
-                ratings[0].value < 0 ? null : Math.min(ratings[0].value, 10),
-              forma_points:
-                ratings[1].value < 0 ? null : Math.min(ratings[1].value, 10),
-            },
-            {
-              headers: {
-                Authorization: `${state.user?.token?.tokenType} ${state.user?.token?.accessToken}`,
-                Accept: "application/json",
-              },
-            }
-          );
-        } catch (error) {
-          console.log(error);
+      return () => {
+        if (updateTimeout) {
+          clearTimeout(updateTimeout);
         }
       };
-      const timeoutId = setTimeout(() => {
-        updateRatings();
-      }, 1500);
-      return () => clearTimeout(timeoutId);
-    }, [
-      ratings,
-      lecture.id,
-      state.user?.token?.tokenType,
-      state.user?.token?.accessToken,
-    ]);
+    }, [updateTimeout]);
   
     return (
       <div className="Lecture">
@@ -224,99 +93,80 @@ const Lecture = (lecture: Presentation): ReactElement => {
     );
   };
 
-
 const RatingBar = (
-rating: Rating & { onRatingChange: (newValue: number) => void }
-): ReactElement => {
-return (
-    <div className="RatingBar">
-    <div>
-        <span>{rating.name + ': '}</span>
-        <span className="rating-value">{rating.value < 0 ? "Brak" : rating.value}</span>
-    </div>
-    <input
-        type="range"
-        name="rating"
-        min={1}
-        max={10}
-        onChange={(e) => rating.onRatingChange(parseInt(e.target.value))}
-        value={rating.value}
-    />
-    </div>
-);
-};
+  rating: Rating & { onRatingChange: (newValue: number) => void }
+  ): ReactElement => {
+  return (
+      <div className="RatingBar">
+      <div>
+          <span>{rating.name + ': '}</span>
+          <span className="rating-value">{rating.value < 0 ? "Brak" : rating.value}</span>
+      </div>
+      <input
+          type="range"
+          name="rating"
+          min={1}
+          max={10}
+          onChange={(e) => rating.onRatingChange(parseInt(e.target.value))}
+          value={rating.value}
+      />
+      </div>
+  );
+  };
 
-const Posters = ({items}: ItemProp): ReactElement => {
-    return (
-        <div className="Posters">
-            {items.map((item: Presentation, index: number) => (<Poster key={index} {...item}/>))}
-        </div>
-    )
+
+const Posters = (): ReactElement => {
+  const items = usePosters();
+  return (
+      <div className="Posters">
+          {items.map((item: Presentation, index: number) => (<Poster key={index} {...item}/>))}
+      </div>
+  )
 }
-
-const Poster = (poster: Presentation):ReactElement => {
+  
+const Poster = (poster: Presentation): ReactElement => {
 
     const [firstTime, setFirstTime] = useState((poster.rating[0].value < 1 && poster.rating[1].value < 1)) 
     const { state } = useAuth();
     const [ratings, setRatings] = useState(poster.rating);
+    const [updateTimeout, setUpdateTimeout] = useState<NodeJS.Timeout | null>(null);
+
+    
     
     const handleRatingChange = (index: number, newValue: number) => {
         const updatedRatings = [...ratings];
         updatedRatings[index] = { ...updatedRatings[index], value: newValue };
         setRatings(updatedRatings);
+
+        if (updateTimeout) {
+          clearTimeout(updateTimeout);
+        }
+
+        const timeout = setTimeout(() => {
+          if (!ratings.every((rating, idx) => rating.value === poster.rating[idx].value)) {
+            store.dispatch(setPosterRating({ id: poster.id, rating: updatedRatings }));
+            store.dispatch(updatePosterRatings({ 
+              posterId: poster.id, 
+              ratings: updatedRatings,
+              firstTime,
+              token: state.user?.token
+            }));
+            setFirstTime(false);
+          }
+        }, 1000);
+
+        setUpdateTimeout(timeout);
       };
-
-    useEffect(() => {
-        if (!(ratings[0].value >= 1 || ratings[1].value >= 1)) return
-
-        const updateRatings = async () => {
-
-          try {
-            if (firstTime) {
-                await axios.post(`${API_CALL_URL}/posters/votes-posters/${poster.id}/`, {
-                    merytoryka_points: ratings[0].value < 1 ? null : Math.min(ratings[0].value, 10),
-                    estetyka_points: ratings[1].value < 1 ? null : Math.min(ratings[0].value, 10),
-                },
-                {
-                    headers: {
-                      Authorization: `${state.user?.token?.tokenType} ${state.user?.token?.accessToken}`,
-                      Accept: "application/json",
-                    },
-                  }
-                )
-                setFirstTime(false)
-            } else {
-                await axios.put(
-                    `${API_CALL_URL}/posters/votes-posters-update/${poster.id}/`,
-                    {
-                      merytoryka_points:
-                        ratings[0].value < 1 ? null : Math.min(ratings[0].value, 10),
-                      estetyka_points:
-                        ratings[1].value < 1 ? null : Math.min(ratings[0].value, 10),
-                    },
-                    {
-                      headers: {
-                        Authorization: `${state.user?.token?.tokenType} ${state.user?.token?.accessToken}`,
-                        Accept: "application/json",
-                      },
-                    }
-                  );
-            }
-          } catch (error) {
-            console.log(error);
+    
+      
+      useEffect(() => {
+        return () => {
+          if (updateTimeout) {
+            clearTimeout(updateTimeout);
           }
         };
-        const timeoutId = setTimeout(() => {
-          updateRatings();
-        }, 1500);
-        return () => clearTimeout(timeoutId);
-      }, [
-        ratings,
-        poster.id,
-        state.user?.token?.tokenType,
-        state.user?.token?.accessToken,
-        firstTime
-      ]);
+      }, [updateTimeout]);
+
 
     return ( 
         <div className="Lecture">
@@ -337,4 +187,5 @@ const Poster = (poster: Presentation):ReactElement => {
     )
 }
 
-export default Panel
+
+    export default Panel;

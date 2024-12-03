@@ -41,7 +41,7 @@ export const Wrapper: React.FC = () => {
 const Footer = (): ReactElement => {
   return (
     <div className="Footer">
-      OMatKo!!! 2023 | <a href="https://prac.im.pwr.edu.pl/~omatko/?page_id=358">Regulamin</a>
+      OMatKo!!! 2024 | <a href="https://prac.im.pwr.edu.pl/~omatko/?page_id=358">Regulamin</a>
     </div>
   )
 }
