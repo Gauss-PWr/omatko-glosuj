@@ -14,5 +14,27 @@ services:
     volumes:
       - postgres_volume:/var/lib/postgresql/data
 
+  front:
+    depends_on:
+      - backend
+    container_name: front
+    build:
+      context: front
+      dockerfile: Dockerfile
+    ports:
+      - 80:80
+    environment:
+      NODE_ENV: production
+
+  backend:
+    container_name: backend
+    build: 
+      context: backend
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+    ports:
+      - "5555:5555"
+
 volumes:
   postgres_volume:
