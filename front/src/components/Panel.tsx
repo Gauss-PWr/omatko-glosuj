@@ -53,11 +53,14 @@ const Lecture = (lecture: Presentation & {index: number}): ReactElement => {
       const timeout = setTimeout(() => {
         if (!ratings.every((rating, idx) => rating.value === lecture.rating[idx].value)) {
           store.dispatch(setLectureRating({ id: lecture.id, rating: updatedRatings }));
-          store.dispatch(updateLectureRatings({ 
-            lectureId: lecture.id, 
-            ratings: updatedRatings, 
-            token: state.user?.token
-          }));
+          if(state.user?.token) {
+            store.dispatch(updateLectureRatings({ 
+              lectureId: lecture.id, 
+              ratings: updatedRatings, 
+              token: state.user?.token
+            })) //else token expired
+            
+          }
         }
       }, 1000);
 
@@ -144,12 +147,14 @@ const Poster = (poster: Presentation): ReactElement => {
         const timeout = setTimeout(() => {
           if (!ratings.every((rating, idx) => rating.value === poster.rating[idx].value)) {
             store.dispatch(setPosterRating({ id: poster.id, rating: updatedRatings }));
-            store.dispatch(updatePosterRatings({ 
-              posterId: poster.id, 
-              ratings: updatedRatings,
-              firstTime,
-              token: state.user?.token
-            }));
+            if(state.user?.token) {
+              store.dispatch(updatePosterRatings({ 
+                posterId: poster.id, 
+                ratings: updatedRatings,
+                firstTime,
+                token: state.user?.token
+              }))
+            };
             setFirstTime(false);
           }
         }, 1000);

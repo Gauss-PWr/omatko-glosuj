@@ -28,9 +28,8 @@ def add_lectures_to_database():
          "stosowana"),
         ("Natalia Olszewska", "Gry karciane a punkty na prostych – cap set na podstawie kolorów i kształtów",
          "teoretyczna"),
-        (
-            "Michał Biesek", "Jak odgadnąć rozwiązanie, czyli o metodach iteracyjnych i wartościach własnych",
-            "stosowana"),
+        ("Michał Biesek", "Jak odgadnąć rozwiązanie, czyli o metodach iteracyjnych i wartościach własnych",
+        "stosowana"),
         ("Patryk Topór", "Teoria Indeksu Punktu Stałego", "teoretyczna"),
         ("Michał Wiliński", "Teoria informacji - klucz do głębokich sieci neuronowych", "stosowana"),
         ("Alexander Golys", "Przestrzenie moduli trójkątów", "teoretyczna"),
@@ -85,7 +84,6 @@ def add_lectures_to_database():
     db.close()
 
 
-add_lectures_to_database()
 
 def add_posters_to_database():
     posters_list = [
@@ -113,7 +111,6 @@ def add_posters_to_database():
     db.commit()
     db.close()
 
-add_posters_to_database()
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -134,7 +131,7 @@ def add_users_to_database():
         password = secrets.token_urlsafe(password_length)
         print(password)
         worksheet.cell(row=row, column=3, value=password)
-        exel_users_file.save(file_path)
+        # exel_users_file.save(file_path)
         hashed_password = pwd_context.hash(password)
 
         new_user = models_db.Users(
@@ -147,7 +144,6 @@ def add_users_to_database():
     db.close()
 
 
-add_users_to_database()
 
 
 def update_all_lecture_points():
@@ -207,5 +203,10 @@ def update_posters_points():
     db.commit()
     print("Posters points updated successfully for all posters")
 
+
+# add_users_to_database()
+add_lectures_to_database()
+add_posters_to_database()
+
 # update_all_lecture_points()
-update_posters_points()
+# update_posters_points()

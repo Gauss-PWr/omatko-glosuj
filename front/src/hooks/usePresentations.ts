@@ -31,7 +31,3 @@ export const selectLectureById = createSelector(
   [selectLecturesState, (_: RootState, id: number) => id],
   (lectures, id) => lectures[id]
 );
-
-export const useLecture = (id: number): Presentation | undefined => {
-  return useSelector((state) => selectLectureById(state, id));
-};
