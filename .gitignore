@@ -166,3 +166,4 @@ cython_debug/
 
 Pipfile
 omatko-backend
+**/*.xlsx
