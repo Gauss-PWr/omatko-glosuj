@@ -3,7 +3,6 @@
 ## Kilka zasad dotyczących prowadzenia tego repo:
 1. Main jest święty, nigdy na nim nie commitujcie. Nawet na najmniejszą zmaine róbcie brancha.
 2. W sumie nie ma drugiej zasady.
-3. Nie pożygajcie się patrząc na kod.
 
 ## Jak odpalić to cudo?
 
