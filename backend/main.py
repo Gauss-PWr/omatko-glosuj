@@ -42,4 +42,4 @@ def get_db():
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="localhost", port=5555, reload=True, log_level="debug")
+    uvicorn.run("main:app", host="backend", port=5555, reload=True, log_level="debug")
