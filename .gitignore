@@ -167,3 +167,4 @@ cython_debug/
 Pipfile
 omatko-backend
 **/*.xlsx
+omatko-licznik_postgres_volume

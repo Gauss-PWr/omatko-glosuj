@@ -9,7 +9,7 @@ Base = declarative_base()
 user = "admin"
 password = "zli_ludzie_na_omatko"
 database = "licznik_db"
-host = "localhost"
+host = "db"
 port = "5432"
 
 

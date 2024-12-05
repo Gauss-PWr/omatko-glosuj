@@ -10,7 +10,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_volume:/var/lib/postgresql/data
+      - /omatko-licznik_postgres_volume:/var/lib/postgresql/data
 
   front:
     depends_on:
@@ -33,6 +33,3 @@ services:
       - db
     ports:
       - "5555:5555"
-
-volumes:
-  postgres_volume:
