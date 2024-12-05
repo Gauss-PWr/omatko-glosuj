@@ -71,7 +71,7 @@ async def get_user_lectures(db: Session = Depends(get_db), user: Users = Depends
     return {"lectures": [schemas.LectureResponse(**lecture_info) for lecture_info in lectures_list]}
 
 
-@router.put("/votes/{lecture_id}/")
+@router.put("/votes/{lecture_id}")
 async def update_vote(lecture_id: int, vote_request: schemas.VoteRequest, db: Session = Depends(get_db),
                       user: Users = Depends(get_current_user)):
     vote = db.query(Votes).filter(Votes.user_id == user.user_id, Votes.lecture_id == lecture_id).first()
