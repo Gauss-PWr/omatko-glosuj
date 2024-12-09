@@ -10,7 +10,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - /omatko-licznik_postgres_volume:/var/lib/postgresql/data
+      - /home/gauss/OMatKo-licznik/omatko-licznik_postgres_volume:/var/lib/postgresql/data
 
   front:
     depends_on:
@@ -26,7 +26,7 @@ services:
 
   backend:
     container_name: backend
-    build: 
+    build:
       context: backend
       dockerfile: Dockerfile
     depends_on:

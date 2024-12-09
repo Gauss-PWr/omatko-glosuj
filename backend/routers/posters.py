@@ -41,7 +41,7 @@ async def get_all_posters_for_user(db: Session = Depends(get_db), user: Users = 
 
 
 
-@router.post("/votes-posters/{poster_id}/")
+@router.post("/votes-posters/{poster_id}")
 async def create_vote_on_poster(poster_id: int, vote_request: schemas.VotePosterRequest, db: Session = Depends(get_db),
                                 user: Users = Depends(get_current_user)):
     existing_vote = db.query(Votes_posters).filter(Votes_posters.user_id == user.user_id, Votes_posters.poster_id == poster_id).first()
@@ -61,7 +61,7 @@ async def create_vote_on_poster(poster_id: int, vote_request: schemas.VotePoster
     return {"message": "Vote successfully created"}
 
 
-@router.put("/votes-posters-update/{poster_id}/")
+@router.put("/votes-posters-update/{poster_id}")
 async def update_vote_on_poster(poster_id: int, vote_request: schemas.VotePosterRequest, db: Session = Depends(get_db),
                                 user: Users = Depends(get_current_user)):
     vote = db.query(Votes_posters).filter(Votes_posters.user_id == user.user_id, Votes_posters.poster_id == poster_id).first()
