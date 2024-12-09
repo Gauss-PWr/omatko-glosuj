@@ -83,7 +83,7 @@ const Lecture = (lecture: Presentation & {index: number}): ReactElement => {
       }
 
       const timeout = setTimeout(() => {
-        if (!ratings.every((rating, idx) => rating.value === lecture.rating[idx].value)) {
+        if (!updatedRatings.every((rating, idx) => rating.value === lecture.rating[idx].value)) {
           store.dispatch(setLectureRating({ id: lecture.id, rating: updatedRatings }));
           if(state.user?.token) {
             store.dispatch(updateLectureRatings({ 
@@ -177,7 +177,7 @@ const Poster = (poster: Presentation): ReactElement => {
         }
 
         const timeout = setTimeout(() => {
-          if (!ratings.every((rating, idx) => rating.value === poster.rating[idx].value)) {
+          if (!updatedRatings.every((rating, idx) => rating.value === poster.rating[idx].value)) {
             store.dispatch(setPosterRating({ id: poster.id, rating: updatedRatings }));
             if(state.user?.token) {
               store.dispatch(updatePosterRatings({ 
