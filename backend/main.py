@@ -8,7 +8,10 @@ from sqlalchemy.orm import Session
 from routers.auth import router as auth_router
 from routers.lectures import router as lectures_router
 from routers.posters import router as posters_router
+from dotenv import load_dotenv
+import os
 
+load_dotenv(dotenv_path="dev.env")
 app = FastAPI()
 
 models_db.Base.metadata.create_all(bind=engine)
@@ -17,9 +20,7 @@ app.include_router(auth_router)
 app.include_router(lectures_router)
 app.include_router(posters_router)
 
-origins = [
-    "http://localhost:5173"
-]
+origins = ["http://localhost:5173"]
 
 app.add_middleware(
     CORSMiddleware,
@@ -40,6 +41,11 @@ def get_db():
         db.close()
 
 
-
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="backend", port=5555, reload=True, log_level="debug")
+    uvicorn.run(
+        "main:app",
+        host=os.getenv("BACKEND_HOST", "localhost"),
+        port=int(os.getenv("BACKEND_PORT", 5555)),
+        reload=True,
+        log_level="debug",
+    )

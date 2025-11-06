@@ -1,0 +1,12 @@
+services:
+  db:
+    image: postgres:18.0
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: zli_ludzie_na_omatko
+      POSTGRES_DB: licznik_db
+
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./omatko-licznik_postgres_volume:/var/lib/postgresql

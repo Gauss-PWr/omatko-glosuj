@@ -8,12 +8,12 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
-    username: str or None = None
+    username: str | None = None
 
 
 class User(BaseModel):
     username: str = Field(..., max_length=30)
-    email: str or None = None
+    email: str | None = None
 
 
 class UserInDB(User):
@@ -24,7 +24,7 @@ class UserInDB(User):
 
 class LoginForm(BaseModel):
     username: str = Field(..., max_length=30)
-    password: str or None = None
+    password: str | None = None
 
 
 class PasswordChangeRequest(BaseModel):
@@ -41,7 +41,7 @@ class LectureResponse(BaseModel):
     vote_forma: Optional[int] = Field(None, ge=1, le=10)
 
     class Config:
-        orm_mode = True
+        from_atributes = True
 
 
 class VoteRequest(BaseModel):
@@ -57,8 +57,9 @@ class PosterResponse(BaseModel):
     poster_id: int
     poster_name: str
     poster_author: str
-    vote_merytoryka: Optional[float] = None
-    vote_estetyka: Optional[float] = None
+    vote_merytoryka: float | None = None
+    vote_estetyka: float | None = None
+
 
 class VotePosterRequest(BaseModel):
     merytoryka_points: Optional[int] = Field(None, ge=1, le=10)
