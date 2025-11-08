@@ -21,16 +21,8 @@ const slice = createSlice({
   name: "lectures",
   initialState,
   reducers: {
-    setLectures(
-      state,
-      action: PayloadAction<{
-        day: LectureDay;
-        type: LectureType;
-        lectures: LecturesState[LectureDay][LectureType];
-      }>
-    ) {
-      const { day, type, lectures } = action.payload;
-      state[day][type] = lectures;
+    setLectures(state, action: PayloadAction<LecturesState>) {
+      return action.payload;
     },
   },
 });

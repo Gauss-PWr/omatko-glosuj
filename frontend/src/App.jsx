@@ -6,19 +6,25 @@ import PostersView from '@/components/PostersView'
 import Login from '@/components/Login'
 import Nav from '@/components/Nav'
 import useAuth from '@/components/Auth'
+import Footer from '@/components/Footer'
 function App() {
-  const { loggedIn } = useAuth()
+  const { loading, loggedIn } = useAuth()
 
+
+  if (loading) return null
   if (!loggedIn) return <Login/>
 
   return (
     <Router basename={import.meta.env.BASE_URL}>
       <Nav />
+      <main>
       <Routes>
         <Route path="/lectures" element={<LecturesView />} />
         <Route path="/posters" element={<PostersView />} />
         <Route path="*" element={<LecturesView />} />
       </Routes>
+      </main>
+      <Footer/>
     </Router>
   )
 }

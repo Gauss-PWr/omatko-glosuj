@@ -7,11 +7,26 @@ export type AuthState = {
 
 export type Lecture = {
   lectureId: number;
-  lectureCategory: string;
+  lectureCategory: "stosowana" | "teoretyczna";
   lectureName: string;
   speakerName: string;
   lectureDatetime: string;
   lectureDescription: string;
+};
+
+export type LectureResponse = {
+  lecture_id: number;
+  lecture_category: "stosowana" | "teoretyczna";
+  lecture_name: string;
+  speaker_name: string;
+  lecture_datetime: string;
+  lecture_description: string;
+};
+
+export type PosterResponse = {
+  poster_id: number;
+  poster_name: string;
+  poster_author: string;
 };
 
 export type Poster = {
@@ -33,9 +48,20 @@ export type VoteLectureRequest = {
   formaPoints?: number | null;
 };
 
+export type VoteLectureResponse = {
+  lecture_id: number;
+  merytoryka_points: number | null;
+  forma_points: number | null;
+};
+
 export type VotePosterRequest = {
   merytorykaPoints?: number | null;
   estetykaPoints?: number | null;
+};
+export type VotePosterResponse = {
+  poster_id: number;
+  merytoryka_points: number | null;
+  estetyka_points: number | null;
 };
 
 export enum LectureDay {
@@ -45,7 +71,7 @@ export enum LectureDay {
 }
 
 export enum LectureType {
-  STOSOWNA = "stosowna",
+  STOSOWANA = "stosowana",
   TEORETYCZNA = "teoretyczna",
 }
 
@@ -65,6 +91,18 @@ export type LectureVote = {
 export type PosterVote = {
   posterId: number;
   vote: VotePosterRequest;
+};
+
+export type LectureVoteResponse = {
+  lecture_id: number;
+  merytoryka_points: number | null;
+  forma_points: number | null;
+};
+
+export type PosterVoteResponse = {
+  poster_id: number;
+  merytoryka_points: number | null;
+  estetyka_points: number | null;
 };
 
 export type LectureVotesState = LectureVote[];

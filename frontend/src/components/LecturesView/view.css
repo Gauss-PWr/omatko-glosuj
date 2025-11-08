@@ -1,0 +1,45 @@
+.day-slide {
+  transition: transform 220ms ease, opacity 220ms ease;
+  will-change: transform;
+  flex: 1;
+}
+.day-slide--left {
+  animation: slide-left 220ms ease;
+}
+.day-slide--right {
+  animation: slide-right 220ms ease;
+}
+@keyframes slide-left {
+  from {
+    transform: translateX(25%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+@keyframes slide-right {
+  from {
+    transform: translateX(-25%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.lectures-change-day-container h2 {
+  text-align: center;
+  margin-bottom: 1rem;
+  text-transform: capitalize;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.lectures-view {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
