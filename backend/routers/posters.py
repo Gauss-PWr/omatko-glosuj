@@ -1,11 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-import schemas
+import schemas as schemas
 from .auth import get_current_user
-from models_db import Users, Posters, Votes_posters
+from models import Users, Posters, Votes_posters as Votes
 from database_connect import SessionLocal
 
-router = APIRouter(prefix='/posters', tags=['posters'])
+router = APIRouter(prefix="/posters", tags=["posters"])
 
 
 def get_db():
@@ -19,41 +19,68 @@ def get_db():
 db_dependency = Depends(get_db)
 
 
-@router.get("/user/posters")
-async def get_all_posters_for_user(db: Session = Depends(get_db), user: Users = Depends(get_current_user)):
+@router.get("")
+async def get_all_posters(db: Session = Depends(get_db)):
     all_posters = db.query(Posters).all()
     posters_list = []
 
     for poster in all_posters:
-        user_vote = db.query(Votes_posters).filter(Votes_posters.poster_id == poster.poster_id,
-                                                   Votes_posters.user_id == user.user_id).first()
-
-        poster_info = {
-            "poster_id": poster.poster_id,
-            "poster_name": poster.poster_name,
-            "poster_author": poster.poster_author,
-            "vote_merytoryka": user_vote.merytoryka_points if user_vote else None,
-            "vote_estetyka": user_vote.estetyka_points if user_vote else None
-        }
+        poster_info: schemas.PosterResponse = schemas.PosterResponse(
+            poster_id=poster.poster_id,
+            poster_name=poster.poster_name,
+            poster_author=poster.poster_author,
+            poster_description=poster.poster_description,
+        )
         posters_list.append(poster_info)
 
-    return {"posters": [schemas.PosterResponse(**poster_info) for poster_info in posters_list]}
+    return posters_list
 
 
+@router.get("/votes")
+async def get_all_posters_for_user(
+    db: Session = Depends(get_db), user: Users = Depends(get_current_user)
+):
+    all_posters = db.query(Posters).all()
+    posters_list = []
 
-@router.post("/votes-posters/{poster_id}")
-async def create_vote_on_poster(poster_id: int, vote_request: schemas.VotePosterRequest, db: Session = Depends(get_db),
-                                user: Users = Depends(get_current_user)):
-    existing_vote = db.query(Votes_posters).filter(Votes_posters.user_id == user.user_id, Votes_posters.poster_id == poster_id).first()
+    for poster in all_posters:
+        user_vote = (
+            db.query(Votes)
+            .filter(Votes.poster_id == poster.poster_id, Votes.user_id == user.user_id)
+            .first()
+        )
+
+        poster_info: schemas.VotePosterRequest = schemas.VotePosterRequest(
+            poster_id=poster.poster_id,
+            merytoryka_points=user_vote.merytoryka_points if user_vote else None,
+            estetyka_points=user_vote.estetyka_points if user_vote else None,
+        )
+        posters_list.append(poster_info)
+
+    return posters_list
+
+
+@router.post("/votes/add/{poster_id}")
+async def create_vote_on_poster(
+    poster_id: int,
+    vote_request: schemas.VotePosterRequest,
+    db: Session = Depends(get_db),
+    user: Users = Depends(get_current_user),
+):
+    existing_vote = (
+        db.query(Votes)
+        .filter(Votes.user_id == user.user_id, Votes.poster_id == poster_id)
+        .first()
+    )
 
     if existing_vote:
         raise HTTPException(status_code=400, detail="Vote already exists")
 
-    new_vote = Votes_posters(
+    new_vote = Votes(
         user_id=user.user_id,
         poster_id=poster_id,
         merytoryka_points=vote_request.merytoryka_points,
-        estetyka_points=vote_request.estetyka_points
+        estetyka_points=vote_request.estetyka_points,
     )
     db.add(new_vote)
     db.commit()
@@ -61,18 +88,25 @@ async def create_vote_on_poster(poster_id: int, vote_request: schemas.VotePoster
     return {"message": "Vote successfully created"}
 
 
-@router.put("/votes-posters-update/{poster_id}")
-async def update_vote_on_poster(poster_id: int, vote_request: schemas.VotePosterRequest, db: Session = Depends(get_db),
-                                user: Users = Depends(get_current_user)):
-    vote = db.query(Votes_posters).filter(Votes_posters.user_id == user.user_id, Votes_posters.poster_id == poster_id).first()
+@router.put("/votes/update/{poster_id}")
+async def update_vote_on_poster(
+    poster_id: int,
+    vote_request: schemas.VotePosterRequest,
+    db: Session = Depends(get_db),
+    user: Users = Depends(get_current_user),
+):
+    vote = (
+        db.query(Votes)
+        .filter(Votes.user_id == user.user_id, Votes.poster_id == poster_id)
+        .first()
+    )
 
     if not vote:
         raise HTTPException(status_code=404, detail="Vote not found")
 
-    vote.merytoryka_points = vote_request.merytoryka_points
-    vote.estetyka_points = vote_request.estetyka_points
+    if vote_request.merytoryka_points is not None:
+        vote.merytoryka_points = vote_request.merytoryka_points
+    if vote_request.estetyka_points is not None:
+        vote.estetyka_points = vote_request.estetyka_points
     db.commit()
     return {"message": "Vote successfully updated"}
-
-
-

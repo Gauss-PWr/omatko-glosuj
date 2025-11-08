@@ -1,10 +1,8 @@
-from fastapi import FastAPI, Depends, HTTPException, status, Form
-from typing import Annotated
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
-import models_db
+import models as models_db
 from database_connect import engine, SessionLocal
-from sqlalchemy.orm import Session
 from routers.auth import router as auth_router
 from routers.lectures import router as lectures_router
 from routers.posters import router as posters_router
@@ -31,17 +29,17 @@ app.add_middleware(
 )
 
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    except Exception:
-        db.rollback()
-    finally:
-        db.close()
+# def get_db():
+#     db = SessionLocal()
+#     try:
+#         yield db
+#     except Exception:
+#         db.rollback()
+#     finally:
+#         db.close()
 
 
-if __name__ == "__main__":
+def main():
     uvicorn.run(
         "main:app",
         host=os.getenv("BACKEND_HOST", "localhost"),
@@ -49,3 +47,7 @@ if __name__ == "__main__":
         reload=True,
         log_level="debug",
     )
+
+
+if __name__ == "__main__":
+    main()
