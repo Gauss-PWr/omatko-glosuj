@@ -6,6 +6,7 @@ Base.metadata.create_all(bind=engine)
 
 db = SessionLocal()
 
+from datetime import datetime
 
 def add_data():
     data = [
@@ -20,21 +21,21 @@ def add_data():
             speaker_name="Speaker 1",
             lecture_description="Description 1",
             lecture_category="stosowana",
-            lecture_timestamp="2025-12-05 10:00:00",
+            lecture_timestamp=datetime(2025, 12, 5, 10, 0, 0)
         ),
         Lectures(
             lecture_name="Lecture 2",
             speaker_name="Speaker 2",
             lecture_description="Description 2",
             lecture_category="teoretyczna",
-            lecture_timestamp="2025-12-06 10:00:00",
+            lecture_timestamp=datetime(2025, 12, 6, 10, 0, 0)
         ),
         Lectures(
             lecture_name="Lecture 3",
             speaker_name="Speaker 3",
             lecture_description="Description 3",
             lecture_category="stosowana",
-            lecture_timestamp="2025-12-07 10:00:00",
+            lecture_timestamp=datetime(2025, 12, 7, 10, 0, 0)
         ),
         Posters(
             poster_name="Poster 2",

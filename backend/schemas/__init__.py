@@ -27,13 +27,11 @@ class LectureRequest(BaseModel):
 
 
 class VoteLectureRequest(BaseModel):
-    lecture_id: int
     merytoryka_points: int | None = Field(None, ge=1, le=10)
     forma_points: int | None = Field(None, ge=1, le=10)
 
 
 class VotePosterRequest(BaseModel):
-    poster_id: int
     merytoryka_points: int | None = Field(None, ge=1, le=10)
     estetyka_points: int | None = Field(None, ge=1, le=10)
 

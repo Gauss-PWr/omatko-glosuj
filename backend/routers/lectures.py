@@ -75,7 +75,9 @@ async def get_user_lectures(
     return lectures_list
 
 
-@router.post("/{lecture_id}/vote")
+@router.post("/{lecture_id}/vote",
+    response_model=schemas.VoteLectureRequest,
+)
 async def add_lecture_to_user(
     lecture_id: int,
     lecture_request: schemas.LectureRequest,
@@ -100,8 +102,8 @@ async def add_lecture_to_user(
     new_vote = Votes(
         user_id=user.user_id,
         lecture_id=lecture.lecture_id,
-        merytoryka_points=None,
-        forma_points=None,
+        merytoryka_points=lecture_request.merytoryka_points,
+        forma_points=lecture_request.forma_points,
     )
     db.add(new_vote)
     db.commit()
@@ -109,10 +111,11 @@ async def add_lecture_to_user(
     return {"message": "Lecture successfully added to user with initial votes"}
 
 
-@router.put("/{lecture_id}/vote")
+@router.put("/{lecture_id}/vote",
+)
 async def update_vote(
     lecture_id: int,
-    vote_request: schemas.VoteLectureRequest,
+    vote_request: schemas.VoteLectureRequest | None = None,
     db: Session = Depends(get_db),
     user: Users = Depends(get_current_user),
 ):
@@ -134,3 +137,23 @@ async def update_vote(
     db.commit()
 
     return {"message": "Vote successfully updated"}
+
+@router.delete("/{lecture_id}/vote")
+async def delete_vote(
+    lecture_id: int,
+    db: Session = Depends(get_db),
+    user: Users = Depends(get_current_user),
+):
+    vote = (
+        db.query(Votes)
+        .filter(Votes.user_id == user.user_id, Votes.lecture_id == lecture_id)
+        .first()
+    )
+
+    if not vote:
+        raise HTTPException(status_code=404, detail="Vote not found")
+
+    db.delete(vote)
+    db.commit()
+
+    return {"message": "Vote successfully deleted"}
