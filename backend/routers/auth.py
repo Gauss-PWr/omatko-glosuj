@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status as fastapi_status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 import models as models_db
 from database_connect import SessionLocal
@@ -13,7 +13,7 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 SECRET_KEY = "8abf2afcd7190402b53b8a9d1597391e"
 ALGORITHM = "HS256"
 bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token", auto_error=False)
 ACCESS_TOKEN_EXPIRE_HOURS = 10
 
 
@@ -68,15 +68,30 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 
 
 async def get_current_user(
-    token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
+    request: Request,
+    token: str | None = Depends(oauth2_scheme),
+    db: Session = Depends(get_db),
 ):
     credential_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
+        status_code=fastapi_status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
+    raw_token = token
+    if raw_token is None:
+        cookie_token = request.cookies.get("access_token")
+        if cookie_token:
+            raw_token = cookie_token
+
+    if not raw_token:
+        raise credential_exception
+
+    token_value = raw_token.removeprefix("Bearer ").strip()
+    if not token_value:
+        raise credential_exception
+
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token_value, SECRET_KEY, algorithms=[ALGORITHM])
         username: str | None = payload.get("sub")
         if not isinstance(username, str):
             raise credential_exception
@@ -98,7 +113,7 @@ async def login(
     user = authenticate_user(db, form_data.username)
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=fastapi_status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
@@ -108,11 +123,11 @@ async def login(
     )
     response.set_cookie(
         key="access_token",
-        value=f"Bearer {access_token}",
+        value=access_token,
         httponly=True,
-        secure=True,
-        max_age=ACCESS_TOKEN_EXPIRE_HOURS * 60,
-        expires=ACCESS_TOKEN_EXPIRE_HOURS * 60,
+        secure=False,
+        max_age=ACCESS_TOKEN_EXPIRE_HOURS * 60 * 60,
+        expires=ACCESS_TOKEN_EXPIRE_HOURS * 60 * 60,
         samesite="lax",
     )
     return {"authenticated": True}
@@ -124,6 +139,8 @@ async def logout(response: Response):
     return {"authenticated": False}
 
 
-@router.get("/user", response_model=schemas.User)
-async def read_users_me(current_user: schemas.User = Depends(get_current_user)):
-    return current_user
+@router.get("/status", response_model=schemas.Token)
+async def status(
+    current_user: schemas.UserInDB = Depends(get_current_user),
+):
+    return {"authenticated": True}

@@ -1,0 +1,31 @@
+@import url("https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap");
+
+:root {
+  --omk-orange: #f28f2def;
+  --omk-blue: #4fbdc3ef;
+  --omk-green: #91c13fef;
+  --omk-gray: #babab9ef;
+}
+
+body {
+  background-image: url("./assets/bg.webp");
+  background-size: cover;
+  min-height: 100dvh;
+  margin: 0;
+}
+
+* {
+  font-family: "Quicksand", sans-serif;
+}
+
+.uniform-width {
+  width: calc(100% - 30px);
+  margin: 0px 15px;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}

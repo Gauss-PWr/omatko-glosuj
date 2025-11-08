@@ -75,8 +75,9 @@ async def get_user_lectures(
     return lectures_list
 
 
-@router.post("/votes/add")
+@router.post("/{lecture_id}/vote")
 async def add_lecture_to_user(
+    lecture_id: int,
     lecture_request: schemas.LectureRequest,
     db: Session = Depends(get_db),
     user: Users = Depends(get_current_user),
@@ -108,7 +109,7 @@ async def add_lecture_to_user(
     return {"message": "Lecture successfully added to user with initial votes"}
 
 
-@router.put("/votes/update/{lecture_id}")
+@router.put("/{lecture_id}/vote")
 async def update_vote(
     lecture_id: int,
     vote_request: schemas.VoteLectureRequest,
