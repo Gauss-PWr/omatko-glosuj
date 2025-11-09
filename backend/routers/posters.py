@@ -60,7 +60,7 @@ async def get_all_posters_for_user(
     return posters_list
 
 
-@router.post("/votes/add/{poster_id}")
+@router.post("{poster_id}/vote")
 async def create_vote_on_poster(
     poster_id: int,
     vote_request: schemas.VotePosterRequest,
@@ -88,7 +88,7 @@ async def create_vote_on_poster(
     return {"message": "Vote successfully created"}
 
 
-@router.put("/votes/update/{poster_id}")
+@router.put("{poster_id}/vote")
 async def update_vote_on_poster(
     poster_id: int,
     vote_request: schemas.VotePosterRequest,
@@ -110,3 +110,23 @@ async def update_vote_on_poster(
         vote.estetyka_points = vote_request.estetyka_points
     db.commit()
     return {"message": "Vote successfully updated"}
+
+
+@router.delete("{poster_id}/vote")
+async def delete_vote_on_poster(
+    poster_id: int,
+    db: Session = Depends(get_db),
+    user: Users = Depends(get_current_user),
+):
+    vote = (
+        db.query(Votes)
+        .filter(Votes.user_id == user.user_id, Votes.poster_id == poster_id)
+        .first()
+    )
+
+    if not vote:
+        raise HTTPException(status_code=404, detail="Vote not found")
+
+    db.delete(vote)
+    db.commit()
+    return {"message": "Vote successfully deleted"}

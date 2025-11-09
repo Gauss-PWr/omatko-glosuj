@@ -1,16 +1,21 @@
 import { Lecture } from "@/types";
 import { useState } from "react";
-import VoteLecture from "../VoteLecture";
+import { useLectureVotes } from "../../hooks/Lectures";
+import VoteLecture from "../Vote/lecture";
 import "./card.css";
 const LectureCard = (lecture: Lecture) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const { hasVote } = useLectureVotes();
 
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
   };
 
   return (
-    <div key={lecture.lectureId} className="card">
+    <div
+      key={lecture.lectureId}
+      className={`card ${hasVote(lecture.lectureId) ? "voted" : ""}`}
+    >
       <div className="card-header" onClick={toggleExpand}>
         <h3>{lecture.lectureName}</h3>
         <p>

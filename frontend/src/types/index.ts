@@ -27,12 +27,14 @@ export type PosterResponse = {
   poster_id: number;
   poster_name: string;
   poster_author: string;
+  poster_description: string;
 };
 
 export type Poster = {
   posterId: number;
   posterName: string;
   posterAuthor: string;
+  posterDescription: string;
 };
 
 export type LectureRequest = {

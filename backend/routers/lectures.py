@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Body
 from sqlalchemy.orm import Session
+from typing import Annotated
 import schemas as schemas
 from .auth import get_current_user
 from models import Lectures, Users, Votes_lectures as Votes
@@ -65,7 +66,7 @@ async def get_user_lectures(
                 .first()
             )
 
-            lecture_info: schemas.VoteLectureRequest = schemas.VoteLectureRequest(
+            lecture_info: schemas.VoteLectureResponse = schemas.VoteLectureResponse(
                 lecture_id=lecture.lecture_id,
                 merytoryka_points=(user_vote.merytoryka_points if user_vote else None),
                 forma_points=user_vote.forma_points if user_vote else None,
@@ -75,16 +76,13 @@ async def get_user_lectures(
     return lectures_list
 
 
-@router.post("/{lecture_id}/vote",
-    response_model=schemas.VoteLectureRequest,
-)
+@router.post("/{lecture_id}/vote")
 async def add_lecture_to_user(
     lecture_id: int,
-    lecture_request: schemas.LectureRequest,
+    vote_request: Annotated[schemas.VoteLectureRequest, Body(embed=True)],
     db: Session = Depends(get_db),
     user: Users = Depends(get_current_user),
 ):
-    lecture_id = lecture_request.lecture_id
     lecture = db.query(Lectures).filter(Lectures.lecture_id == lecture_id).first()
 
     if not lecture:
@@ -102,20 +100,18 @@ async def add_lecture_to_user(
     new_vote = Votes(
         user_id=user.user_id,
         lecture_id=lecture.lecture_id,
-        merytoryka_points=lecture_request.merytoryka_points,
-        forma_points=lecture_request.forma_points,
+        merytoryka_points=vote_request.merytoryka_points,
+        forma_points=vote_request.forma_points,
     )
     db.add(new_vote)
     db.commit()
-
-    return {"message": "Lecture successfully added to user with initial votes"}
 
 
 @router.put("/{lecture_id}/vote",
 )
 async def update_vote(
     lecture_id: int,
-    vote_request: schemas.VoteLectureRequest | None = None,
+    vote_request: Annotated[schemas.VoteLectureRequest, Body(embed=True)],
     db: Session = Depends(get_db),
     user: Users = Depends(get_current_user),
 ):
@@ -132,9 +128,11 @@ async def update_vote(
         vote.merytoryka_points = vote_request.merytoryka_points
 
     if vote_request.forma_points is not None:
-        vote.forma_points = vote_request.forma_points
+        vote.forma_points = vote_request.forma_points # Debug log
 
+    db.flush()
     db.commit()
+    db.refresh(vote)
 
     return {"message": "Vote successfully updated"}
 

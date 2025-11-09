@@ -2,7 +2,7 @@ import "./nav.css";
 import { NavLink } from "react-router";
 import logo from "@/assets/logo.webp";
 import { useRef } from "react";
-import useAuth from "@/components/Auth";
+import useAuth from "@/hooks/Auth";
 const Nav = () => {
   const { logout } = useAuth();
   const menuRef = useRef<HTMLDivElement>(null);

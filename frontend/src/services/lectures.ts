@@ -60,14 +60,14 @@ export const lecturesApi = createApi({
       query: (lectureVote) => ({
         url: `/${lectureVote.lectureId}/vote`,
         method: "POST",
-        body: mapVoteToBody(lectureVote),
+        body: { vote_request: mapVoteToBody(lectureVote) },
       }),
     }),
     updateLectureVote: builder.mutation<any, LectureVote>({
       query: (lectureVote) => ({
         url: `/${lectureVote.lectureId}/vote`,
         method: "PUT",
-        body: mapVoteToBody(lectureVote),
+        body: { vote_request: mapVoteToBody(lectureVote) },
       }),
     }),
     deleteLectureVote: builder.mutation<any, { lectureId: number }>({

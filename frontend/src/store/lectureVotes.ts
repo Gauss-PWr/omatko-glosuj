@@ -8,7 +8,7 @@ const slice = createSlice({
   initialState,
   reducers: {
     setLectureVotes(state, action: PayloadAction<LectureVote[]>) {
-      state = action.payload;
+      return action.payload;
     },
     setLectureVote(state, action: PayloadAction<LectureVote>) {
       const { lectureId, vote } = action.payload;

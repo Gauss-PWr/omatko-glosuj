@@ -1,4 +1,4 @@
-import useAuth from "@/components/Auth";
+import useAuth from "@/hooks/Auth";
 import { ChangeEvent, FormEvent, useState } from "react";
 import logo from "@/assets/logo.webp";
 import "./login.css";

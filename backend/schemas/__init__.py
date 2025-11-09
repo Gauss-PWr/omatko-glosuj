@@ -36,6 +36,17 @@ class VotePosterRequest(BaseModel):
     estetyka_points: int | None = Field(None, ge=1, le=10)
 
 
+class VoteLectureResponse(BaseModel):
+    lecture_id: int
+    merytoryka_points: int | None = Field(None, ge=1, le=10)
+    forma_points: int | None = Field(None, ge=1, le=10)
+
+class VotePosterResponse(BaseModel):
+    poster_id: int
+    merytoryka_points: int | None = Field(None, ge=1, le=10)
+    estetyka_points: int | None = Field(None, ge=1, le=10)
+
+
 class LectureResponse(BaseModel):
     lecture_id: int
     lecture_category: str

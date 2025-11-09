@@ -1,21 +1,38 @@
 import { useEffect, useState } from "react";
 import "./vote.css";
-import useLectureVotes from "@/components/Lectures/votes";
+import { useLectureVotes } from "@/hooks/Lectures";
 import { useRef } from "react";
 
 const VoteLectures = ({ lectureId }: { lectureId: number }) => {
-  const [voteMerytorykaValue, setVoteMerytorykaValue] = useState<number | "">(
-    ""
-  );
-  const [voteFormaValue, setVoteFormaValue] = useState<number | "">("");
-
-  const { getVote, addVote, updateVote, removeVote } = useLectureVotes();
+  const { getVote, addVote, updateVote, removeVote, hasVote } =
+    useLectureVotes();
   const existingVote = getVote(lectureId);
+
+  const [voteMerytorykaValue, setVoteMerytorykaValue] = useState<number | "">(
+    existingVote?.vote.merytorykaPoints ?? ""
+  );
+  const [voteFormaValue, setVoteFormaValue] = useState<number | "">(
+    existingVote?.vote.formaPoints ?? ""
+  );
 
   const debounceRef = useRef<number | undefined>(undefined);
 
+  // Sync state with existing vote when it loads
+  useEffect(() => {
+    if (existingVote) {
+      setVoteMerytorykaValue(existingVote.vote.merytorykaPoints ?? "");
+      setVoteFormaValue(existingVote.vote.formaPoints ?? "");
+    }
+  }, [existingVote]); // Only re-sync if the vote ID changes
+
   useEffect(() => {
     if (voteMerytorykaValue === "" && voteFormaValue === "") return;
+    if (
+      voteMerytorykaValue === existingVote?.vote.merytorykaPoints &&
+      voteFormaValue === existingVote?.vote.formaPoints
+    ) {
+      return; // No changes to save
+    }
 
     window.clearTimeout(debounceRef.current);
     debounceRef.current = window.setTimeout(() => {
@@ -35,14 +52,7 @@ const VoteLectures = ({ lectureId }: { lectureId: number }) => {
     }, 600);
 
     return () => window.clearTimeout(debounceRef.current);
-  }, [
-    lectureId,
-    voteMerytorykaValue,
-    voteFormaValue,
-    existingVote,
-    addVote,
-    updateVote,
-  ]);
+  }, [voteMerytorykaValue, voteFormaValue]);
 
   const handleDelete = () => {
     window.clearTimeout(debounceRef.current);
@@ -78,7 +88,12 @@ const VoteLectures = ({ lectureId }: { lectureId: number }) => {
         />
       </div>
       <div className="vote-delete">
-        <button type="button" onClick={handleDelete}>
+        <button
+          type="button"
+          className={`has-vote ${!hasVote(lectureId) ? "disabled" : ""}`}
+          onClick={handleDelete}
+          disabled={!hasVote(lectureId)}
+        >
           Usuń głos
         </button>
       </div>

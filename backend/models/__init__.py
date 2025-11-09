@@ -35,8 +35,8 @@ class Votes_posters(Base):
     poster_id: Mapped[int] = mapped_column(ForeignKey("posters.poster_id"))
     user_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"))
 
-    merytoryka_points: Mapped[int] = mapped_column(Integer)
-    estetyka_points: Mapped[int] = mapped_column(Integer)
+    merytoryka_points: Mapped[int | None] = mapped_column(Integer)
+    estetyka_points: Mapped[int | None] = mapped_column(Integer)
 
     poster: Mapped["Posters"] = relationship("Posters", back_populates="vote")
     user: Mapped["Users"] = relationship("Users", back_populates="vote_poster")
@@ -48,8 +48,8 @@ class Votes_lectures(Base):
     lecture_id: Mapped[int] = mapped_column(ForeignKey("lectures.lecture_id"))
     user_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"))
 
-    merytoryka_points: Mapped[int] = mapped_column(Integer)
-    forma_points: Mapped[int] = mapped_column(Integer)
+    merytoryka_points: Mapped[int | None] = mapped_column(Integer)
+    forma_points: Mapped[int | None] = mapped_column(Integer)
 
     lecture: Mapped["Lectures"] = relationship("Lectures", back_populates="vote")
     user: Mapped["Users"] = relationship("Users", back_populates="vote_lecture")

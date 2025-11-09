@@ -73,3 +73,9 @@ nav a {
   transform: scale(0.7);
   padding: 0;
 }
+
+.nav-button-container .hamburger .hamburger-inner,
+.nav-button-container .hamburger .hamburger-inner::before,
+.nav-button-container .hamburger .hamburger-inner::after {
+  border-radius: 6px;
+}

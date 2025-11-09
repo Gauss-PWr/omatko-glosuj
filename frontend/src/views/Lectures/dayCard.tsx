@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { LectureDay, LectureType, Lecture } from "@/types";
-import LectureCard from "@/components/Card";
+import LectureCard from "@/components/Card/lecture";
 import "./day.view.css";
 
 const DayCard = (types: Record<LectureType, Lecture[]>) => {

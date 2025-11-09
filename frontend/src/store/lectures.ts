@@ -4,15 +4,15 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 const initialState: LecturesState = {
   [LectureDay.DAY_1]: {
-    [LectureType.STOSOWNA]: [],
+    [LectureType.STOSOWANA]: [],
     [LectureType.TEORETYCZNA]: [],
   },
   [LectureDay.DAY_2]: {
-    [LectureType.STOSOWNA]: [],
+    [LectureType.STOSOWANA]: [],
     [LectureType.TEORETYCZNA]: [],
   },
   [LectureDay.DAY_3]: {
-    [LectureType.STOSOWNA]: [],
+    [LectureType.STOSOWANA]: [],
     [LectureType.TEORETYCZNA]: [],
   },
 };

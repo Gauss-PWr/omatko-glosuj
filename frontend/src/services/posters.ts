@@ -1,0 +1,86 @@
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import {
+  Poster,
+  PosterResponse,
+  PosterVote,
+  PosterVoteResponse,
+} from "@/types";
+
+const POSTERS_API_BASE_URL = "http://localhost:5555/posters";
+
+const mapVoteToBody = (posterVote: PosterVote) => ({
+  merytoryka_points: posterVote.vote.merytorykaPoints,
+  estetyka_points: posterVote.vote.estetykaPoints,
+});
+
+export const postersApi = createApi({
+  reducerPath: "postersApi",
+  baseQuery: fetchBaseQuery({
+    baseUrl: POSTERS_API_BASE_URL,
+    credentials: "include",
+  }),
+  tagTypes: ["Posters"],
+  endpoints: (builder) => ({
+    getPosters: builder.query<Poster[], void>({
+      query: () => `/`,
+      transformResponse: (response: PosterResponse[]) => {
+        return response.map((poster) => ({
+          posterId: poster.poster_id,
+          posterName: poster.poster_name,
+          posterAuthor: poster.poster_author,
+          posterDescription: poster.poster_description,
+        }));
+      },
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map((poster) => ({
+                type: "Posters" as const,
+                id: poster.posterId,
+              })),
+              { type: "Posters", id: "LIST" },
+            ]
+          : [{ type: "Posters", id: "LIST" }],
+    }),
+    getPosterVotes: builder.query<PosterVote[], void>({
+      query: () => `/votes`,
+      transformResponse: (response: PosterVoteResponse[]) => {
+        return response.map((vote) => ({
+          posterId: vote.poster_id,
+          vote: {
+            merytorykaPoints: vote.merytoryka_points,
+            estetykaPoints: vote.estetyka_points,
+          },
+        }));
+      },
+    }),
+    createPosterVote: builder.mutation<any, PosterVote>({
+      query: (posterVote) => ({
+        url: `/${posterVote.posterId}/vote`,
+        method: "POST",
+        body: { vote_request: mapVoteToBody(posterVote) },
+      }),
+    }),
+    updatePosterVote: builder.mutation<any, PosterVote>({
+      query: (posterVote) => ({
+        url: `/${posterVote.posterId}/vote`,
+        method: "PUT",
+        body: { vote_request: mapVoteToBody(posterVote) },
+      }),
+    }),
+    deletePosterVote: builder.mutation<any, { posterId: number }>({
+      query: ({ posterId }) => ({
+        url: `/${posterId}/vote`,
+        method: "DELETE",
+      }),
+    }),
+  }),
+});
+
+export const {
+  useGetPostersQuery,
+  useCreatePosterVoteMutation,
+  useUpdatePosterVoteMutation,
+  useDeletePosterVoteMutation,
+  useGetPosterVotesQuery,
+} = postersApi;
