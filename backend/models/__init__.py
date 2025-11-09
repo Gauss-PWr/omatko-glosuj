@@ -11,7 +11,7 @@ class Lectures(Base):
     lecture_category: Mapped[str] = mapped_column(String(80))
     lecture_name: Mapped[str] = mapped_column(String(200))
     speaker_name: Mapped[str] = mapped_column(String(80))
-    lecture_description: Mapped[str] = mapped_column(String(500))
+    lecture_description: Mapped[str] = mapped_column(String(3000))
     lecture_timestamp: Mapped[str]
 
     vote = relationship("Votes_lectures", back_populates="lecture")
@@ -24,7 +24,7 @@ class Posters(Base):
     )
     poster_name: Mapped[str] = mapped_column(String(200))
     poster_author: Mapped[str] = mapped_column(String(80))
-    poster_description: Mapped[str] = mapped_column(String(500))
+    poster_description: Mapped[str] = mapped_column(String(3000))
 
     vote = relationship("Votes_posters", back_populates="poster")
 

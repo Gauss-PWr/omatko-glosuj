@@ -79,8 +79,8 @@ export const postersApi = createApi({
 
 export const {
   useGetPostersQuery,
+  useGetPosterVotesQuery,
   useCreatePosterVoteMutation,
   useUpdatePosterVoteMutation,
   useDeletePosterVoteMutation,
-  useGetPosterVotesQuery,
 } = postersApi;

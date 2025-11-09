@@ -10,6 +10,7 @@ dependencies = [
     "crypto>=1.4.1",
     "fastapi>=0.121.0",
     "isort>=7.0.0",
+    "pandas>=2.3.3",
     "passlib[bcrypt]>=1.7.4",
     "psycopg2-binary>=2.9.11",
     "python-dotenv>=1.2.1",

@@ -28,7 +28,7 @@ export const useLectures = () => {
     const dayTypeMap: LecturesState = data.reduce((acc, lecture) => {
       const { lectureDatetime, lectureCategory } = lecture;
 
-      const dateKey = new Date(lectureDatetime).toISOString();
+      const dateKey = new Date(lectureDatetime).toISOString().split("T")[0];
       const typeKey = lectureCategory as LectureType;
 
       if (!acc[dateKey]) {

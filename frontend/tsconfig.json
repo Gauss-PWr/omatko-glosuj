@@ -1,6 +1,9 @@
 {
     "compilerOptions": {
         "jsx": "react-jsx",
+        "module": "ESNext",
+        "target": "ESNext",
+        "moduleResolution": "bundler",
         "types": [
             "node",
             "vitest"

@@ -60,7 +60,7 @@ async def get_all_posters_for_user(
     return posters_list
 
 
-@router.post("{poster_id}/vote")
+@router.post("/{poster_id}/vote")
 async def create_vote_on_poster(
     poster_id: int,
     vote_request: schemas.VotePosterRequest,
@@ -88,7 +88,7 @@ async def create_vote_on_poster(
     return {"message": "Vote successfully created"}
 
 
-@router.put("{poster_id}/vote")
+@router.put("/{poster_id}/vote")
 async def update_vote_on_poster(
     poster_id: int,
     vote_request: schemas.VotePosterRequest,
@@ -112,7 +112,7 @@ async def update_vote_on_poster(
     return {"message": "Vote successfully updated"}
 
 
-@router.delete("{poster_id}/vote")
+@router.delete("/{poster_id}/vote")
 async def delete_vote_on_poster(
     poster_id: int,
     db: Session = Depends(get_db),

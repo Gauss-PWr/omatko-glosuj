@@ -16,29 +16,47 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 40px;
+  min-height: 40px;
 }
 
 .card h3,
 .card p {
-  margin: 0;
+  margin: 10px 0;
   font-weight: 400;
 }
 
+.card p {
+  margin: 10px 0;
+  margin-left: 10px;
+  min-width: 50px;
+  font-weight: 400;
+  display: grid;
+  text-align: left;
+  grid-template-columns: auto 1fr;
+  gap: 8px;
+}
+
 .card-full-info {
-  max-height: 0;
   opacity: 0;
   overflow: hidden;
   transition: max-height 0.5s ease, opacity 0.5s ease;
+  max-height: 0;
 }
 
 .card-full-info.open {
-  max-height: 400px;
   opacity: 1;
+  max-height: 2000px;
 }
 
 .card-description {
   margin-bottom: 12px;
+}
+
+.card-description p {
+  margin: 0;
+  padding: 0;
+  margin-bottom: 10px;
+  font-weight: 500;
 }
 
 .voted {

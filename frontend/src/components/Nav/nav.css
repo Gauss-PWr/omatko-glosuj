@@ -77,5 +77,6 @@ nav a {
 .nav-button-container .hamburger .hamburger-inner,
 .nav-button-container .hamburger .hamburger-inner::before,
 .nav-button-container .hamburger .hamburger-inner::after {
-  border-radius: 6px;
+  border-radius: 10px;
+  background-color: var(--omk-gray);
 }

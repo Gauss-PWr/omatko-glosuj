@@ -76,11 +76,11 @@ const VotePosters = ({ posterId }: { posterId: number }) => {
           onChange={(e) => setVoteMerytorykaValue(Number(e.target.value))}
         />
       </div>
-      <div className="vote-forma">
-        <div>Forma: {voteEstetykaValue ? voteEstetykaValue : "Brak"}</div>
+      <div className="vote-estetyka">
+        <div>Estetyka: {voteEstetykaValue ? voteEstetykaValue : "Brak"}</div>
         <input
           type="range"
-          name={`vote-forma-${posterId}`}
+          name={`vote-estetyka-${posterId}`}
           min="1"
           max="10"
           value={voteEstetykaValue}

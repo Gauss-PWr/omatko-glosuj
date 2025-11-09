@@ -2,6 +2,8 @@ import { Lecture } from "@/types";
 import { useState } from "react";
 import { useLectureVotes } from "../../hooks/Lectures";
 import VoteLecture from "../Vote/lecture";
+import MathText from "@/components/MathText";
+
 import "./card.css";
 const LectureCard = (lecture: Lecture) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -17,7 +19,9 @@ const LectureCard = (lecture: Lecture) => {
       className={`card ${hasVote(lecture.lectureId) ? "voted" : ""}`}
     >
       <div className="card-header" onClick={toggleExpand}>
-        <h3>{lecture.lectureName}</h3>
+        <h3>
+          <MathText text={lecture.lectureName} />
+        </h3>
         <p>
           {new Date(lecture.lectureDatetime).toLocaleString([], {
             hour: "2-digit",
@@ -28,7 +32,9 @@ const LectureCard = (lecture: Lecture) => {
       <div className={`card-full-info ${isExpanded ? "open" : ""}`}>
         <div className="card-description">
           <p>{lecture.speakerName}</p>
-          <div>{lecture.lectureDescription}</div>
+          <div>
+            <MathText text={lecture.lectureDescription} />
+          </div>
         </div>
         <VoteLecture lectureId={lecture.lectureId} />
       </div>

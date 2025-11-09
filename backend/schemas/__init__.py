@@ -52,7 +52,7 @@ class LectureResponse(BaseModel):
     lecture_category: str
     lecture_name: str = Field(..., max_length=200)
     speaker_name: str = Field(..., max_length=80)
-    lecture_description: str = Field(..., max_length=1000)
+    lecture_description: str = Field(..., max_length=3000)
     lecture_datetime: str
 
 
@@ -60,4 +60,4 @@ class PosterResponse(BaseModel):
     poster_id: int
     poster_name: str
     poster_author: str
-    poster_description: str = Field(..., max_length=1000)
+    poster_description: str = Field(..., max_length=3000)
