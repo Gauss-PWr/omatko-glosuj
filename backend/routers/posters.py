@@ -41,20 +41,14 @@ async def get_all_posters(db: Session = Depends(get_db)):
 async def get_all_posters_for_user(
     db: Session = Depends(get_db), user: Users = Depends(get_current_user)
 ):
-    all_posters = db.query(Posters).all()
+    votes = db.query(Votes).filter(Votes.user_id == user.user_id).all()
     posters_list = []
 
-    for poster in all_posters:
-        user_vote = (
-            db.query(Votes)
-            .filter(Votes.poster_id == poster.poster_id, Votes.user_id == user.user_id)
-            .first()
-        )
-
+    for vote in votes:
         poster_info: schemas.VotePosterResponse = schemas.VotePosterResponse(
-            poster_id=poster.poster_id,
-            merytoryka_points=user_vote.merytoryka_points if user_vote else None,
-            estetyka_points=user_vote.estetyka_points if user_vote else None,
+            poster_id=vote.poster_id,
+            merytoryka_points=vote.merytoryka_points,
+            estetyka_points=vote.estetyka_points,
         )
         posters_list.append(poster_info)
 

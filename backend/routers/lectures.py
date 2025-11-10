@@ -43,35 +43,18 @@ async def get_all_lectures(db: Session = Depends(get_db)):
 async def get_user_lectures(
     db: Session = Depends(get_db), user: Users = Depends(get_current_user)
 ):
-    user_votes = (
-        db.query(Votes.lecture_id)
-        .filter(Votes.user_id == user.user_id)
-        .distinct()
-        .all()
+    votes = (
+        db.query(Votes).filter(Votes.user_id == user.user_id).all()
     )
-
     lectures_list = []
 
-    for vote in user_votes:
-        lecture = (
-            db.query(Lectures).filter(Lectures.lecture_id == vote.lecture_id).first()
+    for vote in votes:
+        lecture_info: schemas.VoteLectureResponse = schemas.VoteLectureResponse(
+            lecture_id=vote.lecture_id,
+            merytoryka_points=vote.merytoryka_points,
+            forma_points=vote.forma_points,
         )
-        if lecture:
-            user_vote = (
-                db.query(Votes)
-                .filter(
-                    Votes.lecture_id == lecture.lecture_id,
-                    Votes.user_id == user.user_id,
-                )
-                .first()
-            )
-
-            lecture_info: schemas.VoteLectureResponse = schemas.VoteLectureResponse(
-                lecture_id=lecture.lecture_id,
-                merytoryka_points=(user_vote.merytoryka_points if user_vote else None),
-                forma_points=user_vote.forma_points if user_vote else None,
-            )
-            lectures_list.append(lecture_info)
+        lectures_list.append(lecture_info)
 
     return lectures_list
 
