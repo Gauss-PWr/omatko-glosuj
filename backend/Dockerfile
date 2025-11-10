@@ -1,11 +1,7 @@
 # backend/Dockerfile
 
 # Use an appropriate base image
-FROM python:3.13-slim
-
-# Install dependencies
-RUN apt-get update && apt-get install -y \
-    uv
+FROM ghcr.io/astral-sh/uv:0.9.8-python3.13-bookworm-slim
 
 WORKDIR /app
 
