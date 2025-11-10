@@ -50,7 +50,7 @@ async def get_all_posters_for_user(
             .first()
         )
 
-        poster_info: schemas.VotePosterRequest = schemas.VotePosterRequest(
+        poster_info: schemas.VotePosterResponse = schemas.VotePosterResponse(
             poster_id=poster.poster_id,
             merytoryka_points=user_vote.merytoryka_points if user_vote else None,
             estetyka_points=user_vote.estetyka_points if user_vote else None,
@@ -63,7 +63,7 @@ async def get_all_posters_for_user(
 @router.post("/{poster_id}/vote")
 async def create_vote_on_poster(
     poster_id: int,
-    vote_request: schemas.VotePosterRequest,
+    vote_request: schemas.VotePosterResponse,
     db: Session = Depends(get_db),
     user: Users = Depends(get_current_user),
 ):
@@ -91,7 +91,7 @@ async def create_vote_on_poster(
 @router.put("/{poster_id}/vote")
 async def update_vote_on_poster(
     poster_id: int,
-    vote_request: schemas.VotePosterRequest,
+    vote_request: schemas.VotePosterResponse,
     db: Session = Depends(get_db),
     user: Users = Depends(get_current_user),
 ):
