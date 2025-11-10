@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 
 def add_data():
     data = [
-        Users(user_login="admin"),
+        Users(user_login="jKKrXR4g"),
     ]
 
     df = pd.read_csv('./scripts/data.csv')

@@ -1,16 +1,15 @@
 services:
-
   db:
-    image: postgres:16.0
+    image: postgres:18.0
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: zli_ludzie_na_omatko
-      POSTGRES_DB: licznik_db
-
+      POSTGRES_SERVER: db
+      POSTGRES_USER: postgres
+      POSTGRES_DB: omatko_licznik
+      POSTGRES_PASSWORD_FILE: /run/secrets/db-password
     ports:
       - "5432:5432"
     volumes:
-      - /home/gauss/OMatKo-licznik/omatko-licznik_postgres_volume:/var/lib/postgresql/data
+      - ./omatko-licznik_postgres_volume:/var/lib/postgresql/data
 
   front:
     depends_on:
@@ -29,7 +28,23 @@ services:
     build:
       context: backend
       dockerfile: Dockerfile
+    environment:
+      POSTGRES_PASSWORD_FILE: /run/secrets/db-password
+      RUNNING_IN_CONTAINER: True
     depends_on:
       - db
     ports:
       - "5555:5555"
+  nginx:
+    container_name: nginx
+    image: nginx:stable-alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - front
+
+secrets:
+  db-password:
+    file: db_password.txt

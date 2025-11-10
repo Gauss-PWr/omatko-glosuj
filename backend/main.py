@@ -9,8 +9,11 @@ from routers.posters import router as posters_router
 from dotenv import load_dotenv
 import os
 
-load_dotenv(dotenv_path="dev.env")
-app = FastAPI()
+
+ENV_FILE = ".env.dev"
+if os.getenv("RUNNING_IN_CONTAINER") == True:
+    ENV_FILE = ".env.prod"
+
 
 models_db.Base.metadata.create_all(bind=engine)
 
