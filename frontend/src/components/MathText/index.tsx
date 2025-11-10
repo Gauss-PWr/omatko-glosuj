@@ -47,7 +47,7 @@ const MathText = ({ text }: MathTextProps) => {
     containerRef.current.innerHTML = processedText;
   }, [text]);
 
-  return <div ref={containerRef} />;
+  return <div ref={containerRef} className="card-description-content" />;
 };
 
 export default MathText;

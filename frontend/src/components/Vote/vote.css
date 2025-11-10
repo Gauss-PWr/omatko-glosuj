@@ -1,3 +1,7 @@
+.vote {
+  margin-top: 15px;
+}
+
 .vote-delete {
   margin: 10px 0;
   display: flex;

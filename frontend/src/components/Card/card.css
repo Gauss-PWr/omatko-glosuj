@@ -25,15 +25,15 @@
   font-weight: 400;
 }
 
+.card h3 {
+  font-style: italic;
+  margin-right: 10px;
+}
+
 .card p {
   margin: 10px 0;
-  margin-left: 10px;
   min-width: 50px;
-  font-weight: 400;
-  display: grid;
   text-align: left;
-  grid-template-columns: auto 1fr;
-  gap: 8px;
 }
 
 .card-full-info {
@@ -41,6 +41,10 @@
   overflow: hidden;
   transition: max-height 0.5s ease, opacity 0.5s ease;
   max-height: 0;
+}
+
+.card-speaker {
+  font-weight: 600 !important;
 }
 
 .card-full-info.open {
@@ -61,4 +65,50 @@
 
 .voted {
   border-color: var(--omk-green);
+}
+
+.description-wrapper {
+  position: relative; /* Needed for the ::after pseudo-element */
+  max-height: 1000px;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+}
+
+.description-wrapper.truncated {
+  max-height: 100px; /* The height when collapsed */
+}
+
+/* This is the fade-out overlay */
+.description-wrapper::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50px; /* Height of the fade effect */
+  background: linear-gradient(to top, var(--omk-gray), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none; /* Allows clicking through the overlay */
+}
+
+/* When truncated, make the fade visible */
+.description-wrapper.truncated::after {
+  opacity: 1;
+}
+
+.read-more-btn {
+  background: none;
+  border: none;
+  color: var(--omk-blue);
+  cursor: pointer;
+  padding: 4px 0;
+  margin-top: 8px;
+  font-size: 0.9em;
+  text-decoration: underline;
+  display: block; /* Or inline-block */
+}
+
+.read-more-btn:hover {
+  color: var(--omk-orange);
 }

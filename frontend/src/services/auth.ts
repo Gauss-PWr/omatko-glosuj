@@ -4,13 +4,13 @@ import { AuthState, User } from "@/types";
 export const authApi = createApi({
   reducerPath: "authApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:5555",
+    baseUrl: import.meta.env.VITE_APP_API_BASE_URL + "/auth",
     credentials: "include",
   }),
   endpoints: (builder) => ({
     login: builder.mutation<AuthState, User>({
       query: (user) => ({
-        url: "/auth/login",
+        url: "/login",
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({ username: user.username, password: "" }),
@@ -18,13 +18,13 @@ export const authApi = createApi({
     }),
     logout: builder.mutation<AuthState, void>({
       query: () => ({
-        url: "/auth/logout",
+        url: "/logout",
         method: "POST",
       }),
     }),
     status: builder.query<AuthState, void>({
       query: () => ({
-        url: "/auth/status",
+        url: "/status",
         method: "GET",
       }),
     }),

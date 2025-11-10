@@ -6,8 +6,10 @@
 }
 
 .search-posters {
+  position: sticky;
   margin-top: 16px;
   height: 40px;
+  bottom: 5px;
 }
 
 .search-posters input {

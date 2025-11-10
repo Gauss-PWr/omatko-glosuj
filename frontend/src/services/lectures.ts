@@ -6,8 +6,6 @@ import {
   LectureVoteResponse,
 } from "@/types";
 
-const LECTURES_API_BASE_URL = "http://localhost:5555/lectures";
-
 const mapVoteToBody = (lectureVote: LectureVote) => ({
   merytoryka_points: lectureVote.vote.merytorykaPoints,
   forma_points: lectureVote.vote.formaPoints,
@@ -16,7 +14,7 @@ const mapVoteToBody = (lectureVote: LectureVote) => ({
 export const lecturesApi = createApi({
   reducerPath: "lecturesApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: LECTURES_API_BASE_URL,
+    baseUrl: import.meta.env.VITE_APP_API_BASE_URL + "/lectures",
     credentials: "include",
   }),
   tagTypes: ["Lectures"],

@@ -5,8 +5,7 @@ import {
   PosterVote,
   PosterVoteResponse,
 } from "@/types";
-
-const POSTERS_API_BASE_URL = "http://localhost:5555/posters";
+import { Meta } from "react-router";
 
 const mapVoteToBody = (posterVote: PosterVote) => ({
   merytoryka_points: posterVote.vote.merytorykaPoints,
@@ -16,7 +15,7 @@ const mapVoteToBody = (posterVote: PosterVote) => ({
 export const postersApi = createApi({
   reducerPath: "postersApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: POSTERS_API_BASE_URL,
+    baseUrl: import.meta.env.VITE_APP_API_BASE_URL + "/posters",
     credentials: "include",
   }),
   tagTypes: ["Posters"],

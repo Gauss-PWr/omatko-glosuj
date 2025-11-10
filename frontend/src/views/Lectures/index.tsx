@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { LectureDay } from "@/types";
+import { LectureDay, LectureType } from "@/types";
 import { useLectures } from "@/hooks/Lectures";
 import { useSwipeable, type SwipeEventData } from "react-swipeable";
 import SwipeIndicator from "@/components/SwipeIndicator";
@@ -16,6 +16,9 @@ const isInsideNoSwipe = (
 
 const SWIPE_THRESHOLD = 100; // pixels to trigger swipe
 
+const randomLectureType = () =>
+  Math.random() < 0.5 ? LectureType.STOSOWANA : LectureType.TEORETYCZNA;
+
 const Lectures = () => {
   const [selectedDay, setSelectedDay] = useState<LectureDay | null>(null);
   const [lastDirection, setLastDirection] = useState<"left" | "right">("left");
@@ -23,6 +26,13 @@ const Lectures = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [isChangingDay, setIsChangingDay] = useState(false);
   const { lectures } = useLectures();
+  const [selectedTypeForDay, setSelectedTypeForDay] = useState<
+    Partial<Record<LectureDay, LectureType>>
+  >(() => ({
+    [LectureDay.DAY_1]: randomLectureType(),
+    [LectureDay.DAY_2]: randomLectureType(),
+    [LectureDay.DAY_3]: randomLectureType(),
+  }));
 
   const days = Object.keys(lectures) as LectureDay[];
   const dayIndex = selectedDay ? days.indexOf(selectedDay) : 0;
@@ -95,7 +105,13 @@ const Lectures = () => {
               transition: isDragging ? "none" : "transform 0.3s ease-out",
             }}
           >
-            <DayCard {...types} />
+            <DayCard
+              types={types}
+              selectedType={selectedTypeForDay[day]}
+              setType={(type: LectureType) =>
+                setSelectedTypeForDay((prev) => ({ ...prev, [day]: type }))
+              }
+            />
           </div>
         );
       })}

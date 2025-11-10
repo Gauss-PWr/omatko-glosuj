@@ -11,3 +11,7 @@
 .katex-display {
   margin: 1em 0;
 }
+
+.card-description-content {
+  display: inline;
+}

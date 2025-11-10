@@ -1,49 +1,61 @@
-import { Lecture } from "@/types";
 import { useState } from "react";
-import { useLectureVotes } from "../../hooks/Lectures";
-import VoteLecture from "../Vote/lecture";
+import { Lecture } from "@/types";
+import VoteLecture from "@/components/Vote/lecture";
+import { useLectureVotes } from "@/hooks/Lectures";
 import MathText from "@/components/MathText";
-
 import "./card.css";
-const LectureCard = (lecture: Lecture) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+
+const MIN_LENGTH_FOR_TRUNCATION = 250; // Characters to trigger "Read More"
+
+const LectureCard = ({
+  lectureId,
+  lectureName,
+  speakerName,
+  lectureDescription,
+  lectureDatetime,
+}: Lecture) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const { hasVote } = useLectureVotes();
 
-  const toggleExpand = () => {
-    setIsExpanded(!isExpanded);
-  };
+  const toggleOpen = () => setIsOpen(!isOpen);
+  const toggleDescription = () =>
+    setIsDescriptionExpanded(!isDescriptionExpanded);
+
+  const showTruncationButton =
+    lectureDescription.length > MIN_LENGTH_FOR_TRUNCATION;
 
   return (
-    <div
-      key={lecture.lectureId}
-      className={`card ${hasVote(lecture.lectureId) ? "voted" : ""}`}
-    >
-      <div className="card-header" onClick={toggleExpand}>
+    <div className={`card ${hasVote(lectureId) ? "voted" : ""}`}>
+      <div className="card-header" onClick={toggleOpen}>
         <h3>
-          <MathText text={lecture.lectureName} />
+          <MathText text={lectureName} />
         </h3>
         <p>
-          {new Date(lecture.lectureDatetime).toLocaleString([], {
+          {new Date(lectureDatetime).toLocaleString([], {
             hour: "2-digit",
             minute: "2-digit",
           })}
         </p>
       </div>
-      <div className={`card-full-info ${isExpanded ? "open" : ""}`}>
-        <div className="card-description">
-          <p>{lecture.speakerName}</p>
-          <div>
-            <MathText text={lecture.lectureDescription} />
-          </div>
+      <div className={`card-full-info ${isOpen ? "open" : ""}`}>
+        <p className="card-speaker">{speakerName}</p>
+        <div
+          className={`description-wrapper ${
+            !isDescriptionExpanded && showTruncationButton ? "truncated" : ""
+          }`}
+        >
+          <MathText text={lectureDescription} />
         </div>
-        <VoteLecture lectureId={lecture.lectureId} />
+        {showTruncationButton && (
+          <button className="read-more-btn" onClick={toggleDescription}>
+            {isDescriptionExpanded ? "Pokaż mniej" : "Czytaj więcej"}
+          </button>
+        )}
+        <VoteLecture lectureId={lectureId} />
       </div>
     </div>
   );
 };
-
-// const PosterCard = () => {
-//   return <div>poster card</div>;
-// }
 
 export default LectureCard;

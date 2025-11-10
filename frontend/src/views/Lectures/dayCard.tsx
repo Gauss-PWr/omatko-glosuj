@@ -1,13 +1,16 @@
-import { useState } from "react";
-import { LectureDay, LectureType, Lecture } from "@/types";
+import { LectureType, Lecture } from "@/types";
 import LectureCard from "@/components/Card/lecture";
 import "./day.view.css";
 
-const DayCard = (types: Record<LectureType, Lecture[]>) => {
-  const [selectedType, setSelectedType] = useState<LectureType>(
-    LectureType.STOSOWANA
-  );
-
+const DayCard = ({
+  types,
+  selectedType,
+  setType,
+}: {
+  types: Record<LectureType, Lecture[]>;
+  selectedType: LectureType | undefined;
+  setType: (type: LectureType) => void;
+}) => {
   return (
     <div className="lecture-day-container">
       <div className="lecture-choose-type-container">
@@ -15,7 +18,7 @@ const DayCard = (types: Record<LectureType, Lecture[]>) => {
           className={
             LectureType.STOSOWANA === selectedType ? "active-stosowana" : ""
           }
-          onClick={() => setSelectedType(LectureType.STOSOWANA)}
+          onClick={() => setType(LectureType.STOSOWANA)}
         >
           stosowana
         </button>
@@ -23,22 +26,27 @@ const DayCard = (types: Record<LectureType, Lecture[]>) => {
           className={
             LectureType.TEORETYCZNA === selectedType ? "active-teoretyczna" : ""
           }
-          onClick={() => setSelectedType(LectureType.TEORETYCZNA)}
+          onClick={() => setType(LectureType.TEORETYCZNA)}
         >
           teoretyczna
         </button>
       </div>
       <div className="lectures-type-container">
-        {Object.entries(types).map(
-          ([type, list]) =>
-            type === selectedType && (
-              <div key={type} className="lectures-list-container">
-                {list.map((lecture) => (
-                  <LectureCard key={lecture.lectureId} {...lecture} />
-                ))}
-              </div>
-            )
-        )}
+        {Object.entries(types).map(([type, list]) => {
+          if (type !== selectedType) return null;
+          const sortedList = [...list].sort(
+            (a, b) =>
+              new Date(a.lectureDatetime).getTime() -
+              new Date(b.lectureDatetime).getTime()
+          );
+          return (
+            <div key={type} className="lectures-list-container">
+              {sortedList.map((lecture) => (
+                <LectureCard key={lecture.lectureId} {...lecture} />
+              ))}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
