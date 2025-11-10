@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 import schemas as schemas
 from .auth import get_current_user
+from typing import Annotated
 from models import Users, Posters, Votes_posters as Votes
 from database_connect import SessionLocal
 
