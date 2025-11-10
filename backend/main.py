@@ -1,5 +1,10 @@
 from dotenv import load_dotenv
 import os
+
+if os.getenv("RUNNING_IN_CONTAINER", "0") != "1":
+    load_dotenv(".env.dev")
+
+
 import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -30,7 +35,9 @@ app.include_router(lectures_router)
 app.include_router(posters_router)
 app.include_router(healthcheck_router)
 
-origins = [os.getenv("FRONTEND_HOST", "http://localhost") + ":" + os.getenv("FRONTEND_PORT", "3000")]
+origins = [os.getenv("FRONTEND_ORIGIN", "http://localhost:5173")]
+
+logger.info(f"Allowed CORS origins: {origins}")
 
 app.add_middleware(
     CORSMiddleware,
@@ -48,5 +55,4 @@ if __name__ == "__main__":
         reload=True,
         log_level="debug",
     )
-    logging.info("Adding data to database...")
 

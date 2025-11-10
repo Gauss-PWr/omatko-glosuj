@@ -61,3 +61,4 @@ class PosterResponse(BaseModel):
     poster_name: str
     poster_author: str
     poster_description: str = Field(..., max_length=3000)
+

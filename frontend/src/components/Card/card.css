@@ -105,6 +105,7 @@
   padding: 4px 0;
   margin-top: 8px;
   font-size: 0.9em;
+  font-weight: 500;
   text-decoration: underline;
   display: block; /* Or inline-block */
 }

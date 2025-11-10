@@ -108,7 +108,9 @@ async def update_vote_on_poster(
         vote.merytoryka_points = vote_request.merytoryka_points
     if vote_request.estetyka_points is not None:
         vote.estetyka_points = vote_request.estetyka_points
+    db.flush()
     db.commit()
+    db.refresh(vote)
     return {"message": "Vote successfully updated"}
 
 

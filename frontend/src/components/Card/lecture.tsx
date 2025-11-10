@@ -18,7 +18,13 @@ const LectureCard = ({
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const { hasVote } = useLectureVotes();
 
-  const toggleOpen = () => setIsOpen(!isOpen);
+  const toggleOpen = () => {
+    if (isOpen && isDescriptionExpanded) {
+      setIsDescriptionExpanded(false);
+      return;
+    }
+    setIsOpen((prev) => !prev);
+  };
   const toggleDescription = () =>
     setIsDescriptionExpanded(!isDescriptionExpanded);
 
@@ -39,17 +45,18 @@ const LectureCard = ({
         </p>
       </div>
       <div className={`card-full-info ${isOpen ? "open" : ""}`}>
-        <p className="card-speaker">{speakerName}</p>
         <div
           className={`description-wrapper ${
             !isDescriptionExpanded && showTruncationButton ? "truncated" : ""
           }`}
+          onClick={toggleOpen}
         >
+          <p className="card-speaker">{speakerName}</p>
           <MathText text={lectureDescription} />
         </div>
         {showTruncationButton && (
           <button className="read-more-btn" onClick={toggleDescription}>
-            {isDescriptionExpanded ? "Pokaż mniej" : "Czytaj więcej"}
+            {isDescriptionExpanded ? "Pokaż mniej" : "Pokaż więcej"}
           </button>
         )}
         <VoteLecture lectureId={lectureId} />

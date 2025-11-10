@@ -5,10 +5,13 @@ import os
 
 Base = declarative_base()
 
+
 DB_PASSWORD_FILE = os.getenv("DB_PASSWORD_FILE", None)
 if DB_PASSWORD_FILE and os.path.isfile(DB_PASSWORD_FILE):
     with open(DB_PASSWORD_FILE, 'r') as file:
         db_password = file.read().strip()
+else:
+    db_password = os.getenv("DB_PASSWORD", "admin")
 
 user = os.getenv("DB_USER", "admin")
 password = db_password
