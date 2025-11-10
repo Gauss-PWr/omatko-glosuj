@@ -10,8 +10,13 @@ load_dotenv()
 Base = declarative_base()
 
 
+DB_PASSWORD_FILE = os.getenv("DB_PASSWORD_FILE", None)
+if DB_PASSWORD_FILE and os.path.isfile(DB_PASSWORD_FILE):
+    with open(DB_PASSWORD_FILE, 'r') as file:
+        db_password = file.read().strip()
+
 user = os.getenv("DB_USER", "admin")
-password = os.getenv("DB_PASSWORD", "zli_ludzie_na_omatko")
+password = db_password
 database = os.getenv("DB_NAME", "licznik_db")
 host = os.getenv("DB_HOST", "localhost")
 port = os.getenv("DB_PORT", "5432")

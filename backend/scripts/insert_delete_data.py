@@ -58,6 +58,3 @@ def add_data():
     db.add_all(data)
     db.commit()
     db.close()
-
-
-add_data()

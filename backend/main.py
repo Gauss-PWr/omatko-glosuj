@@ -8,12 +8,13 @@ from routers.lectures import router as lectures_router
 from routers.posters import router as posters_router
 from dotenv import load_dotenv
 import os
-
+from scripts.insert_delete_data import add_data
 
 ENV_FILE = ".env.dev"
 if os.getenv("RUNNING_IN_CONTAINER") == True:
     ENV_FILE = ".env.prod"
 
+load_dotenv(ENV_FILE)
 
 models_db.Base.metadata.create_all(bind=engine)
 
@@ -21,7 +22,7 @@ app.include_router(auth_router)
 app.include_router(lectures_router)
 app.include_router(posters_router)
 
-origins = ["http://localhost:5173"]
+origins = [os.getenv("FRONTEND_HOST", "http://localhost") + ":" + os.getenv("FRONTEND_PORT", "3000")]
 
 app.add_middleware(
     CORSMiddleware,
@@ -54,3 +55,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    add_data()
