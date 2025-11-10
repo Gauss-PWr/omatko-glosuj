@@ -85,7 +85,7 @@ async def create_vote_on_poster(
     db.add(new_vote)
     db.commit()
 
-    return {"message": "Vote successfully created"}
+    return {"message": f"Vote successfully created with values {vote_request.merytoryka_points}, {vote_request.estetyka_points}"}
 
 
 @router.put("/{poster_id}/vote")
