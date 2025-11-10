@@ -3,13 +3,18 @@ services:
     image: postgres:18.0
     environment:
       POSTGRES_SERVER: db
-      POSTGRES_USER: postgres
+      POSTGRES_USER: admin 
       POSTGRES_DB: omatko_licznik
+      POSTGRES_PORT: 5432
       POSTGRES_PASSWORD_FILE: /run/secrets/db-password
-    ports:
-      - "5432:5432"
     volumes:
-      - ./omatko-licznik_postgres_volume:/var/lib/postgresql/data
+      - ./omatko-licznik_postgres_volume:/var/lib/postgresql
+      - ./db_password.txt:/run/secrets/db-password:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d omatko_licznik"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   backend:
     container_name: backend
@@ -17,26 +22,41 @@ services:
       context: backend
       dockerfile: Dockerfile
     environment:
-      RUNNING_IN_CONTAINER: True
-
+      RUNNING_IN_CONTAINER: "1"
+      DB_USER: admin
+      DB_NAME: omatko_licznik
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_PASSWORD_FILE: /run/secrets/db-password
+      BACKEND_HOST: localhost 
+      BACKEND_PORT: 5555
+      FRONTEND_HOST: https://omatko.pwr.edu.pl 
+    volumes:
+      - ./db_password.txt:/run/secrets/db-password:ro
     depends_on:
-      - db
-    ports:
-      - "5555:5555"
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5555/healthcheck || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    
 
   front:
-    depends_on:
-      - backend
     container_name: frontend
     build:
       context: frontend
       dockerfile: Dockerfile
-    ports:
-      - 80:80
     volumes:
       - frontend-static-volume:/app/dist
     environment:
       NODE_ENV: production
+    depends_on:
+      backend:
+        condition: service_healthy
+
+
   nginx:
     container_name: nginx
     image: nginx:stable-alpine
@@ -50,7 +70,7 @@ services:
 
 secrets:
   db-password:
-    file: db_password.txt
+    file: ./db_password.txt
 
 volumes:
   frontend-static-volume:
