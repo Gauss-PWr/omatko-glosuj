@@ -63,7 +63,7 @@ async def get_all_posters_for_user(
 @router.post("/{poster_id}/vote")
 async def create_vote_on_poster(
     poster_id: int,
-    vote_request: schemas.VotePosterResponse,
+    vote_request: Annotated[schemas.VotePosterRequest, Body(embed=True)],
     db: Session = Depends(get_db),
     user: Users = Depends(get_current_user),
 ):
@@ -91,7 +91,7 @@ async def create_vote_on_poster(
 @router.put("/{poster_id}/vote")
 async def update_vote_on_poster(
     poster_id: int,
-    vote_request: schemas.VotePosterResponse,
+    vote_request: Annotated[schemas.VotePosterRequest, Body(embed=True)],
     db: Session = Depends(get_db),
     user: Users = Depends(get_current_user),
 ):
@@ -106,11 +106,14 @@ async def update_vote_on_poster(
 
     if vote_request.merytoryka_points is not None:
         vote.merytoryka_points = vote_request.merytoryka_points
+
     if vote_request.estetyka_points is not None:
         vote.estetyka_points = vote_request.estetyka_points
+
     db.flush()
     db.commit()
     db.refresh(vote)
+
     return {"message": "Vote successfully updated"}
 
 
