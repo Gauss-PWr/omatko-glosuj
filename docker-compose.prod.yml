@@ -27,9 +27,9 @@ services:
   front:
     depends_on:
       - backend
-    container_name: front
+    container_name: frontend
     build:
-      context: front
+      context: frontend
       dockerfile: Dockerfile
     ports:
       - 80:80
