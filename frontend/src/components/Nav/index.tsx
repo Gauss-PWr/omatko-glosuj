@@ -37,12 +37,12 @@ const Nav = () => {
       <div className="nav-menu-container" ref={menuRef}>
         <ul>
           <li>
-            <NavLink to="/lectures" onClick={toggleMenu}>
+            <NavLink to="/wyklady" onClick={toggleMenu}>
               Wykłady
             </NavLink>
           </li>
           <li>
-            <NavLink to="/posters" onClick={toggleMenu}>
+            <NavLink to="/plakaty" onClick={toggleMenu}>
               Plakaty
             </NavLink>
           </li>

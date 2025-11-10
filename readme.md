@@ -11,3 +11,5 @@ TODO:
 - [x] categorize by days, it will be easier to search for lecture
 - [x] total frontend rework
 - [x] render math
+- [ ] close card by clicking on description
+- [ ] swiping breaks when swaping right (why?)

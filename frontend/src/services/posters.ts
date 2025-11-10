@@ -21,7 +21,7 @@ export const postersApi = createApi({
   tagTypes: ["Posters"],
   endpoints: (builder) => ({
     getPosters: builder.query<Poster[], void>({
-      query: () => `/`,
+      query: () => "",
       transformResponse: (response: PosterResponse[]) => {
         return response.map((poster) => ({
           posterId: poster.poster_id,

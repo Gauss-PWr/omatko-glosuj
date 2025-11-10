@@ -20,7 +20,7 @@ export const lecturesApi = createApi({
   tagTypes: ["Lectures"],
   endpoints: (builder) => ({
     getLectures: builder.query<Lecture[], void>({
-      query: () => `/`,
+      query: () => "",
       transformResponse: (response: LectureResponse[]) => {
         return response.map((lecture) => ({
           lectureId: lecture.lecture_id,

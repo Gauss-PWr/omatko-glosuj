@@ -21,7 +21,7 @@ models_db.Base.metadata.create_all(bind=engine)
 
 logger.info("Database tables created successfully.")
 
-app = FastAPI(title="Licznik Backend")
+app = FastAPI()
 
 logger.info("FastAPI application instance created.")
 
@@ -40,9 +40,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 if __name__ == "__main__":
-    logging.info("Starting Uvicorn server...")
     uvicorn.run(
         "main:app",
         host=os.getenv("BACKEND_HOST", "localhost"),
@@ -50,4 +48,5 @@ if __name__ == "__main__":
         reload=True,
         log_level="debug",
     )
-    add_data()
+    logging.info("Adding data to database...")
+

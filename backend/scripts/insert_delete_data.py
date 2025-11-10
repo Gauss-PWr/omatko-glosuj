@@ -1,18 +1,27 @@
 from database_connect import engine, SessionLocal, Base
 from models import Users, Posters, Lectures
 import pandas as pd
-
-Base.metadata.drop_all(bind=engine)
-Base.metadata.create_all(bind=engine)
-
-db = SessionLocal()
-
 from datetime import datetime, timedelta
 
+
+
 def add_data():
-    data = [
-        Users(user_login="jKKrXR4g"),
-    ]
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+    db = SessionLocal()
+
+    data = []
+
+
+    try:
+        df2 = pd.read_csv("./scripts/sztab.csv")
+
+
+        for index, row in df2.iterrows():
+            data.append(Users(user_login=row["login"]))
+    except FileNotFoundError:
+        pass
+
 
     df = pd.read_csv('./scripts/data.csv')
 
@@ -58,3 +67,5 @@ def add_data():
     db.add_all(data)
     db.commit()
     db.close()
+
+add_data()

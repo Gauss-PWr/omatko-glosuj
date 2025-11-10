@@ -21,7 +21,7 @@ export default defineConfig({
         "favicon-32x32.png",
       ],
       manifest: {
-        name: "Omatko Głosuj",
+        name: "OMatKo!!! Głosuj",
         short_name: "Głosuj",
         description: "Głosowanie na wykłady i plakaty",
         theme_color: "#4CAF50",
@@ -46,7 +46,7 @@ export default defineConfig({
       workbox: {
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/omatko\.pwr\.edu\.pl\/licznik\/api\/.*/i,
+            urlPattern: /^https:\/\/omatko\.pwr\.edu\.pl\/glosuj\/api\/.*/i,
             handler: "NetworkFirst",
             options: {
               cacheName: "api-cache",

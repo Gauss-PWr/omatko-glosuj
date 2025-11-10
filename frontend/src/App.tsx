@@ -18,8 +18,8 @@ function App() {
       <Nav />
       <main>
         <Routes>
-          <Route path="/lectures" element={<LecturesView />} />
-          <Route path="/posters" element={<PostersView />} />
+          <Route path="/wyklady" element={<LecturesView />} />
+          <Route path="/plakaty" element={<PostersView />} />
           <Route path="*" element={<LecturesView />} />
         </Routes>
       </main>
