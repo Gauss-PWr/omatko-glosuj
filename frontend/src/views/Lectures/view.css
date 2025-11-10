@@ -1,7 +1,7 @@
 .day-slide {
   transition: transform 220ms ease;
   will-change: transform;
-  flex: 1;
+  flex: 0 0 100%;
 }
 .day-slide--left {
   animation: slide-left 220ms ease;
@@ -42,4 +42,5 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
