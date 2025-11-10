@@ -60,7 +60,7 @@ export default defineConfig({
       },
     }),
   ],
-  base: "/licznik/",
+  base: "/glosuj/",
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "src"),
