@@ -28,7 +28,7 @@ const Login = () => {
       </div>
       <form onSubmit={handleSubmit} className="login-form">
         <input
-          name="username"
+          name="login"
           placeholder="Kod"
           value={username}
           onChange={handleInput}

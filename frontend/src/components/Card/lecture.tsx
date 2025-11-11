@@ -38,7 +38,7 @@ const LectureCard = ({
           <MathText text={lectureName} />
         </h3>
         <p>
-          {new Date(lectureDatetime).toLocaleString([], {
+          {new Date(lectureDatetime).toLocaleString("pl-PL", {
             hour: "2-digit",
             minute: "2-digit",
           })}
