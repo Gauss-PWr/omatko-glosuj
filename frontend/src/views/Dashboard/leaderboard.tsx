@@ -8,7 +8,10 @@ const Leaderboard = ({
   return (
     <ul className="leaderboard">
       {presentations.map((presentation) => (
-        <li key={presentation.lectureName} className="leaderboard-item">
+        <li
+          key={presentation.lectureName ?? presentation.posterName}
+          className="leaderboard-item"
+        >
           <div className="title">
             {presentation.lectureName ?? presentation.posterName}
           </div>{" "}

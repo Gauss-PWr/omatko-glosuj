@@ -40,7 +40,6 @@ app.include_router(votes_router)
 
 origins = [
     os.getenv("FRONTEND_ORIGIN", "http://localhost:5173"),
-    os.getenv("DASHBOARD_ORIGIN", "http://localhost:8050"),
 ]
 
 logger.info(f"Allowed CORS origins: {origins}")
@@ -58,6 +57,7 @@ if __name__ == "__main__":
         "main:app",
         host=os.getenv("BACKEND_HOST", "localhost"),
         port=int(os.getenv("BACKEND_PORT", 5555)),
-        reload=True,
+        reload= (True if os.getenv("RUNNING_IN_CONTAINER", "0") != "1" else False),
         log_level="debug",
+        workers=4,
     )

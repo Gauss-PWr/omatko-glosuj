@@ -19,10 +19,13 @@ def add_data():
     data = []
 
     try:
-        df2 = pd.read_csv("./scripts/sztab.csv")
-
+        df2 = pd.read_csv("./scripts/loginyAdmin.csv")
         for index, row in df2.iterrows():
             data.append(Users(user_login=row["login"], is_admin=True))
+
+        df3 = pd.read_csv("./scripts/loginy.csv")
+        for index, row in df3.iterrows():
+            data.append(Users(user_login=row["login"]))
     except FileNotFoundError:
         pass
 
