@@ -15,10 +15,12 @@ from routers.auth import router as auth_router
 from routers.lectures import router as lectures_router
 from routers.posters import router as posters_router
 from routers.hchk import router as healthcheck_router
-from scripts.insert_delete_data import add_data
+from routers.votes import router as votes_router
+
+# from scripts.insert_delete_data import add_data
 
 
-logger = logging.getLogger('uvicorn.error')
+logger = logging.getLogger("uvicorn.error")
 logger.setLevel(logging.DEBUG)
 
 
@@ -34,8 +36,12 @@ app.include_router(auth_router)
 app.include_router(lectures_router)
 app.include_router(posters_router)
 app.include_router(healthcheck_router)
+app.include_router(votes_router)
 
-origins = [os.getenv("FRONTEND_ORIGIN", "http://localhost:5173")]
+origins = [
+    os.getenv("FRONTEND_ORIGIN", "http://localhost:5173"),
+    os.getenv("DASHBOARD_ORIGIN", "http://localhost:8050"),
+]
 
 logger.info(f"Allowed CORS origins: {origins}")
 
@@ -55,4 +61,3 @@ if __name__ == "__main__":
         reload=True,
         log_level="debug",
     )
-

@@ -1,4 +1,4 @@
-import { LectureType, Lecture } from "@/types";
+import { LectureCategory, Lecture } from "@/types";
 import LectureCard from "@/components/Card/lecture";
 import "./day.view.css";
 
@@ -7,26 +7,28 @@ const DayCard = ({
   selectedType,
   setType,
 }: {
-  types: Record<LectureType, Lecture[]>;
-  selectedType: LectureType | undefined;
-  setType: (type: LectureType) => void;
+  types: Record<LectureCategory, Lecture[]>;
+  selectedType: LectureCategory | undefined;
+  setType: (type: LectureCategory) => void;
 }) => {
   return (
     <div className="lecture-day-container">
       <div className="lecture-choose-type-container">
         <button
           className={
-            LectureType.STOSOWANA === selectedType ? "active-stosowana" : ""
+            LectureCategory.STOSOWANA === selectedType ? "active-stosowana" : ""
           }
-          onClick={() => setType(LectureType.STOSOWANA)}
+          onClick={() => setType(LectureCategory.STOSOWANA)}
         >
           stosowana
         </button>
         <button
           className={
-            LectureType.TEORETYCZNA === selectedType ? "active-teoretyczna" : ""
+            LectureCategory.TEORETYCZNA === selectedType
+              ? "active-teoretyczna"
+              : ""
           }
-          onClick={() => setType(LectureType.TEORETYCZNA)}
+          onClick={() => setType(LectureCategory.TEORETYCZNA)}
         >
           teoretyczna
         </button>

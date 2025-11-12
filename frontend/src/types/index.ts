@@ -1,8 +1,8 @@
+import { LectureVoteRequest, PosterVoteRequest } from "./requestes";
+import { AuthState } from "./states";
+
 export type User = {
   username: string;
-};
-export type AuthState = {
-  authenticated: boolean;
 };
 
 export type Lecture = {
@@ -14,22 +14,6 @@ export type Lecture = {
   lectureDescription: string;
 };
 
-export type LectureResponse = {
-  lecture_id: number;
-  lecture_category: "stosowana" | "teoretyczna";
-  lecture_name: string;
-  speaker_name: string;
-  lecture_datetime: string;
-  lecture_description: string;
-};
-
-export type PosterResponse = {
-  poster_id: number;
-  poster_name: string;
-  poster_author: string;
-  poster_description: string;
-};
-
 export type Poster = {
   posterId: number;
   posterName: string;
@@ -37,76 +21,37 @@ export type Poster = {
   posterDescription: string;
 };
 
-export type LectureRequest = {
-  lectureId: number;
-};
-
-export type PosterRequest = {
-  posterId: number;
-};
-
-export type VoteLectureRequest = {
-  merytorykaPoints?: number | null;
-  formaPoints?: number | null;
-};
-
-export type VoteLectureResponse = {
-  lecture_id: number;
-  merytoryka_points: number | null;
-  forma_points: number | null;
-};
-
-export type VotePosterRequest = {
-  merytorykaPoints?: number | null;
-  estetykaPoints?: number | null;
-};
-export type VotePosterResponse = {
-  poster_id: number;
-  merytoryka_points: number | null;
-  estetyka_points: number | null;
-};
-
-export enum LectureDay {
+export enum LectureDay { // hardcoded - do something better later
   DAY_1 = "2025-12-05",
   DAY_2 = "2025-12-06",
   DAY_3 = "2025-12-07",
 }
 
-export enum LectureType {
+export enum LectureCategory {
   STOSOWANA = "stosowana",
   TEORETYCZNA = "teoretyczna",
 }
 
-export type LecturesState = {
+export type LectureVotePayload = {
+  lectureId: number;
+  vote: LectureVoteRequest;
+};
+
+export type PosterVotePayload = {
+  posterId: number;
+  vote: PosterVoteRequest;
+};
+
+export type AuthPayload = AuthState;
+
+export type AllVotes = {
+  lectures: LectureVotePayload[];
+  posters: PosterVotePayload[];
+  active_users: number;
+};
+
+export type MappedLectures = {
   [key in LectureDay]: {
-    [key in LectureType]: Lecture[];
+    [key in LectureCategory]: Lecture[];
   };
 };
-
-export type PostersState = Poster[];
-
-export type LectureVote = {
-  lectureId: number;
-  vote: VoteLectureRequest;
-};
-
-export type PosterVote = {
-  posterId: number;
-  vote: VotePosterRequest;
-};
-
-export type LectureVoteResponse = {
-  lecture_id: number;
-  merytoryka_points: number | null;
-  forma_points: number | null;
-};
-
-export type PosterVoteResponse = {
-  poster_id: number;
-  merytoryka_points: number | null;
-  estetyka_points: number | null;
-};
-
-export type LectureVotesState = LectureVote[];
-
-export type PosterVotesState = PosterVote[];

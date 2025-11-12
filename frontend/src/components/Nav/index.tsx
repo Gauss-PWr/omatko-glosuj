@@ -1,15 +1,19 @@
 import "./nav.css";
-import { NavLink } from "react-router";
+import { NavLink, useNavigate } from "react-router";
 import logo from "@/assets/logo.webp";
 import { useRef } from "react";
 import useAuth from "@/hooks/Auth";
 const Nav = () => {
-  const { logout } = useAuth();
+  const { logout, isAdmin } = useAuth();
   const menuRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     await logout();
+    menuRef.current?.classList.remove("open");
+    menuButtonRef.current?.classList.remove("is-active");
+    navigate("/");
   };
 
   const toggleMenu = () => {
@@ -46,6 +50,13 @@ const Nav = () => {
               Plakaty
             </NavLink>
           </li>
+          {isAdmin && (
+            <li>
+              <NavLink to="/wyniki" onClick={toggleMenu}>
+                Wyniki
+              </NavLink>
+            </li>
+          )}
           <li>
             <NavLink to="https://omatko.pwr.edu.pl" onClick={toggleMenu}>
               Strona główna

@@ -1,13 +1,9 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import {
-  Poster,
-  PosterResponse,
-  PosterVote,
-  PosterVoteResponse,
-} from "@/types";
+import { Poster, PosterVotePayload } from "../types";
+import { PosterVoteResponse, PosterResponse } from "@/types/responses";
 import { Meta } from "react-router";
 
-const mapVoteToBody = (posterVote: PosterVote) => ({
+const mapVoteToBody = (posterVote: PosterVotePayload) => ({
   merytoryka_points: posterVote.vote.merytorykaPoints,
   estetyka_points: posterVote.vote.estetykaPoints,
 });
@@ -41,7 +37,7 @@ export const postersApi = createApi({
             ]
           : [{ type: "Posters", id: "LIST" }],
     }),
-    getPosterVotes: builder.query<PosterVote[], void>({
+    getPosterVotes: builder.query<PosterVotePayload[], void>({
       query: () => `/votes`,
       transformResponse: (response: PosterVoteResponse[]) => {
         return response.map((vote) => ({
@@ -53,14 +49,14 @@ export const postersApi = createApi({
         }));
       },
     }),
-    createPosterVote: builder.mutation<any, PosterVote>({
+    createPosterVote: builder.mutation<any, PosterVotePayload>({
       query: (posterVote) => ({
         url: `/${posterVote.posterId}/vote`,
         method: "POST",
         body: { vote_request: mapVoteToBody(posterVote) },
       }),
     }),
-    updatePosterVote: builder.mutation<any, PosterVote>({
+    updatePosterVote: builder.mutation<any, PosterVotePayload>({
       query: (posterVote) => ({
         url: `/${posterVote.posterId}/vote`,
         method: "PUT",

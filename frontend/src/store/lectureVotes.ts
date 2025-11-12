@@ -1,16 +1,16 @@
-import { LectureVote } from "@/types";
+import { LectureVotePayload } from "@/types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-const initialState: LectureVote[] = [];
+const initialState: LectureVotePayload[] = [];
 
 const slice = createSlice({
   name: "lecturesVotes",
   initialState,
   reducers: {
-    setLectureVotes(state, action: PayloadAction<LectureVote[]>) {
+    setLectureVotes(state, action: PayloadAction<LectureVotePayload[]>) {
       return action.payload;
     },
-    setLectureVote(state, action: PayloadAction<LectureVote>) {
+    setLectureVote(state, action: PayloadAction<LectureVotePayload>) {
       const { lectureId, vote } = action.payload;
       const existingVoteIndex = state.findIndex(
         (lv) => lv.lectureId === lectureId

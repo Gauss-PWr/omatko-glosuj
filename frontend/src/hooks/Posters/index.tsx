@@ -7,14 +7,14 @@ import {
   setPosterVotes,
   setPosterVote,
   deletePosterVote,
-} from "@/store/postVotes";
+} from "@/store/posterVotes";
 import {
   useGetPosterVotesQuery,
   useCreatePosterVoteMutation,
   useUpdatePosterVoteMutation,
   useDeletePosterVoteMutation,
 } from "@/services/posters";
-import { PosterVote } from "@/types";
+import { PosterVotePayload } from "@/types";
 
 export const usePosters = () => {
   const dispatch = useDispatch();
@@ -45,19 +45,19 @@ export const usePosterVotes = () => {
   }, [data, dispatch]);
 
   const getVote = (posterId: number) => {
-    return votes.find((vote: PosterVote) => vote.posterId === posterId);
+    return votes.find((vote: PosterVotePayload) => vote.posterId === posterId);
   };
 
   const hasVote = (posterId: number) => {
-    return votes.some((vote: PosterVote) => vote.posterId === posterId);
+    return votes.some((vote: PosterVotePayload) => vote.posterId === posterId);
   };
 
-  const addVote = (vote: PosterVote) => {
+  const addVote = (vote: PosterVotePayload) => {
     dispatch(setPosterVote(vote));
     createPosterVote(vote);
   };
 
-  const updateVote = (updatedVote: PosterVote) => {
+  const updateVote = (updatedVote: PosterVotePayload) => {
     dispatch(setPosterVote(updatedVote));
     updatePosterVote(updatedVote);
   };

@@ -1,21 +1,8 @@
-import { LecturesState } from "@/types";
-import { LectureDay, LectureType } from "@/types";
+import { LecturesState } from "@/types/states";
+import { LectureDay, LectureCategory } from "@/types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-const initialState: LecturesState = {
-  [LectureDay.DAY_1]: {
-    [LectureType.STOSOWANA]: [],
-    [LectureType.TEORETYCZNA]: [],
-  },
-  [LectureDay.DAY_2]: {
-    [LectureType.STOSOWANA]: [],
-    [LectureType.TEORETYCZNA]: [],
-  },
-  [LectureDay.DAY_3]: {
-    [LectureType.STOSOWANA]: [],
-    [LectureType.TEORETYCZNA]: [],
-  },
-};
+const initialState: LecturesState = [];
 
 const slice = createSlice({
   name: "lectures",

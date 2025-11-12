@@ -1,8 +1,10 @@
+from typing import Sequence
 from pydantic import BaseModel, Field
 
 
-class Token(BaseModel):
+class AuthResponse(BaseModel):
     authenticated: bool
+    is_admin: bool | None = None
 
 
 class User(BaseModel):
@@ -12,6 +14,7 @@ class User(BaseModel):
 class UserInDB(User):
     user_id: int = Field(..., gt=0)
     username: str = Field(..., max_length=10)
+    is_admin: bool
 
 
 class LoginForm(BaseModel):
@@ -41,6 +44,7 @@ class VoteLectureResponse(BaseModel):
     merytoryka_points: int | None = Field(None, ge=1, le=10)
     forma_points: int | None = Field(None, ge=1, le=10)
 
+
 class VotePosterResponse(BaseModel):
     poster_id: int
     merytoryka_points: int | None = Field(None, ge=1, le=10)
@@ -52,7 +56,7 @@ class LectureResponse(BaseModel):
     lecture_category: str
     lecture_name: str = Field(..., max_length=200)
     speaker_name: str = Field(..., max_length=80)
-    lecture_description: str = Field(..., max_length=3000)
+    lecture_description: str | None = Field(..., max_length=3000)
     lecture_datetime: str
 
 
@@ -60,5 +64,10 @@ class PosterResponse(BaseModel):
     poster_id: int
     poster_name: str
     poster_author: str
-    poster_description: str = Field(..., max_length=3000)
+    poster_description: str | None = Field(..., max_length=3000)
 
+
+class AllVotesResponse(BaseModel):
+    posters: Sequence[VotePosterResponse]
+    lectures: Sequence[VoteLectureResponse]
+    active_users: int

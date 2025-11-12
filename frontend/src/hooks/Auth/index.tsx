@@ -18,6 +18,7 @@ export const useAuth = () => {
   const [logoutMutation] = useLogoutMutation();
   const [triggerStatus] = useLazyStatusQuery();
   const loggedIn = useSelector((s: RootState) => s.auth.authenticated);
+  const isAdmin = useSelector((s: RootState) => s.auth.is_admin);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -34,22 +35,19 @@ export const useAuth = () => {
     void (async () => {
       try {
         const data = await triggerStatus().unwrap();
-        dispatch(setAuth(data.authenticated));
-        if (!data.authenticated) {
-          window.localStorage.removeItem(STORAGE_KEY);
-        }
+        dispatch(setAuth(data));
       } catch {
-        dispatch(setAuth(false));
+        dispatch(setAuth({ authenticated: false }));
         window.localStorage.removeItem(STORAGE_KEY);
       } finally {
         setLoading(false);
       }
     })();
-  }, [dispatch, triggerStatus]);
+  }, [dispatch, loggedIn, triggerStatus]);
 
   const login = async (user: User) => {
     const data = await loginMutation(user).unwrap();
-    dispatch(setAuth(data.authenticated));
+    dispatch(setAuth(data));
     if (data.authenticated) {
       localStorage.setItem(STORAGE_KEY, user.username);
     }
@@ -57,7 +55,7 @@ export const useAuth = () => {
 
   const logout = async () => {
     const data = await logoutMutation().unwrap();
-    dispatch(setAuth(data.authenticated));
+    dispatch(setAuth(data));
     if (!data.authenticated) {
       localStorage.removeItem(STORAGE_KEY);
     }
@@ -65,10 +63,8 @@ export const useAuth = () => {
 
   const status = async () => {
     const data = await triggerStatus().unwrap();
-    return data.authenticated;
+    dispatch(setAuth(data));
   };
-
-  return { loading, loggedIn, login, logout, status };
+  return { loggedIn, isAdmin, loading, login, logout, status };
 };
-
 export default useAuth;

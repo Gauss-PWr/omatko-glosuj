@@ -1,4 +1,4 @@
-import { PostersState } from "@/types";
+import { PostersState } from "@/types/states";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 const initialState: PostersState = [];

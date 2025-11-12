@@ -1,12 +1,14 @@
 import "./App.css";
 import "./assets/hamburgers.css";
-import { BrowserRouter as Router, Route, Routes } from "react-router";
+import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router";
 import LecturesView from "@/views/Lectures";
 import PostersView from "@/views/Posters";
 import Login from "@/components/Login";
 import Nav from "@/components/Nav";
 import useAuth from "@/hooks/Auth";
 import Footer from "@/components/Footer";
+import Dashboard from "./views/Dashboard";
+
 function App() {
   const { loading, loggedIn } = useAuth();
 
@@ -18,9 +20,10 @@ function App() {
       <Nav />
       <main>
         <Routes>
+          <Route path="/" element={<Navigate to="/wyklady" replace />} />
           <Route path="/wyklady" element={<LecturesView />} />
           <Route path="/plakaty" element={<PostersView />} />
-          <Route path="*" element={<LecturesView />} />
+          <Route path="/wyniki" element={<Dashboard />} />
         </Routes>
       </main>
       <Footer />

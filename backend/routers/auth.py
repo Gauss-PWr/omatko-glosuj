@@ -1,4 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status as fastapi_status
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Request,
+    Response,
+    status as fastapi_status,
+    WebSocket,
+    WebSocketDisconnect,
+)
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 import models as models_db
 from database_connect import SessionLocal
@@ -44,7 +53,9 @@ def get_user(db: Session, username: str):
     )
     if user:
         return schemas.UserInDB(
-            user_id=cast(int, user.user_id), username=cast(str, user.user_login)
+            user_id=cast(int, user.user_id),
+            username=cast(str, user.user_login),
+            is_admin=cast(bool, user.is_admin),
         )
     return None
 
@@ -91,7 +102,7 @@ async def get_current_user(
         raise credential_exception
 
     try:
-        payload = jwt.decode(token_value, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = verify_access_token(token_value)
         username: str | None = payload.get("sub")
         if not isinstance(username, str):
             raise credential_exception
@@ -104,7 +115,15 @@ async def get_current_user(
     return user
 
 
-@router.post("/login", response_model=schemas.Token)
+def verify_access_token(token: str) -> dict:
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload
+    except JWTError:
+        raise
+
+
+@router.post("/login", response_model=schemas.AuthResponse)
 async def login(
     response: Response,
     form_data: OAuth2PasswordRequestForm = Depends(),
@@ -117,6 +136,13 @@ async def login(
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+
+    db_user = db.query(models_db.Users).filter(models_db.Users.user_login == user.username).first()
+    if db_user:
+        db_user.is_active = True
+        db.commit()
+        
     expires = timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS)
     access_token = create_access_token(
         data={"sub": user.username}, expires_delta=expires
@@ -130,17 +156,17 @@ async def login(
         expires=ACCESS_TOKEN_EXPIRE_HOURS * 60 * 60,
         samesite="lax",
     )
-    return {"authenticated": True}
+    return {"authenticated": True, "is_admin": user.is_admin}
 
 
-@router.post("/logout", response_model=schemas.Token)
+@router.post("/logout", response_model=schemas.AuthResponse)
 async def logout(response: Response):
     response.delete_cookie(key="access_token")
     return {"authenticated": False}
 
 
-@router.get("/status", response_model=schemas.Token)
+@router.get("/status", response_model=schemas.AuthResponse)
 async def status(
     current_user: schemas.UserInDB = Depends(get_current_user),
 ):
-    return {"authenticated": True}
+    return {"authenticated": True, "is_admin": current_user.is_admin}

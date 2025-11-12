@@ -1,7 +1,8 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setLectures } from "@/store/lectures";
-import { LectureDay, LecturesState, LectureType } from "@/types";
+import { LectureDay, LectureCategory } from "@/types";
+import { LecturesState } from "@/types/states";
 import { useGetLecturesQuery } from "@/services/lectures";
 import { RootState } from "@/store";
 import {
@@ -10,7 +11,7 @@ import {
   useUpdateLectureVoteMutation,
   useDeleteLectureVoteMutation,
 } from "@/services/lectures";
-import { LectureVote } from "@/types";
+import { LectureVotePayload } from "@/types";
 import {
   setLectureVotes,
   setLectureVote,
@@ -24,26 +25,7 @@ export const useLectures = () => {
 
   useEffect(() => {
     if (!data) return;
-
-    const dayTypeMap: LecturesState = data.reduce((acc, lecture) => {
-      const { lectureDatetime, lectureCategory } = lecture;
-
-      const dateKey = new Date(lectureDatetime).toISOString().split("T")[0];
-      const typeKey = lectureCategory as LectureType;
-
-      if (!acc[dateKey]) {
-        acc[dateKey] = {} as LecturesState[LectureDay];
-      }
-
-      if (!acc[dateKey][typeKey]) {
-        acc[dateKey][typeKey] = [];
-      }
-
-      acc[dateKey][typeKey].push(lecture);
-      return acc;
-    }, {} as LecturesState);
-
-    dispatch(setLectures(dayTypeMap));
+    dispatch(setLectures(data));
   }, [data, dispatch]);
 
   return { lectures, error };
@@ -64,19 +46,23 @@ export const useLectureVotes = () => {
   }, [data, dispatch]);
 
   const getVote = (lectureId: number) => {
-    return votes.find((vote: LectureVote) => vote.lectureId === lectureId);
+    return votes.find(
+      (vote: LectureVotePayload) => vote.lectureId === lectureId
+    );
   };
 
   const hasVote = (lectureId: number) => {
-    return votes.some((vote: LectureVote) => vote.lectureId === lectureId);
+    return votes.some(
+      (vote: LectureVotePayload) => vote.lectureId === lectureId
+    );
   };
 
-  const addVote = (vote: LectureVote) => {
+  const addVote = (vote: LectureVotePayload) => {
     dispatch(setLectureVote(vote));
     createLectureVote(vote);
   };
 
-  const updateVote = (updatedVote: LectureVote) => {
+  const updateVote = (updatedVote: LectureVotePayload) => {
     dispatch(setLectureVote(updatedVote));
     updateLectureVote(updatedVote);
   };

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { LectureDay, LectureType } from "@/types";
+import { LectureDay, LectureCategory, Lecture, MappedLectures } from "@/types";
 import { useLectures } from "@/hooks/Lectures";
 import { useSwipeable, type SwipeEventData } from "react-swipeable";
 import SwipeIndicator from "@/components/SwipeIndicator";
@@ -16,8 +16,8 @@ const isInsideNoSwipe = (
 
 const SWIPE_THRESHOLD = 100; // pixels to trigger swipe
 
-const randomLectureType = () =>
-  Math.random() < 0.5 ? LectureType.STOSOWANA : LectureType.TEORETYCZNA;
+const randomLectureCategory = () =>
+  Math.random() < 0.5 ? LectureCategory.STOSOWANA : LectureCategory.TEORETYCZNA;
 
 const Lectures = () => {
   const [selectedDay, setSelectedDay] = useState<LectureDay | null>(null);
@@ -27,14 +27,32 @@ const Lectures = () => {
   const [isChangingDay, setIsChangingDay] = useState(false);
   const { lectures } = useLectures();
   const [selectedTypeForDay, setSelectedTypeForDay] = useState<
-    Partial<Record<LectureDay, LectureType>>
+    Partial<Record<LectureDay, LectureCategory>>
   >(() => ({
-    [LectureDay.DAY_1]: randomLectureType(),
-    [LectureDay.DAY_2]: randomLectureType(),
-    [LectureDay.DAY_3]: randomLectureType(),
+    [LectureDay.DAY_1]: randomLectureCategory(),
+    [LectureDay.DAY_2]: randomLectureCategory(),
+    [LectureDay.DAY_3]: randomLectureCategory(),
   }));
 
-  const days = Object.keys(lectures) as LectureDay[];
+  const mappedLectures: MappedLectures = lectures.reduce((acc, lecture) => {
+    const { lectureDatetime, lectureCategory } = lecture;
+
+    const dateKey = new Date(lectureDatetime).toISOString().split("T")[0];
+    const typeKey = lectureCategory as LectureCategory;
+
+    if (!acc[dateKey]) {
+      acc[dateKey] = {} as MappedLectures[LectureDay];
+    }
+
+    if (!acc[dateKey][typeKey]) {
+      acc[dateKey][typeKey] = [];
+    }
+
+    acc[dateKey][typeKey].push(lecture);
+    return acc;
+  }, {} as MappedLectures);
+
+  const days = Object.keys(mappedLectures) as LectureDay[];
   const dayIndex = selectedDay ? days.indexOf(selectedDay) : 0;
   const currentDay = selectedDay ?? days[0];
   const formattedDay = currentDay
@@ -92,29 +110,33 @@ const Lectures = () => {
         <h2>{formattedDay}</h2>
       </div>
       <SwipeIndicator currentIndex={dayIndex} totalDays={days.length} />
-      {Object.entries(lectures).map(([day, types]) => {
-        if (day !== currentDay) return null;
-        return (
-          <div
-            key={day}
-            className={`day-slide ${
-              isChangingDay ? `day-slide--${lastDirection}` : ""
-            }`}
-            style={{
-              transform: isDragging ? `translateX(${dragOffset}px)` : undefined,
-              transition: isDragging ? "none" : "transform 0.3s ease-out",
-            }}
-          >
-            <DayCard
-              types={types}
-              selectedType={selectedTypeForDay[day]}
-              setType={(type: LectureType) =>
-                setSelectedTypeForDay((prev) => ({ ...prev, [day]: type }))
-              }
-            />
-          </div>
-        );
-      })}
+      {Object.entries(mappedLectures).map(
+        ([day, types]: [string, Record<LectureCategory, Lecture[]>]) => {
+          if (day !== currentDay) return null;
+          return (
+            <div
+              key={day}
+              className={`day-slide ${
+                isChangingDay ? `day-slide--${lastDirection}` : ""
+              }`}
+              style={{
+                transform: isDragging
+                  ? `translateX(${dragOffset}px)`
+                  : undefined,
+                transition: isDragging ? "none" : "transform 0.3s ease-out",
+              }}
+            >
+              <DayCard
+                types={types}
+                selectedType={selectedTypeForDay[day]}
+                setType={(type: LectureCategory) =>
+                  setSelectedTypeForDay((prev) => ({ ...prev, [day]: type }))
+                }
+              />
+            </div>
+          );
+        }
+      )}
     </div>
   );
 };

@@ -59,6 +59,8 @@ class Users(Base):
     __tablename__ = "users"
     user_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     user_login: Mapped[str] = mapped_column(String(10))  # zwykly hash
+    is_active: Mapped[bool] = mapped_column(Boolean, default=False)
+    is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
 
     vote_lecture: Mapped[list[Votes_lectures]] = relationship(
         "Votes_lectures", back_populates="user"

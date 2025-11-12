@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Body
+from fastapi import APIRouter, Depends, HTTPException, Body, Query
 from sqlalchemy.orm import Session
 import schemas as schemas
 from .auth import get_current_user
@@ -21,7 +21,9 @@ db_dependency = Depends(get_db)
 
 
 @router.get("")
-async def get_all_posters(db: Session = Depends(get_db)):
+async def get_all_posters(db: Session = Depends(get_db),
+    description: bool = Query(True, description="Include poster description")
+):
     all_posters = db.query(Posters).all()
     posters_list = []
 
@@ -30,7 +32,7 @@ async def get_all_posters(db: Session = Depends(get_db)):
             poster_id=poster.poster_id,
             poster_name=poster.poster_name,
             poster_author=poster.poster_author,
-            poster_description=poster.poster_description,
+            poster_description=poster.poster_description if description else None,
         )
         posters_list.append(poster_info)
 

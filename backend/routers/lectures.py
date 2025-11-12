@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Body
+from fastapi import APIRouter, Depends, HTTPException, Body, Query
 from sqlalchemy.orm import Session
 from typing import Annotated
 import schemas as schemas
@@ -21,7 +21,9 @@ db_dependency = Depends(get_db)
 
 
 @router.get("")
-async def get_all_lectures(db: Session = Depends(get_db)):
+async def get_all_lectures(db: Session = Depends(get_db),
+    description: bool = Query(True, description="Include lecture description")
+):
     all_lectures = db.query(Lectures).all()
     lectures_list = []
 
@@ -32,7 +34,7 @@ async def get_all_lectures(db: Session = Depends(get_db)):
             lecture_name=lecture.lecture_name,
             speaker_name=lecture.speaker_name,
             lecture_datetime=lecture.lecture_timestamp,
-            lecture_description=lecture.lecture_description,
+            lecture_description=lecture.lecture_description if description else None,
         )
         lectures_list.append(lecture_info)
 

@@ -1,12 +1,8 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import {
-  Lecture,
-  LectureResponse,
-  LectureVote,
-  LectureVoteResponse,
-} from "@/types";
+import { Lecture, LectureVotePayload } from "@/types";
+import { LectureResponse, LectureVoteResponse } from "@/types/responses";
 
-const mapVoteToBody = (lectureVote: LectureVote) => ({
+const mapVoteToBody = (lectureVote: LectureVotePayload) => ({
   merytoryka_points: lectureVote.vote.merytorykaPoints,
   forma_points: lectureVote.vote.formaPoints,
 });
@@ -42,7 +38,7 @@ export const lecturesApi = createApi({
             ]
           : [{ type: "Lectures", id: "LIST" }],
     }),
-    getLectureVotes: builder.query<LectureVote[], void>({
+    getLectureVotes: builder.query<LectureVotePayload[], void>({
       query: () => `/votes`,
       transformResponse: (response: LectureVoteResponse[]) => {
         return response.map((vote) => ({
@@ -54,14 +50,14 @@ export const lecturesApi = createApi({
         }));
       },
     }),
-    createLectureVote: builder.mutation<any, LectureVote>({
+    createLectureVote: builder.mutation<any, LectureVotePayload>({
       query: (lectureVote) => ({
         url: `/${lectureVote.lectureId}/vote`,
         method: "POST",
         body: { vote_request: mapVoteToBody(lectureVote) },
       }),
     }),
-    updateLectureVote: builder.mutation<any, LectureVote>({
+    updateLectureVote: builder.mutation<any, LectureVotePayload>({
       query: (lectureVote) => ({
         url: `/${lectureVote.lectureId}/vote`,
         method: "PUT",
