@@ -67,7 +67,12 @@ class PosterResponse(BaseModel):
     poster_description: str | None = Field(..., max_length=3000)
 
 
+class VoteLectureResponseExtended(VoteLectureResponse):
+    user_id: int
+    vote_id: int
+
+
 class AllVotesResponse(BaseModel):
+    lectures: Sequence[VoteLectureResponseExtended]
     posters: Sequence[VotePosterResponse]
-    lectures: Sequence[VoteLectureResponse]
     active_users: int

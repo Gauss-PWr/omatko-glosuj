@@ -16,6 +16,8 @@ export const votesApi = createApi({
         return {
           lectures: response.lectures.map((vote) => ({
             lectureId: vote.lecture_id,
+            userId: vote.user_id,
+            voteId: vote.vote_id,
             vote: {
               merytorykaPoints: vote.merytoryka_points,
               formaPoints: vote.forma_points,

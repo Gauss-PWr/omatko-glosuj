@@ -45,13 +45,32 @@ export type PosterVotePayload = {
 export type AuthPayload = AuthState;
 
 export type AllVotes = {
-  lectures: LectureVotePayload[];
+  lectures: LectureVotePayloadExtended[];
   posters: PosterVotePayload[];
   active_users: number;
+};
+
+export type LectureVotePayloadExtended = LectureVotePayload & {
+  userId: number;
+  voteId: number;
 };
 
 export type MappedLectures = {
   [key in LectureDay]: {
     [key in LectureCategory]: Lecture[];
   };
+};
+
+export type LectureScore = {
+  lectureName: string;
+  speakerName: string;
+  score: number;
+  votes: number;
+};
+
+export type PosterScore = {
+  posterName: string;
+  posterAuthor: string;
+  score: number;
+  votes: number;
 };

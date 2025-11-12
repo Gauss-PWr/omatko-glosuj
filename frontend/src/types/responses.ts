@@ -16,6 +16,8 @@ export type PosterResponse = {
 
 export type LectureVoteResponse = {
   lecture_id: number;
+  user_id?: number;
+  vote_id?: number;
   merytoryka_points: number | null;
   forma_points: number | null;
 };

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from schemas import AllVotesResponse, VoteLectureResponse, VotePosterResponse
+from schemas import AllVotesResponse, VoteLectureResponseExtended, VotePosterResponse
 from database_connect import SessionLocal
 from models import Votes_lectures, Votes_posters, Users
 from .auth import get_current_user
@@ -26,10 +26,12 @@ async def get_votes(db: Session = Depends(get_db), user=Depends(get_current_user
 
     for l_vote in db.query(Votes_lectures).all():
         lecture_votes.append(
-            VoteLectureResponse(
+            VoteLectureResponseExtended(
                 lecture_id=l_vote.lecture_id,
                 merytoryka_points=l_vote.merytoryka_points,
                 forma_points=l_vote.forma_points,
+                user_id=l_vote.user_id,
+                vote_id=l_vote.vote_id,
             )
         )
 
