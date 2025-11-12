@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useGetAllVotesQuery } from "@/services/votes";
 import Chart from "chart.js/auto";
 import { AllVotes, LectureVotePayload } from "@/types";
+import "./dashboard.css";
 
 const SCALE_MERYTORYKA = 0.6;
 const SCALE_FORMA = 0.4;
@@ -56,7 +57,6 @@ const Dashboard = () => {
       };
     });
   };
-
   const topLectures = (category: "stosowana" | "teoretyczna") => {
     const scored = scoreLectures(category);
     if (!scored) return null;
@@ -84,38 +84,41 @@ const Dashboard = () => {
     <div className="dashboard uniform-width">
       {data && !isLoading ? (
         <>
-          <p>Total Votes: {data.active_users}</p>
-          <p>Unique Votes: {uniqueVotes}</p>
-          <h3>Top 5 Stosowana Lectures</h3>
-          <ul>
+          <p>Aktywnych uczestników: {data.active_users}</p>
+          <p>Unikalnych głosów: {uniqueVotes}</p>q21
+          <h3>Top 5 wykładów z bloku stosowanej</h3>
+          <ul className="leaderboard">
             {topLectures("stosowana")?.map(
               (lecture) =>
                 lecture && (
-                  <li key={lecture.lectureName}>
-                    {lecture.lectureName} by {lecture.speakerName} - Score:{" "}
-                    {lecture.score.toFixed(2)}
+                  <li key={lecture.lectureName} className="leaderboard-item">
+                    <div className="title">{lecture.lectureName}</div>{" "}
+                    <div className="speaker">{lecture.speakerName}</div>{" "}
+                    <div className="score">{lecture.score.toFixed(2)}</div>
                   </li>
                 )
             )}
           </ul>
-          <h3>Top 5 Teoretyczna Lectures</h3>
-          <ul>
+          <h3>Top 5 wykładów z bloku teoretycznej</h3>
+          <ul className="leaderboard">
             {topLectures("teoretyczna")?.map(
               (lecture) =>
                 lecture && (
-                  <li key={lecture.lectureName}>
-                    {lecture.lectureName} by {lecture.speakerName} - Score:{" "}
-                    {lecture.score.toFixed(2)}
+                  <li key={lecture.lectureName} className="leaderboard-item">
+                    <div className="title">{lecture.lectureName}</div>{" "}
+                    <div className="speaker">{lecture.speakerName}</div>{" "}
+                    <div className="score">{lecture.score.toFixed(2)}</div>
                   </li>
                 )
             )}
           </ul>
-          <h3>Top 5 Posters</h3>
-          <ul>
+          <h3>Top 5 plakatów</h3>
+          <ul className="leaderboard">
             {topPosters()?.map((poster) => (
-              <li key={poster.posterName}>
-                {poster.posterName} by {poster.posterAuthor} - Score:{" "}
-                {poster.score.toFixed(2)}
+              <li key={poster.posterName} className="leaderboard-item">
+                <div className="title">{poster.posterName}</div>{" "}
+                <div className="speaker">{poster.posterAuthor}</div>{" "}
+                <div className="score">{poster.score.toFixed(2)}</div>
               </li>
             ))}
           </ul>
