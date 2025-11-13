@@ -12,7 +12,7 @@ const DayCard = ({
   setType: (type: LectureCategory) => void;
 }) => {
   return (
-    <div className="lecture-day-container">
+    <div className="lecture-day-container uniform-width">
       <div className="lecture-choose-type-container">
         <button
           className={

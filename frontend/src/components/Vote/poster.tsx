@@ -62,7 +62,11 @@ const VotePosters = ({ posterId }: { posterId: number }) => {
   };
 
   return (
-    <div className="vote">
+    <div
+      className="vote"
+      onTouchStart={(e) => e.stopPropagation()}
+      onMouseDown={(e) => e.stopPropagation()}
+    >
       <div>
         Merytoryka: {voteMerytorykaValue ? voteMerytorykaValue : "Brak"}
       </div>

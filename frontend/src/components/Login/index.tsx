@@ -32,6 +32,7 @@ const Login = () => {
           placeholder="Kod"
           value={username}
           onChange={handleInput}
+          autoComplete="username"
           className={`login-input ${invalidLogin ? "invalid-login" : ""}`}
         />
         <div className="login-info">
