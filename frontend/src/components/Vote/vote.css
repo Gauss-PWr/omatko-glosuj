@@ -2,10 +2,6 @@
   margin-top: 15px;
 }
 
-.vote-merytoryka, .vote-forma, .vote-estetyka {
-  padding: 0 30px;
-}
-
 .vote-delete {
   margin: 10px 0;
   display: flex;

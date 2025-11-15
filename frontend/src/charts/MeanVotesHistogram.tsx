@@ -1,4 +1,4 @@
-import type { LectureScores, PosterScores } from "@/types";
+import type { LectureScore, PosterScore } from "@/types";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -22,27 +22,44 @@ const Histogram = ({
   dataset,
 }: {
   dataset: {
-    stosowana: LectureScores;
-    teoretyczna: LectureScores;
-    plakaty: PosterScores;
+    stosowana: LectureScore[];
+    teoretyczna: LectureScore[];
+    plakaty: PosterScore[];
   };
 }) => {
-  function linspace(start, end, num) {
+  function linspace(start: number, end: number, num: number): number[] {
     if (num === 1) return [start];
     const step = (end - start) / (num - 1);
-    return Array.from({ length: num }, (_, i) => start + step * i);
+    return Array.from(
+      { length: num },
+      (_, i) => +(start + step * i).toFixed(6)
+    );
   }
 
-  function binData(data: number[], bins: number[]): number[] {
-    const binCounts = new Array(bins.length - 1).fill(0);
-    data.forEach((value) => {
-      for (let i = 0; i < bins.length - 1; i++) {
-        if (value >= bins[i] && value < bins[i + 1]) {
-          binCounts[i]++;
+  function binData(
+    data: (number | null | undefined)[],
+    bins: number[]
+  ): number[] {
+    const binCounts = new Array(bins.length).fill(0);
+    const numeric = data.filter(
+      (v): v is number => typeof v === "number" && !Number.isNaN(v)
+    );
+
+    for (const value of numeric) {
+      // if value equals the last edge, put it in the last bin
+      if (value === bins[bins.length - 1]) {
+        binCounts[bins.length - 1]++;
+        continue;
+      }
+      // use [prevEdge, nextEdge) intervals for all but the last bin
+      for (let i = 1; i < bins.length; i++) {
+        if (value >= bins[i - 1] && value < bins[i]) {
+          binCounts[i - 1]++;
           break;
         }
       }
-    });
+    }
+
     return binCounts;
   }
 

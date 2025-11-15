@@ -72,13 +72,21 @@ nav a {
 }
 
 .nav-button-container .hamburger {
-  transform: scale(0.7);
+  transform: scale(0.9);
   padding: 0;
 }
 
-.nav-button-container .hamburger .hamburger-inner,
-.nav-button-container .hamburger .hamburger-inner::before,
+.nav-button-container .hamburger .hamburger-inner
+{
+  background-color: var(--omk-green);
+  border-radius: 10px;
+}
+.nav-button-container .hamburger .hamburger-inner::before {
+  border-radius: 10px;
+  background-color: var(--omk-blue);
+}
+
 .nav-button-container .hamburger .hamburger-inner::after {
   border-radius: 10px;
-  background-color: var(--omk-gray);
+  background-color: var(--omk-orange);
 }
