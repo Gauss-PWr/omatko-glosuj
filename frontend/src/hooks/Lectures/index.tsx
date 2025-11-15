@@ -1,8 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setLectures } from "@/store/lectures";
-import { LectureDay, LectureCategory } from "@/types";
-import { LecturesState } from "@/types/states";
 import { useGetLecturesQuery } from "@/services/lectures";
 import { RootState } from "@/store";
 import {
@@ -16,60 +14,65 @@ import {
   setLectureVotes,
   setLectureVote,
   deleteLectureVote,
+  lectureVotesSelectors,
 } from "@/store/lectureVotes";
 
 export const useLectures = () => {
   const dispatch = useDispatch();
   const lectures = useSelector((state: RootState) => state.lectures);
   const { data, error } = useGetLecturesQuery();
+  const { data: votesData } = useGetLectureVotesQuery();
 
   useEffect(() => {
     if (!data) return;
     dispatch(setLectures(data));
-  }, [data, dispatch]);
+    if (votesData) {
+      dispatch(setLectureVotes(votesData));
+    }
+  }, [data, votesData, dispatch]);
 
   return { lectures, error };
 };
 
-export const useLectureVotes = () => {
-  const dispatch = useDispatch();
-  const votes = useSelector((state: RootState) => state.lectureVotes);
-  const { data } = useGetLectureVotesQuery();
+export const useLectureVote = (id: number) => {
   const [createLectureVote] = useCreateLectureVoteMutation();
   const [updateLectureVote] = useUpdateLectureVoteMutation();
   const [deleteLectureVoteMutation] = useDeleteLectureVoteMutation();
 
-  useEffect(() => {
-    if (data) {
-      dispatch(setLectureVotes(data));
-    }
-  }, [data, dispatch]);
+  const dispatch = useDispatch();
+  const vote = useSelector((state: RootState) =>
+    lectureVotesSelectors.selectById(state, id)
+  );
 
-  const getVote = (lectureId: number) => {
-    return votes.find(
-      (vote: LectureVotePayload) => vote.lectureId === lectureId
-    );
+  const getVote = () => {
+    if (vote)
+      console.log(
+        "Getting Vote for ID:",
+        vote.vote.merytorykaPoints,
+        vote.vote.formaPoints
+      );
+    return vote;
   };
 
-  const hasVote = (lectureId: number) => {
-    return votes.some(
-      (vote: LectureVotePayload) => vote.lectureId === lectureId
-    );
+  const hasVote = () => {
+    return vote !== undefined;
   };
 
   const addVote = (vote: LectureVotePayload) => {
     dispatch(setLectureVote(vote));
     createLectureVote(vote);
+    console.log("Added Vote:", vote);
   };
 
   const updateVote = (updatedVote: LectureVotePayload) => {
     dispatch(setLectureVote(updatedVote));
     updateLectureVote(updatedVote);
+    console.log("Updated Vote:", updatedVote);
   };
 
-  const removeVote = (lectureId: number) => {
-    dispatch(deleteLectureVote({ lectureId }));
-    deleteLectureVoteMutation({ lectureId });
+  const removeVote = () => {
+    dispatch(deleteLectureVote({ id }));
+    deleteLectureVoteMutation({ id });
   };
 
   return { getVote, addVote, updateVote, removeVote, hasVote };

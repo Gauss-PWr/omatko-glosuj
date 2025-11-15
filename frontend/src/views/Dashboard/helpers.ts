@@ -24,7 +24,7 @@ export const scoreLectures = (
         lectureName: lecture.lectureName,
         speakerName: lecture.speakerName,
         score: votes
-          .filter((vote) => vote.lectureId === lecture.lectureId)
+          .filter((vote) => vote.id === lecture.id)
           .filter((vote) => !voteIds.includes(vote.voteId))
           .reduce(
             (sum, vote: LectureVotePayload, _, { length }) =>
@@ -34,7 +34,7 @@ export const scoreLectures = (
                 length,
             0
           ),
-        votes: votes.filter((vote) => vote.lectureId === lecture.lectureId)
+        votes: votes.filter((vote) => vote.id === lecture.id)
           .length,
       };
     }
@@ -51,7 +51,7 @@ export const scorePosters = (
       posterName: poster.posterName,
       posterAuthor: poster.posterAuthor,
       score: votes
-        .filter((vote) => vote.posterId === poster.posterId)
+        .filter((vote) => vote.id === poster.id)
         .reduce(
           (sum, vote: PosterVotePayload, _, { length }) =>
             sum +
@@ -60,7 +60,7 @@ export const scorePosters = (
               length,
           0
         ),
-      votes: votes.filter((vote) => vote.posterId === poster.posterId).length,
+      votes: votes.filter((vote) => vote.id === poster.id).length,
     };
   });
 };
@@ -85,10 +85,10 @@ export const fraudCheck = (
   lectures: Lecture[],
   lectureVotes: LectureVotePayloadExtended[]
 ) => {
-  // Map lectureId to datetime
+  // Map id to datetime
   const lectureDateMap: Record<number, string> = {};
   lectures.forEach((lecture) => {
-    lectureDateMap[lecture.lectureId] = lecture.lectureDatetime;
+    lectureDateMap[lecture.id] = lecture.lectureDatetime;
   });
 
   // Map userId to array of {voteId, datetime} they've voted for
@@ -97,7 +97,7 @@ export const fraudCheck = (
     { voteId: number; datetime: string }[]
   > = {};
   lectureVotes.forEach((vote) => {
-    const dt = lectureDateMap[vote.lectureId];
+    const dt = lectureDateMap[vote.id];
     if (!dt) return;
     if (!userVoteDatetimes[vote.userId]) {
       userVoteDatetimes[vote.userId] = [];

@@ -11,19 +11,19 @@ const slice = createSlice({
       return action.payload;
     },
     setPosterVote(state, action: PayloadAction<PosterVotePayload>) {
-      const { posterId, vote } = action.payload;
+      const { id, vote } = action.payload;
       const existingVoteIndex = state.findIndex(
-        (lv) => lv.posterId === posterId
+        (lv) => lv.id === id
       );
       if (existingVoteIndex !== -1) {
         state[existingVoteIndex].vote = vote;
       } else {
-        state.push({ posterId, vote });
+        state.push({ id, vote });
       }
     },
-    deletePosterVote(state, action: PayloadAction<{ posterId: number }>) {
-      const { posterId } = action.payload;
-      return state.filter((lv) => lv.posterId !== posterId);
+    deletePosterVote(state, action: PayloadAction<{ id: number }>) {
+      const { id } = action.payload;
+      return state.filter((lv) => lv.id !== id);
     },
   },
 });

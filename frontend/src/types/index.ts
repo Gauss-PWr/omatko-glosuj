@@ -1,12 +1,14 @@
+import { E } from "node_modules/react-router/dist/development/router-DIAPGK5f.mjs";
 import { LectureVoteRequest, PosterVoteRequest } from "./requestes";
 import { AuthState } from "./states";
+import { EntityId } from "@reduxjs/toolkit";
 
 export type User = {
   username: string;
 };
 
 export type Lecture = {
-  lectureId: number;
+  id: number;
   lectureCategory: "stosowana" | "teoretyczna";
   lectureName: string;
   speakerName: string;
@@ -15,7 +17,7 @@ export type Lecture = {
 };
 
 export type Poster = {
-  posterId: number;
+  id: number;
   posterName: string;
   posterAuthor: string;
   posterDescription: string;
@@ -33,12 +35,12 @@ export enum LectureCategory {
 }
 
 export type LectureVotePayload = {
-  lectureId: number;
+  id: EntityId;
   vote: LectureVoteRequest;
 };
 
 export type PosterVotePayload = {
-  posterId: number;
+  id: EntityId;
   vote: PosterVoteRequest;
 };
 

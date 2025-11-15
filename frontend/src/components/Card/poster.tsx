@@ -28,8 +28,8 @@ const PosterCard = (poster: Poster) => {
 
   return (
     <div
-      key={poster.posterId}
-      className={`card ${hasVote(poster.posterId) ? "voted" : ""}`}
+      key={poster.id}
+      className={`card ${hasVote(poster.id) ? "voted" : ""}`}
     >
       <div className="card-header" onClick={toggleOpen}>
         <h3>
@@ -51,7 +51,7 @@ const PosterCard = (poster: Poster) => {
             {isDescriptionExpanded ? "Pokaż mniej" : "Czytaj więcej"}
           </button>
         )}
-        <VotePoster posterId={poster.posterId} />
+        <VotePoster id={poster.id} />
       </div>
     </div>
   );

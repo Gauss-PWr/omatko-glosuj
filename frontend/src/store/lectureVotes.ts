@@ -1,33 +1,32 @@
+import {
+  createEntityAdapter,
+  createSlice,
+  PayloadAction,
+} from "@reduxjs/toolkit";
 import { LectureVotePayload } from "@/types";
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { RootState } from "@/store";
 
-const initialState: LectureVotePayload[] = [];
+const adapter = createEntityAdapter<LectureVotePayload>({});
 
 const slice = createSlice({
-  name: "lecturesVotes",
-  initialState,
+  name: "lectureVotes",
+  initialState: adapter.getInitialState(),
   reducers: {
     setLectureVotes(state, action: PayloadAction<LectureVotePayload[]>) {
-      return action.payload;
+      adapter.setAll(state, action.payload);
     },
     setLectureVote(state, action: PayloadAction<LectureVotePayload>) {
-      const { lectureId, vote } = action.payload;
-      const existingVoteIndex = state.findIndex(
-        (lv) => lv.lectureId === lectureId
-      );
-      if (existingVoteIndex !== -1) {
-        state[existingVoteIndex].vote = vote;
-      } else {
-        state.push({ lectureId, vote });
-      }
+      adapter.upsertOne(state, action.payload);
     },
-    deleteLectureVote(state, action: PayloadAction<{ lectureId: number }>) {
-      const { lectureId } = action.payload;
-      return state.filter((lv) => lv.lectureId !== lectureId);
+    deleteLectureVote(state, action: PayloadAction<{ id: number }>) {
+      adapter.removeOne(state, action.payload.id);
     },
   },
 });
 
 export const { setLectureVotes, setLectureVote, deleteLectureVote } =
   slice.actions;
+export const lectureVotesSelectors = adapter.getSelectors<RootState>(
+  (state) => state.lectureVotes
+);
 export default slice.reducer;

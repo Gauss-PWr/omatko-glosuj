@@ -44,12 +44,12 @@ export const usePosterVotes = () => {
     }
   }, [data, dispatch]);
 
-  const getVote = (posterId: number) => {
-    return votes.find((vote: PosterVotePayload) => vote.posterId === posterId);
+  const getVote = (id: number) => {
+    return votes.find((vote: PosterVotePayload) => vote.id === id);
   };
 
-  const hasVote = (posterId: number) => {
-    return votes.some((vote: PosterVotePayload) => vote.posterId === posterId);
+  const hasVote = (id: number) => {
+    return votes.some((vote: PosterVotePayload) => vote.id === id);
   };
 
   const addVote = (vote: PosterVotePayload) => {
@@ -62,9 +62,9 @@ export const usePosterVotes = () => {
     updatePosterVote(updatedVote);
   };
 
-  const removeVote = (posterId: number) => {
-    dispatch(deletePosterVote({ posterId }));
-    deletePosterVoteMutation({ posterId });
+  const removeVote = (id: number) => {
+    dispatch(deletePosterVote({ id }));
+    deletePosterVoteMutation({ id });
   };
 
   return { getVote, addVote, updateVote, removeVote, hasVote };

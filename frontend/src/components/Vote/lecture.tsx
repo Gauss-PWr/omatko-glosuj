@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import "./vote.css";
-import { useLectureVotes } from "@/hooks/Lectures";
+import { useLectureVote } from "@/hooks/Lectures";
 import { useRef } from "react";
+import React from "react";
 
-const VoteLectures = ({ lectureId }: { lectureId: number }) => {
+const VoteLecture = ({ id }: { id: number }) => {
   const { getVote, addVote, updateVote, removeVote, hasVote } =
-    useLectureVotes();
-  const existingVote = getVote(lectureId);
+    useLectureVote(id);
+  const existingVote = getVote();
 
   const [voteMerytorykaValue, setVoteMerytorykaValue] = useState<number | "">(
     existingVote?.vote.merytorykaPoints ?? ""
@@ -37,7 +38,7 @@ const VoteLectures = ({ lectureId }: { lectureId: number }) => {
     window.clearTimeout(debounceRef.current);
     debounceRef.current = window.setTimeout(() => {
       const payload = {
-        lectureId,
+        id,
         vote: {
           merytorykaPoints:
             voteMerytorykaValue === "" ? null : voteMerytorykaValue,
@@ -56,20 +57,20 @@ const VoteLectures = ({ lectureId }: { lectureId: number }) => {
 
   const handleDelete = () => {
     window.clearTimeout(debounceRef.current);
-    removeVote(lectureId);
+    removeVote();
     setVoteMerytorykaValue("");
     setVoteFormaValue("");
   };
 
   return (
     <div className="vote">
-      <div>
-        Merytoryka: {voteMerytorykaValue ? voteMerytorykaValue : "Brak"}
-      </div>
       <div className="vote-merytoryka">
+        <div>
+          Merytoryka: {voteMerytorykaValue ? voteMerytorykaValue : "Brak"}
+        </div>
         <input
           type="range"
-          name={`vote-merytoryka-${lectureId}`}
+          name={`vote-merytoryka-${id}`}
           min="1"
           max="10"
           value={voteMerytorykaValue}
@@ -80,7 +81,7 @@ const VoteLectures = ({ lectureId }: { lectureId: number }) => {
         <div>Forma: {voteFormaValue ? voteFormaValue : "Brak"}</div>
         <input
           type="range"
-          name={`vote-forma-${lectureId}`}
+          name={`vote-forma-${id}`}
           min="1"
           max="10"
           value={voteFormaValue}
@@ -90,9 +91,9 @@ const VoteLectures = ({ lectureId }: { lectureId: number }) => {
       <div className="vote-delete">
         <button
           type="button"
-          className={`has-vote ${!hasVote(lectureId) ? "disabled" : ""}`}
+          className={`has-vote ${!hasVote() ? "disabled" : ""}`}
           onClick={handleDelete}
-          disabled={!hasVote(lectureId)}
+          disabled={!hasVote()}
         >
           Usuń głos
         </button>
@@ -100,4 +101,5 @@ const VoteLectures = ({ lectureId }: { lectureId: number }) => {
     </div>
   );
 };
-export default VoteLectures;
+
+export default React.memo(VoteLecture);

@@ -1,9 +1,9 @@
 export type LectureRequest = {
-  lectureId: number;
+  id: number;
 };
 
 export type PosterRequest = {
-  posterId: number;
+  id: number;
 };
 
 export type LectureVoteRequest = {

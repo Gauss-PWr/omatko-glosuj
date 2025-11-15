@@ -3,10 +3,10 @@ import "./vote.css";
 import { usePosterVotes } from "@/hooks/Posters";
 import { useRef } from "react";
 
-const VotePosters = ({ posterId }: { posterId: number }) => {
+const VotePosters = ({ id }: { id: number }) => {
   const { getVote, addVote, updateVote, removeVote, hasVote } =
     usePosterVotes();
-  const existingVote = getVote(posterId);
+  const existingVote = getVote(id);
 
   const [voteMerytorykaValue, setVoteMerytorykaValue] = useState<number | "">(
     existingVote?.vote.merytorykaPoints ?? ""
@@ -37,7 +37,7 @@ const VotePosters = ({ posterId }: { posterId: number }) => {
     window.clearTimeout(debounceRef.current);
     debounceRef.current = window.setTimeout(() => {
       const payload = {
-        posterId,
+        id,
         vote: {
           merytorykaPoints:
             voteMerytorykaValue === "" ? null : voteMerytorykaValue,
@@ -56,7 +56,7 @@ const VotePosters = ({ posterId }: { posterId: number }) => {
 
   const handleDelete = () => {
     window.clearTimeout(debounceRef.current);
-    removeVote(posterId);
+    removeVote(id);
     setVoteMerytorykaValue("");
     setVoteEstetykaValue("");
   };
@@ -67,13 +67,13 @@ const VotePosters = ({ posterId }: { posterId: number }) => {
       onTouchStart={(e) => e.stopPropagation()}
       onMouseDown={(e) => e.stopPropagation()}
     >
-      <div>
-        Merytoryka: {voteMerytorykaValue ? voteMerytorykaValue : "Brak"}
-      </div>
       <div className="vote-merytoryka">
+        <div>
+          Merytoryka: {voteMerytorykaValue ? voteMerytorykaValue : "Brak"}
+        </div>
         <input
           type="range"
-          name={`vote-merytoryka-${posterId}`}
+          name={`vote-merytoryka-${id}`}
           min="1"
           max="10"
           value={voteMerytorykaValue}
@@ -84,7 +84,7 @@ const VotePosters = ({ posterId }: { posterId: number }) => {
         <div>Estetyka: {voteEstetykaValue ? voteEstetykaValue : "Brak"}</div>
         <input
           type="range"
-          name={`vote-estetyka-${posterId}`}
+          name={`vote-estetyka-${id}`}
           min="1"
           max="10"
           value={voteEstetykaValue}
@@ -94,9 +94,9 @@ const VotePosters = ({ posterId }: { posterId: number }) => {
       <div className="vote-delete">
         <button
           type="button"
-          className={`has-vote ${!hasVote(posterId) ? "disabled" : ""}`}
+          className={`has-vote ${!hasVote(id) ? "disabled" : ""}`}
           onClick={handleDelete}
-          disabled={!hasVote(posterId)}
+          disabled={!hasVote(id)}
         >
           Usuń głos
         </button>

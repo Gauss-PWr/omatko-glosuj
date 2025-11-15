@@ -44,7 +44,7 @@ const DayCard = ({
           return (
             <div key={type} className="lectures-list-container">
               {sortedList.map((lecture) => (
-                <LectureCard key={lecture.lectureId} {...lecture} />
+                <LectureCard key={lecture.id} {...lecture} />
               ))}
             </div>
           );

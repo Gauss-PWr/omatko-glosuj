@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { Lecture } from "@/types";
 import VoteLecture from "@/components/Vote/lecture";
-import { useLectureVotes } from "@/hooks/Lectures";
+import { useLectureVote } from "@/hooks/Lectures";
 import MathText from "@/components/MathText";
 import "./card.css";
 
 const MIN_LENGTH_FOR_TRUNCATION = 250; // Characters to trigger "Read More"
 
 const LectureCard = ({
-  lectureId,
+  id,
   lectureName,
   speakerName,
   lectureDescription,
@@ -16,7 +16,7 @@ const LectureCard = ({
 }: Lecture) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
-  const { hasVote } = useLectureVotes();
+  const { hasVote } = useLectureVote(id);
 
   const toggleOpen = () => {
     if (isOpen && isDescriptionExpanded) {
@@ -32,7 +32,7 @@ const LectureCard = ({
     lectureDescription.length > MIN_LENGTH_FOR_TRUNCATION;
 
   return (
-    <div className={`card ${hasVote(lectureId) ? "voted" : ""}`}>
+    <div className={`card ${hasVote() ? "voted" : ""}`}>
       <div className="card-header" onClick={toggleOpen}>
         <h3>
           <MathText text={lectureName} />
@@ -59,7 +59,7 @@ const LectureCard = ({
             {isDescriptionExpanded ? "Pokaż mniej" : "Pokaż więcej"}
           </button>
         )}
-        <VoteLecture lectureId={lectureId} />
+        <VoteLecture id={id} />
       </div>
     </div>
   );
