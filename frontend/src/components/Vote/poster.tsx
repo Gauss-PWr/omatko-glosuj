@@ -1,43 +1,52 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import "./vote.css";
-import { usePosterVotes } from "@/hooks/Posters";
-import { useRef } from "react";
+import { usePosterVote } from "@/hooks/Posters";
 
-const VotePosters = ({ posterId }: { posterId: number }) => {
-  const { getVote, addVote, updateVote, removeVote, hasVote } =
-    usePosterVotes();
-  const existingVote = getVote(posterId);
+const VotePosters = ({ id }: { id: number }) => {
+  const {
+    vote: existingVote,
+    addVote,
+    updateVote,
+    removeVote,
+    hasVote,
+  } = usePosterVote(id);
 
   const [voteMerytorykaValue, setVoteMerytorykaValue] = useState<number | "">(
-    existingVote?.vote.merytorykaPoints ?? ""
+    ""
   );
-  const [voteEstetykaValue, setVoteEstetykaValue] = useState<number | "">(
-    existingVote?.vote.estetykaPoints ?? ""
-  );
+  const [voteEstetykaValue, setVoteEstetykaValue] = useState<number | "">("");
 
   const debounceRef = useRef<number | undefined>(undefined);
 
-  // Sync state with existing vote when it loads
+  // Sync local inputs only when the remote vote actually changes
   useEffect(() => {
     if (existingVote) {
-      setVoteMerytorykaValue(existingVote.vote.merytorykaPoints ?? "");
-      setVoteEstetykaValue(existingVote.vote.estetykaPoints ?? "");
+      const remoteM = existingVote.vote.merytorykaPoints ?? "";
+      const remoteE = existingVote.vote.estetykaPoints ?? "";
+      if (voteMerytorykaValue !== remoteM) setVoteMerytorykaValue(remoteM);
+      if (voteEstetykaValue !== remoteE) setVoteEstetykaValue(remoteE);
+    } else {
+      if (voteMerytorykaValue !== "") setVoteMerytorykaValue("");
+      if (voteEstetykaValue !== "") setVoteEstetykaValue("");
     }
-  }, [existingVote]); // Only re-sync if the vote ID changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [existingVote]);
 
   useEffect(() => {
     if (voteMerytorykaValue === "" && voteEstetykaValue === "") return;
+
     if (
-      voteMerytorykaValue === existingVote?.vote.merytorykaPoints &&
-      voteEstetykaValue === existingVote?.vote.estetykaPoints
+      existingVote &&
+      voteMerytorykaValue === existingVote.vote.merytorykaPoints &&
+      voteEstetykaValue === existingVote.vote.estetykaPoints
     ) {
-      return; // No changes to save
+      return; // nothing changed
     }
 
     window.clearTimeout(debounceRef.current);
     debounceRef.current = window.setTimeout(() => {
       const payload = {
-        posterId,
+        id,
         vote: {
           merytorykaPoints:
             voteMerytorykaValue === "" ? null : voteMerytorykaValue,
@@ -52,24 +61,35 @@ const VotePosters = ({ posterId }: { posterId: number }) => {
     }, 600);
 
     return () => window.clearTimeout(debounceRef.current);
-  }, [voteMerytorykaValue, voteEstetykaValue]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [
+    voteMerytorykaValue,
+    voteEstetykaValue,
+    existingVote,
+    addVote,
+    updateVote,
+    id,
+  ]);
 
   const handleDelete = () => {
     window.clearTimeout(debounceRef.current);
-    removeVote(posterId);
+    removeVote(); // hook supplies id via closure
     setVoteMerytorykaValue("");
     setVoteEstetykaValue("");
   };
 
   return (
-    <div className="vote">
-      <div>
-        Merytoryka: {voteMerytorykaValue ? voteMerytorykaValue : "Brak"}
-      </div>
+    <div
+      className="vote"
+      onTouchStart={(e) => e.stopPropagation()}
+      onMouseDown={(e) => e.stopPropagation()}
+    >
       <div className="vote-merytoryka">
+        <div>
+          Merytoryka: {voteMerytorykaValue ? voteMerytorykaValue : "Brak"}
+        </div>
         <input
           type="range"
-          name={`vote-merytoryka-${posterId}`}
+          name={`vote-merytoryka-${id}`}
           min="1"
           max="10"
           value={voteMerytorykaValue}
@@ -80,7 +100,7 @@ const VotePosters = ({ posterId }: { posterId: number }) => {
         <div>Estetyka: {voteEstetykaValue ? voteEstetykaValue : "Brak"}</div>
         <input
           type="range"
-          name={`vote-estetyka-${posterId}`}
+          name={`vote-estetyka-${id}`}
           min="1"
           max="10"
           value={voteEstetykaValue}
@@ -90,9 +110,9 @@ const VotePosters = ({ posterId }: { posterId: number }) => {
       <div className="vote-delete">
         <button
           type="button"
-          className={`has-vote ${!hasVote(posterId) ? "disabled" : ""}`}
+          className={`has-vote ${!hasVote ? "disabled" : ""}`}
           onClick={handleDelete}
-          disabled={!hasVote(posterId)}
+          disabled={!hasVote}
         >
           Usuń głos
         </button>
@@ -100,4 +120,5 @@ const VotePosters = ({ posterId }: { posterId: number }) => {
     </div>
   );
 };
-export default VotePosters;
+
+export default React.memo(VotePosters);

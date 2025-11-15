@@ -11,10 +11,13 @@ import {
 } from "@/views/Dashboard/helpers";
 import Histogram from "@/charts/MeanVotesHistogram";
 import "./dashboard.css";
-
+import Loading from "@/components/Loading";
+import { useEffect } from "react";
+import { useLoading } from "@/providers/LoadingProvider";
 const Dashboard = () => {
   const { lectures } = useLectures();
   const { posters } = usePosters();
+  const { setLoading } = useLoading();
   const { data, isLoading } = useGetAllVotesQuery(undefined, {
     pollingInterval: 5000,
   });
@@ -23,6 +26,11 @@ const Dashboard = () => {
   const { count: fraudulentVotes, voteIds: fraudulentVoteIds } = data
     ? fraudCheck(lectures, data.lectures)
     : { count: 0, voteIds: [] };
+
+  useEffect(() => {
+    setLoading(isLoading);
+    return () => setLoading(false);
+  }, [isLoading, setLoading]);
 
   return (
     <div className="dashboard uniform-width">
@@ -61,7 +69,7 @@ const Dashboard = () => {
           </div>
         </>
       ) : (
-        <p>Ładowanie danych...</p>
+        <div />
       )}
     </div>
   );

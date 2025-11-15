@@ -32,10 +32,11 @@ const Login = () => {
           placeholder="Kod"
           value={username}
           onChange={handleInput}
+          autoComplete="username"
           className={`login-input ${invalidLogin ? "invalid-login" : ""}`}
         />
         <div className="login-info">
-          Kod znajdziesz z tyłu swojego indetyfikatora
+          Kod znajdziesz z tyłu swojego identyfikatora
         </div>
         <button type="submit" className="login-submit">
           ZALOGUJ

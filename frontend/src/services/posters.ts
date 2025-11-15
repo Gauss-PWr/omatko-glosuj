@@ -20,7 +20,7 @@ export const postersApi = createApi({
       query: () => "",
       transformResponse: (response: PosterResponse[]) => {
         return response.map((poster) => ({
-          posterId: poster.poster_id,
+          id: poster.poster_id,
           posterName: poster.poster_name,
           posterAuthor: poster.poster_author,
           posterDescription: poster.poster_description,
@@ -31,7 +31,7 @@ export const postersApi = createApi({
           ? [
               ...result.map((poster) => ({
                 type: "Posters" as const,
-                id: poster.posterId,
+                id: poster.id,
               })),
               { type: "Posters", id: "LIST" },
             ]
@@ -41,7 +41,7 @@ export const postersApi = createApi({
       query: () => `/votes`,
       transformResponse: (response: PosterVoteResponse[]) => {
         return response.map((vote) => ({
-          posterId: vote.poster_id,
+          id: vote.poster_id,
           vote: {
             merytorykaPoints: vote.merytoryka_points,
             estetykaPoints: vote.estetyka_points,
@@ -51,21 +51,21 @@ export const postersApi = createApi({
     }),
     createPosterVote: builder.mutation<any, PosterVotePayload>({
       query: (posterVote) => ({
-        url: `/${posterVote.posterId}/vote`,
+        url: `/${posterVote.id}/vote`,
         method: "POST",
         body: { vote_request: mapVoteToBody(posterVote) },
       }),
     }),
     updatePosterVote: builder.mutation<any, PosterVotePayload>({
       query: (posterVote) => ({
-        url: `/${posterVote.posterId}/vote`,
+        url: `/${posterVote.id}/vote`,
         method: "PUT",
         body: { vote_request: mapVoteToBody(posterVote) },
       }),
     }),
-    deletePosterVote: builder.mutation<any, { posterId: number }>({
-      query: ({ posterId }) => ({
-        url: `/${posterId}/vote`,
+    deletePosterVote: builder.mutation<any, { id: number }>({
+      query: ({ id }) => ({
+        url: `/${id}/vote`,
         method: "DELETE",
       }),
     }),

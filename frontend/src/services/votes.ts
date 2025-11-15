@@ -15,7 +15,7 @@ export const votesApi = createApi({
       transformResponse: (response: AllVotesResponse) => {
         return {
           lectures: response.lectures.map((vote) => ({
-            lectureId: vote.lecture_id,
+            id: vote.lecture_id,
             userId: vote.user_id,
             voteId: vote.vote_id,
             vote: {
@@ -24,7 +24,7 @@ export const votesApi = createApi({
             },
           })),
           posters: response.posters.map((vote) => ({
-            posterId: vote.poster_id,
+            id: vote.poster_id,
             vote: {
               merytorykaPoints: vote.merytoryka_points,
               estetykaPoints: vote.estetyka_points,

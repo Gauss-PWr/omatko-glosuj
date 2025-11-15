@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setPosters } from "@/store/posters";
 import { useGetPostersQuery } from "@/services/posters";
@@ -7,6 +7,7 @@ import {
   setPosterVotes,
   setPosterVote,
   deletePosterVote,
+  posterVotesSelectors,
 } from "@/store/posterVotes";
 import {
   useGetPosterVotesQuery,
@@ -20,52 +21,51 @@ export const usePosters = () => {
   const dispatch = useDispatch();
   const posters = useSelector((state: RootState) => state.posters);
   const { data, error } = useGetPostersQuery();
+  const { data: votesData } = useGetPosterVotesQuery();
 
   useEffect(() => {
     if (data) {
       dispatch(setPosters(data));
     }
-  }, [data, dispatch]);
+    if (votesData) {
+      dispatch(setPosterVotes(votesData));
+    }
+  }, [data, votesData, dispatch]);
 
   return { posters, error };
 };
 
-export const usePosterVotes = () => {
+export const usePosterVote = (id: number) => {
   const dispatch = useDispatch();
-  const votes = useSelector((state: RootState) => state.posterVotes);
-  const { data } = useGetPosterVotesQuery();
+  const vote = useSelector((state: RootState) =>
+    posterVotesSelectors.selectById(state, id)
+  );
   const [createPosterVote] = useCreatePosterVoteMutation();
   const [updatePosterVote] = useUpdatePosterVoteMutation();
   const [deletePosterVoteMutation] = useDeletePosterVoteMutation();
 
-  useEffect(() => {
-    if (data) {
-      dispatch(setPosterVotes(data));
-    }
-  }, [data, dispatch]);
+  const hasVote = !!vote;
 
-  const getVote = (posterId: number) => {
-    return votes.find((vote: PosterVotePayload) => vote.posterId === posterId);
-  };
+  const addVote = useCallback(
+    (vote: PosterVotePayload) => {
+      dispatch(setPosterVote(vote));
+      createPosterVote(vote);
+    },
+    [dispatch, createPosterVote]
+  );
 
-  const hasVote = (posterId: number) => {
-    return votes.some((vote: PosterVotePayload) => vote.posterId === posterId);
-  };
+  const updateVote = useCallback(
+    (updatedVote: PosterVotePayload) => {
+      dispatch(setPosterVote(updatedVote));
+      updatePosterVote(updatedVote);
+    },
+    [dispatch, updatePosterVote]
+  );
 
-  const addVote = (vote: PosterVotePayload) => {
-    dispatch(setPosterVote(vote));
-    createPosterVote(vote);
-  };
+  const removeVote = useCallback(() => {
+    dispatch(deletePosterVote({ id }));
+    deletePosterVoteMutation({ id });
+  }, [dispatch, deletePosterVoteMutation]);
 
-  const updateVote = (updatedVote: PosterVotePayload) => {
-    dispatch(setPosterVote(updatedVote));
-    updatePosterVote(updatedVote);
-  };
-
-  const removeVote = (posterId: number) => {
-    dispatch(deletePosterVote({ posterId }));
-    deletePosterVoteMutation({ posterId });
-  };
-
-  return { getVote, addVote, updateVote, removeVote, hasVote };
+  return { vote, addVote, updateVote, removeVote, hasVote };
 };

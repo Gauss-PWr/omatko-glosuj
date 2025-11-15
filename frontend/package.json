@@ -19,11 +19,14 @@
     "react": "^19.1.1",
     "react-chartjs-2": "^5.3.1",
     "react-dom": "^19.1.1",
+    "react-loader-spinner": "^8.0.0",
     "react-redux": "^9.2.0",
     "react-router": "^7.9.5",
     "react-router-dom": "^7.9.5",
     "react-swipeable": "^7.0.2",
-    "react-use-websocket": "^4.13.0"
+    "react-use-websocket": "^4.13.0",
+    "swipable": "^0.0.1-security",
+    "swiper": "^12.0.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",

@@ -24,7 +24,7 @@ const Posters = () => {
     <>
       <div className="posters-view uniform-width">
         {filteredPosters.map((poster) => (
-          <PosterCard key={poster.posterId} {...poster} />
+          <PosterCard key={poster.id} {...poster} />
         ))}
       </div>
       <div className="search-posters uniform-width">

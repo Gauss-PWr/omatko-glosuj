@@ -1,33 +1,33 @@
 import { PosterVotePayload } from "@/types";
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import {
+  createEntityAdapter,
+  createSlice,
+  PayloadAction,
+} from "@reduxjs/toolkit";
+import { RootState } from "@/store";
 
-const initialState: PosterVotePayload[] = [];
+const adapter = createEntityAdapter<PosterVotePayload>({});
 
 const slice = createSlice({
-  name: "lecturesVotes",
-  initialState,
+  name: "posterVotes",
+  initialState: adapter.getInitialState(),
   reducers: {
     setPosterVotes(state, action: PayloadAction<PosterVotePayload[]>) {
-      return action.payload;
+      adapter.setAll(state, action.payload);
     },
     setPosterVote(state, action: PayloadAction<PosterVotePayload>) {
-      const { posterId, vote } = action.payload;
-      const existingVoteIndex = state.findIndex(
-        (lv) => lv.posterId === posterId
-      );
-      if (existingVoteIndex !== -1) {
-        state[existingVoteIndex].vote = vote;
-      } else {
-        state.push({ posterId, vote });
-      }
+      adapter.upsertOne(state, action.payload);
     },
-    deletePosterVote(state, action: PayloadAction<{ posterId: number }>) {
-      const { posterId } = action.payload;
-      return state.filter((lv) => lv.posterId !== posterId);
+    deletePosterVote(state, action: PayloadAction<{ id: number }>) {
+      const { id } = action.payload;
+      adapter.removeOne(state, id);
     },
   },
 });
 
 export const { setPosterVotes, setPosterVote, deletePosterVote } =
   slice.actions;
+export const posterVotesSelectors = adapter.getSelectors<RootState>(
+  (state) => state.posterVotes
+);
 export default slice.reducer;

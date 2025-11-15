@@ -8,11 +8,21 @@ import Nav from "@/components/Nav";
 import useAuth from "@/hooks/Auth";
 import Footer from "@/components/Footer";
 import Dashboard from "./views/Dashboard";
+import Loading from "@/components/Loading";
+
+import { useLoading } from "./providers/LoadingProvider";
+import { useEffect } from "react";
 
 function App() {
   const { loading, loggedIn } = useAuth();
+  const { setLoading } = useLoading();
 
-  if (loading) return null;
+  useEffect(() => {
+    setLoading(loading);
+    return () => setLoading(false);
+  }, [loading, setLoading]); // Adj
+
+  if (loading) return <Loading />;
   if (!loggedIn) return <Login />;
 
   return (
