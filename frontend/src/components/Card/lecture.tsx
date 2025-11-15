@@ -32,7 +32,7 @@ const LectureCard = ({
     lectureDescription.length > MIN_LENGTH_FOR_TRUNCATION;
 
   return (
-    <div className={`card ${hasVote() ? "voted" : ""}`}>
+    <div className={`card ${hasVote ? "voted" : ""}`}>
       <div className="card-header" onClick={toggleOpen}>
         <h3>
           <MathText text={lectureName} />

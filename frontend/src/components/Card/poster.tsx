@@ -1,7 +1,7 @@
 import { Poster } from "@/types";
 import { useState } from "react";
 import "./card.css";
-import { usePosterVotes } from "../../hooks/Posters";
+import { usePosterVote } from "../../hooks/Posters";
 import VotePoster from "../Vote/poster";
 import MathText from "@/components/MathText";
 
@@ -11,7 +11,7 @@ const PosterCard = (poster: Poster) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
-  const { hasVote } = usePosterVotes();
+  const { hasVote } = usePosterVote(poster.id);
 
   const toggleOpen = () => {
     if (isOpen && isDescriptionExpanded) {
@@ -27,10 +27,7 @@ const PosterCard = (poster: Poster) => {
     poster.posterDescription.length > MIN_LENGTH_FOR_TRUNCATION;
 
   return (
-    <div
-      key={poster.id}
-      className={`card ${hasVote(poster.id) ? "voted" : ""}`}
-    >
+    <div key={poster.id} className={`card ${hasVote ? "voted" : ""}`}>
       <div className="card-header" onClick={toggleOpen}>
         <h3>
           <MathText text={poster.posterName} />

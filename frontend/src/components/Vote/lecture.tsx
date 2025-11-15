@@ -5,32 +5,36 @@ import { useRef } from "react";
 import React from "react";
 
 const VoteLecture = ({ id }: { id: number }) => {
-  const { getVote, addVote, updateVote, removeVote, hasVote } =
-    useLectureVote(id);
-  const existingVote = getVote();
+  const {
+    vote: existingVote,
+    addVote,
+    updateVote,
+    removeVote,
+    hasVote,
+  } = useLectureVote(id);
 
   const [voteMerytorykaValue, setVoteMerytorykaValue] = useState<number | "">(
-    existingVote?.vote.merytorykaPoints ?? ""
+    ""
   );
-  const [voteFormaValue, setVoteFormaValue] = useState<number | "">(
-    existingVote?.vote.formaPoints ?? ""
-  );
+  const [voteFormaValue, setVoteFormaValue] = useState<number | "">("");
 
   const debounceRef = useRef<number | undefined>(undefined);
 
-  // Sync state with existing vote when it loads
   useEffect(() => {
-    if (existingVote) {
-      setVoteMerytorykaValue(existingVote.vote.merytorykaPoints ?? "");
-      setVoteFormaValue(existingVote.vote.formaPoints ?? "");
-    }
-  }, [existingVote]); // Only re-sync if the vote ID changes
+    if (!existingVote) return;
+    const remoteM = existingVote.vote.merytorykaPoints ?? "";
+    const remoteF = existingVote.vote.formaPoints ?? "";
+    if (voteMerytorykaValue !== remoteM) setVoteMerytorykaValue(remoteM);
+    if (voteFormaValue !== remoteF) setVoteFormaValue(remoteF);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [existingVote]); // only react when remote vote changes
 
   useEffect(() => {
     if (voteMerytorykaValue === "" && voteFormaValue === "") return;
     if (
-      voteMerytorykaValue === existingVote?.vote.merytorykaPoints &&
-      voteFormaValue === existingVote?.vote.formaPoints
+      existingVote &&
+      voteMerytorykaValue === existingVote.vote.merytorykaPoints &&
+      voteFormaValue === existingVote.vote.formaPoints
     ) {
       return; // No changes to save
     }
@@ -53,7 +57,14 @@ const VoteLecture = ({ id }: { id: number }) => {
     }, 600);
 
     return () => window.clearTimeout(debounceRef.current);
-  }, [voteMerytorykaValue, voteFormaValue]);
+  }, [
+    voteMerytorykaValue,
+    voteFormaValue,
+    existingVote,
+    addVote,
+    updateVote,
+    id,
+  ]);
 
   const handleDelete = () => {
     window.clearTimeout(debounceRef.current);
@@ -91,9 +102,9 @@ const VoteLecture = ({ id }: { id: number }) => {
       <div className="vote-delete">
         <button
           type="button"
-          className={`has-vote ${!hasVote() ? "disabled" : ""}`}
+          className={`has-vote ${!hasVote ? "disabled" : ""}`}
           onClick={handleDelete}
-          disabled={!hasVote()}
+          disabled={!hasVote}
         >
           Usuń głos
         </button>

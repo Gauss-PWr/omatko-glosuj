@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setLectures } from "@/store/lectures";
 import { useGetLecturesQuery } from "@/services/lectures";
@@ -35,45 +35,38 @@ export const useLectures = () => {
 };
 
 export const useLectureVote = (id: number) => {
-  const [createLectureVote] = useCreateLectureVoteMutation();
-  const [updateLectureVote] = useUpdateLectureVoteMutation();
-  const [deleteLectureVoteMutation] = useDeleteLectureVoteMutation();
-
   const dispatch = useDispatch();
   const vote = useSelector((state: RootState) =>
     lectureVotesSelectors.selectById(state, id)
   );
 
-  const getVote = () => {
-    if (vote)
-      console.log(
-        "Getting Vote for ID:",
-        vote.vote.merytorykaPoints,
-        vote.vote.formaPoints
-      );
-    return vote;
-  };
+  const [createLectureVote] = useCreateLectureVoteMutation();
+  const [updateLectureVote] = useUpdateLectureVoteMutation();
+  const [deleteLectureVoteMutation] = useDeleteLectureVoteMutation();
 
-  const hasVote = () => {
-    return vote !== undefined;
-  };
+  const hasVote = !!vote;
 
-  const addVote = (vote: LectureVotePayload) => {
-    dispatch(setLectureVote(vote));
-    createLectureVote(vote);
-    console.log("Added Vote:", vote);
-  };
+  const addVote = useCallback(
+    (v: LectureVotePayload) => {
+      // optimistic local update
+      dispatch(setLectureVote(v));
+      createLectureVote(v);
+    },
+    [dispatch, createLectureVote]
+  );
 
-  const updateVote = (updatedVote: LectureVotePayload) => {
-    dispatch(setLectureVote(updatedVote));
-    updateLectureVote(updatedVote);
-    console.log("Updated Vote:", updatedVote);
-  };
+  const updateVote = useCallback(
+    (v: LectureVotePayload) => {
+      dispatch(setLectureVote(v));
+      updateLectureVote(v);
+    },
+    [dispatch, updateLectureVote]
+  );
 
-  const removeVote = () => {
+  const removeVote = useCallback(() => {
     dispatch(deleteLectureVote({ id }));
     deleteLectureVoteMutation({ id });
-  };
+  }, [dispatch, deleteLectureVoteMutation, id]);
 
-  return { getVote, addVote, updateVote, removeVote, hasVote };
+  return { vote, hasVote, addVote, updateVote, removeVote };
 };

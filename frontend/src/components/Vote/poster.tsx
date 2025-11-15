@@ -1,37 +1,46 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import "./vote.css";
-import { usePosterVotes } from "@/hooks/Posters";
-import { useRef } from "react";
+import { usePosterVote } from "@/hooks/Posters";
 
 const VotePosters = ({ id }: { id: number }) => {
-  const { getVote, addVote, updateVote, removeVote, hasVote } =
-    usePosterVotes();
-  const existingVote = getVote(id);
+  const {
+    vote: existingVote,
+    addVote,
+    updateVote,
+    removeVote,
+    hasVote,
+  } = usePosterVote(id);
 
   const [voteMerytorykaValue, setVoteMerytorykaValue] = useState<number | "">(
-    existingVote?.vote.merytorykaPoints ?? ""
+    ""
   );
-  const [voteEstetykaValue, setVoteEstetykaValue] = useState<number | "">(
-    existingVote?.vote.estetykaPoints ?? ""
-  );
+  const [voteEstetykaValue, setVoteEstetykaValue] = useState<number | "">("");
 
   const debounceRef = useRef<number | undefined>(undefined);
 
-  // Sync state with existing vote when it loads
+  // Sync local inputs only when the remote vote actually changes
   useEffect(() => {
     if (existingVote) {
-      setVoteMerytorykaValue(existingVote.vote.merytorykaPoints ?? "");
-      setVoteEstetykaValue(existingVote.vote.estetykaPoints ?? "");
+      const remoteM = existingVote.vote.merytorykaPoints ?? "";
+      const remoteE = existingVote.vote.estetykaPoints ?? "";
+      if (voteMerytorykaValue !== remoteM) setVoteMerytorykaValue(remoteM);
+      if (voteEstetykaValue !== remoteE) setVoteEstetykaValue(remoteE);
+    } else {
+      if (voteMerytorykaValue !== "") setVoteMerytorykaValue("");
+      if (voteEstetykaValue !== "") setVoteEstetykaValue("");
     }
-  }, [existingVote]); // Only re-sync if the vote ID changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [existingVote]);
 
   useEffect(() => {
     if (voteMerytorykaValue === "" && voteEstetykaValue === "") return;
+
     if (
-      voteMerytorykaValue === existingVote?.vote.merytorykaPoints &&
-      voteEstetykaValue === existingVote?.vote.estetykaPoints
+      existingVote &&
+      voteMerytorykaValue === existingVote.vote.merytorykaPoints &&
+      voteEstetykaValue === existingVote.vote.estetykaPoints
     ) {
-      return; // No changes to save
+      return; // nothing changed
     }
 
     window.clearTimeout(debounceRef.current);
@@ -52,11 +61,18 @@ const VotePosters = ({ id }: { id: number }) => {
     }, 600);
 
     return () => window.clearTimeout(debounceRef.current);
-  }, [voteMerytorykaValue, voteEstetykaValue]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [
+    voteMerytorykaValue,
+    voteEstetykaValue,
+    existingVote,
+    addVote,
+    updateVote,
+    id,
+  ]);
 
   const handleDelete = () => {
     window.clearTimeout(debounceRef.current);
-    removeVote(id);
+    removeVote(); // hook supplies id via closure
     setVoteMerytorykaValue("");
     setVoteEstetykaValue("");
   };
@@ -94,9 +110,9 @@ const VotePosters = ({ id }: { id: number }) => {
       <div className="vote-delete">
         <button
           type="button"
-          className={`has-vote ${!hasVote(id) ? "disabled" : ""}`}
+          className={`has-vote ${!hasVote ? "disabled" : ""}`}
           onClick={handleDelete}
-          disabled={!hasVote(id)}
+          disabled={!hasVote}
         >
           Usuń głos
         </button>
@@ -104,4 +120,5 @@ const VotePosters = ({ id }: { id: number }) => {
     </div>
   );
 };
-export default VotePosters;
+
+export default React.memo(VotePosters);
