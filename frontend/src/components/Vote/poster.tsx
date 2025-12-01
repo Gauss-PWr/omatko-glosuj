@@ -35,10 +35,13 @@ const VotePosters = ({ id }: { id: number }) => {
   useEffect(() => {
     if (voteMerytorykaValue === "" && voteEstetykaValue === "") return;
 
+    const existingM = existingVote?.vote?.merytorykaPoints ?? "";
+    const existingE = existingVote?.vote?.estetykaPoints ?? "";
+
     if (
       existingVote &&
-      voteMerytorykaValue === existingVote.vote.merytorykaPoints &&
-      voteEstetykaValue === existingVote.vote.estetykaPoints
+      voteMerytorykaValue === existingM &&
+      voteEstetykaValue === existingE
     ) {
       return; // nothing changed
     }
@@ -64,6 +67,8 @@ const VotePosters = ({ id }: { id: number }) => {
   }, [
     voteMerytorykaValue,
     voteEstetykaValue,
+    existingVote?.vote?.merytorykaPoints,
+    existingVote?.vote?.estetykaPoints,
     existingVote,
     addVote,
     updateVote,

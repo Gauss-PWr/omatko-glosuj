@@ -60,9 +60,6 @@ export const lecturesApi = createApi({
         method: "POST",
         body: { vote_request: mapVoteToBody(lectureVote) },
       }),
-      invalidatesTags: (result, error, arg) => [
-        { type: "LectureVotes", id: arg.id },
-      ],
       async onQueryStarted(lectureVote, { dispatch, queryFulfilled }) {
         const patch = dispatch(
           lecturesApi.util.updateQueryData(
@@ -97,9 +94,6 @@ export const lecturesApi = createApi({
         method: "PUT",
         body: { vote_request: mapVoteToBody(lectureVote) },
       }),
-      invalidatesTags: (result, error, arg) => [
-        { type: "LectureVotes", id: arg.id },
-      ],
       async onQueryStarted(lectureVote, { dispatch, queryFulfilled }) {
         const patch = dispatch(
           lecturesApi.util.updateQueryData(
@@ -131,9 +125,6 @@ export const lecturesApi = createApi({
         url: `/${id}/vote`,
         method: "DELETE",
       }),
-      invalidatesTags: (result, error, arg) => [
-        { type: "LectureVotes", id: arg.id },
-      ],
       async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
         const patch = dispatch(
           lecturesApi.util.updateQueryData(

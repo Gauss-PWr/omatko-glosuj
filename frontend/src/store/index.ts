@@ -6,14 +6,12 @@ import { postersApi } from "@/services/posters";
 import lecturesReducer from "@/store/lectures";
 import authReducer from "@/store/auth";
 import postersReducer from "@/store/posters";
-import postersVotesReducer from "@/store/posterVotes";
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     lectures: lecturesReducer,
     posters: postersReducer,
-    posterVotes: postersVotesReducer,
     [postersApi.reducerPath]: postersApi.reducer,
     [lecturesApi.reducerPath]: lecturesApi.reducer,
     [authApi.reducerPath]: authApi.reducer,
