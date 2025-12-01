@@ -1,19 +1,13 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setPosters } from "@/store/posters";
 import { useGetPostersQuery } from "@/services/posters";
 import { RootState } from "@/store";
 import {
-  setPosterVotes,
-  setPosterVote,
-  deletePosterVote,
-  posterVotesSelectors,
-} from "@/store/posterVotes";
-import {
-  useGetPosterVotesQuery,
   useCreatePosterVoteMutation,
   useUpdatePosterVoteMutation,
   useDeletePosterVoteMutation,
+  useGetPosterVotesQuery,
 } from "@/services/posters";
 import { PosterVotePayload } from "@/types";
 
@@ -21,24 +15,21 @@ export const usePosters = () => {
   const dispatch = useDispatch();
   const posters = useSelector((state: RootState) => state.posters);
   const { data, error } = useGetPostersQuery();
-  const { data: votesData } = useGetPosterVotesQuery();
 
   useEffect(() => {
     if (data) {
       dispatch(setPosters(data));
     }
-    if (votesData) {
-      dispatch(setPosterVotes(votesData));
-    }
-  }, [data, votesData, dispatch]);
+  }, [data, dispatch]);
 
   return { posters, error };
 };
 
 export const usePosterVote = (id: number) => {
-  const dispatch = useDispatch();
-  const vote = useSelector((state: RootState) =>
-    posterVotesSelectors.selectById(state, id)
+  const { data: votes } = useGetPosterVotesQuery();
+  const vote = useMemo(
+    () => votes?.find((posterVote) => posterVote.id === id),
+    [votes, id]
   );
   const [createPosterVote] = useCreatePosterVoteMutation();
   const [updatePosterVote] = useUpdatePosterVoteMutation();
@@ -48,24 +39,21 @@ export const usePosterVote = (id: number) => {
 
   const addVote = useCallback(
     (vote: PosterVotePayload) => {
-      dispatch(setPosterVote(vote));
       createPosterVote(vote);
     },
-    [dispatch, createPosterVote]
+    [createPosterVote]
   );
 
   const updateVote = useCallback(
     (updatedVote: PosterVotePayload) => {
-      dispatch(setPosterVote(updatedVote));
       updatePosterVote(updatedVote);
     },
-    [dispatch, updatePosterVote]
+    [updatePosterVote]
   );
 
   const removeVote = useCallback(() => {
-    dispatch(deletePosterVote({ id }));
     deletePosterVoteMutation({ id });
-  }, [dispatch, deletePosterVoteMutation]);
+  }, [deletePosterVoteMutation, id]);
 
   return { vote, addVote, updateVote, removeVote, hasVote };
 };

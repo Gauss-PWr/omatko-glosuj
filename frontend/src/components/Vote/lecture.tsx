@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import "./vote.css";
 import { useLectureVote } from "@/hooks/Lectures";
 import { useRef } from "react";
-import React from "react";
 
 const VoteLecture = ({ id }: { id: number }) => {
   const {
@@ -14,39 +13,44 @@ const VoteLecture = ({ id }: { id: number }) => {
   } = useLectureVote(id);
 
   const [voteMerytorykaValue, setVoteMerytorykaValue] = useState<number | "">(
-    ""
+    existingVote?.vote?.merytorykaPoints ?? ""
   );
-  const [voteFormaValue, setVoteFormaValue] = useState<number | "">("");
+  const [voteFormaValue, setVoteFormaValue] = useState<number | "">(
+    existingVote?.vote?.formaPoints ?? ""
+  );
+  useEffect(() => {
+    const fetchedMerytoryka = existingVote?.vote?.merytorykaPoints ?? "";
+    const fetchedForma = existingVote?.vote?.formaPoints ?? "";
+
+    setVoteMerytorykaValue((prev) =>
+      prev === fetchedMerytoryka ? prev : fetchedMerytoryka
+    );
+    setVoteFormaValue((prev) => (prev === fetchedForma ? prev : fetchedForma));
+  }, [existingVote?.vote?.merytorykaPoints, existingVote?.vote?.formaPoints]);
 
   const debounceRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
-    if (!existingVote) return;
-    const remoteM = existingVote.vote.merytorykaPoints ?? "";
-    const remoteF = existingVote.vote.formaPoints ?? "";
-    if (voteMerytorykaValue !== remoteM) setVoteMerytorykaValue(remoteM);
-    if (voteFormaValue !== remoteF) setVoteFormaValue(remoteF);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [existingVote]); // only react when remote vote changes
+    const mVal =
+      voteMerytorykaValue === "" ? null : Number(voteMerytorykaValue);
+    const fVal = voteFormaValue === "" ? null : Number(voteFormaValue);
 
-  useEffect(() => {
-    if (voteMerytorykaValue === "" && voteFormaValue === "") return;
-    if (
-      existingVote &&
-      voteMerytorykaValue === existingVote.vote.merytorykaPoints &&
-      voteFormaValue === existingVote.vote.formaPoints
-    ) {
-      return; // No changes to save
-    }
+    const existingM = existingVote?.vote?.merytorykaPoints ?? null;
+    const existingF = existingVote?.vote?.formaPoints ?? null;
+
+    // nothing to save
+    if (mVal === null && fVal === null) return;
+
+    // no changes compared to existing stored vote
+    if (existingVote && mVal === existingM && fVal === existingF) return;
 
     window.clearTimeout(debounceRef.current);
     debounceRef.current = window.setTimeout(() => {
       const payload = {
         id,
         vote: {
-          merytorykaPoints:
-            voteMerytorykaValue === "" ? null : voteMerytorykaValue,
-          formaPoints: voteFormaValue === "" ? null : voteFormaValue,
+          merytorykaPoints: mVal,
+          formaPoints: fVal,
         },
       };
       if (existingVote) {
@@ -57,13 +61,15 @@ const VoteLecture = ({ id }: { id: number }) => {
     }, 600);
 
     return () => window.clearTimeout(debounceRef.current);
+    // only depend on primitives (not the whole existingVote object)
   }, [
     voteMerytorykaValue,
     voteFormaValue,
-    existingVote,
+    existingVote?.vote?.merytorykaPoints,
+    existingVote?.vote?.formaPoints,
+    id,
     addVote,
     updateVote,
-    id,
   ]);
 
   const handleDelete = () => {
@@ -113,4 +119,4 @@ const VoteLecture = ({ id }: { id: number }) => {
   );
 };
 
-export default React.memo(VoteLecture);
+export default VoteLecture;

@@ -1,7 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { Poster, PosterVotePayload } from "../types";
 import { PosterVoteResponse, PosterResponse } from "@/types/responses";
-import { Meta } from "react-router";
 
 const mapVoteToBody = (posterVote: PosterVotePayload) => ({
   merytoryka_points: posterVote.vote.merytorykaPoints,
@@ -14,7 +13,7 @@ export const postersApi = createApi({
     baseUrl: import.meta.env.VITE_APP_API_BASE_URL + "/posters",
     credentials: "include",
   }),
-  tagTypes: ["Posters"],
+  tagTypes: ["Posters", "PosterVotes"],
   endpoints: (builder) => ({
     getPosters: builder.query<Poster[], void>({
       query: () => "",
@@ -48,6 +47,13 @@ export const postersApi = createApi({
           },
         }));
       },
+      providesTags: (result) =>
+        result
+          ? result.map((vote) => ({
+              type: "PosterVotes" as const,
+              id: vote.id,
+            }))
+          : [],
     }),
     createPosterVote: builder.mutation<any, PosterVotePayload>({
       query: (posterVote) => ({
@@ -55,6 +61,33 @@ export const postersApi = createApi({
         method: "POST",
         body: { vote_request: mapVoteToBody(posterVote) },
       }),
+      async onQueryStarted(posterVote, { dispatch, queryFulfilled }) {
+        const patch = dispatch(
+          postersApi.util.updateQueryData(
+            "getPosterVotes",
+            undefined,
+            (draft) => {
+              if (!draft) {
+                return [posterVote];
+              }
+              const index = draft.findIndex(
+                (vote) => vote.id === posterVote.id
+              );
+              if (index >= 0) {
+                draft[index] = posterVote;
+              } else {
+                draft.push(posterVote);
+              }
+            }
+          )
+        );
+
+        try {
+          await queryFulfilled;
+        } catch {
+          patch.undo();
+        }
+      },
     }),
     updatePosterVote: builder.mutation<any, PosterVotePayload>({
       query: (posterVote) => ({
@@ -62,12 +95,60 @@ export const postersApi = createApi({
         method: "PUT",
         body: { vote_request: mapVoteToBody(posterVote) },
       }),
+      async onQueryStarted(posterVote, { dispatch, queryFulfilled }) {
+        const patch = dispatch(
+          postersApi.util.updateQueryData(
+            "getPosterVotes",
+            undefined,
+            (draft) => {
+              if (!draft) {
+                return [posterVote];
+              }
+              const index = draft.findIndex(
+                (vote) => vote.id === posterVote.id
+              );
+              if (index >= 0) {
+                draft[index] = posterVote;
+              }
+            }
+          )
+        );
+
+        try {
+          await queryFulfilled;
+        } catch {
+          patch.undo();
+        }
+      },
     }),
     deletePosterVote: builder.mutation<any, { id: number }>({
       query: ({ id }) => ({
         url: `/${id}/vote`,
         method: "DELETE",
       }),
+      async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
+        const patch = dispatch(
+          postersApi.util.updateQueryData(
+            "getPosterVotes",
+            undefined,
+            (draft) => {
+              if (!draft) {
+                return;
+              }
+              const index = draft.findIndex((vote) => vote.id === id);
+              if (index >= 0) {
+                draft.splice(index, 1);
+              }
+            }
+          )
+        );
+
+        try {
+          await queryFulfilled;
+        } catch {
+          patch.undo();
+        }
+      },
     }),
   }),
 });

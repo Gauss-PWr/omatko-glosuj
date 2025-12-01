@@ -1,5 +1,4 @@
 import { LecturesState } from "@/types/states";
-import { LectureDay, LectureCategory } from "@/types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 const initialState: LecturesState = [];
