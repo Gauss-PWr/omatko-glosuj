@@ -60,7 +60,36 @@ export const lecturesApi = createApi({
         method: "POST",
         body: { vote_request: mapVoteToBody(lectureVote) },
       }),
-      invalidatesTags: (result, error, arg) => [{ type: "LectureVotes", id: arg.id }],
+      invalidatesTags: (result, error, arg) => [
+        { type: "LectureVotes", id: arg.id },
+      ],
+      async onQueryStarted(lectureVote, { dispatch, queryFulfilled }) {
+        const patch = dispatch(
+          lecturesApi.util.updateQueryData(
+            "getLectureVotes",
+            undefined,
+            (draft) => {
+              if (!draft) {
+                return [lectureVote];
+              }
+              const existingIndex = draft.findIndex(
+                (vote) => vote.id === lectureVote.id
+              );
+              if (existingIndex >= 0) {
+                draft[existingIndex] = lectureVote;
+              } else {
+                draft.push(lectureVote);
+              }
+            }
+          )
+        );
+
+        try {
+          await queryFulfilled;
+        } catch {
+          patch.undo();
+        }
+      },
     }),
     updateLectureVote: builder.mutation<any, LectureVotePayload>({
       query: (lectureVote) => ({
@@ -68,14 +97,66 @@ export const lecturesApi = createApi({
         method: "PUT",
         body: { vote_request: mapVoteToBody(lectureVote) },
       }),
-      invalidatesTags: (result, error, arg) => [{ type: "LectureVotes", id: arg.id }],
+      invalidatesTags: (result, error, arg) => [
+        { type: "LectureVotes", id: arg.id },
+      ],
+      async onQueryStarted(lectureVote, { dispatch, queryFulfilled }) {
+        const patch = dispatch(
+          lecturesApi.util.updateQueryData(
+            "getLectureVotes",
+            undefined,
+            (draft) => {
+              if (!draft) {
+                return [lectureVote];
+              }
+              const index = draft.findIndex(
+                (vote) => vote.id === lectureVote.id
+              );
+              if (index >= 0) {
+                draft[index] = lectureVote;
+              }
+            }
+          )
+        );
+
+        try {
+          await queryFulfilled;
+        } catch {
+          patch.undo();
+        }
+      },
     }),
     deleteLectureVote: builder.mutation<any, { id: number }>({
       query: ({ id }) => ({
         url: `/${id}/vote`,
         method: "DELETE",
       }),
-      invalidatesTags: (result, error, arg) => [{ type: "LectureVotes", id: arg.id }],
+      invalidatesTags: (result, error, arg) => [
+        { type: "LectureVotes", id: arg.id },
+      ],
+      async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
+        const patch = dispatch(
+          lecturesApi.util.updateQueryData(
+            "getLectureVotes",
+            undefined,
+            (draft) => {
+              if (!draft) {
+                return;
+              }
+              const index = draft.findIndex((vote) => vote.id === id);
+              if (index >= 0) {
+                draft.splice(index, 1);
+              }
+            }
+          )
+        );
+
+        try {
+          await queryFulfilled;
+        } catch {
+          patch.undo();
+        }
+      },
     }),
   }),
 });

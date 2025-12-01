@@ -4,16 +4,16 @@ import { setPosters } from "@/store/posters";
 import { useGetPostersQuery } from "@/services/posters";
 import { RootState } from "@/store";
 import {
-  setPosterVotes,
   setPosterVote,
   deletePosterVote,
   posterVotesSelectors,
+  setPosterVotes,
 } from "@/store/posterVotes";
 import {
-  useGetPosterVotesQuery,
   useCreatePosterVoteMutation,
   useUpdatePosterVoteMutation,
   useDeletePosterVoteMutation,
+  useGetPosterVotesQuery,
 } from "@/services/posters";
 import { PosterVotePayload } from "@/types";
 
@@ -27,10 +27,13 @@ export const usePosters = () => {
     if (data) {
       dispatch(setPosters(data));
     }
+  }, [data, dispatch]);
+
+  useEffect(() => {
     if (votesData) {
       dispatch(setPosterVotes(votesData));
     }
-  }, [data, votesData, dispatch]);
+  }, [votesData, dispatch]);
 
   return { posters, error };
 };
