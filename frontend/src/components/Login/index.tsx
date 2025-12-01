@@ -36,7 +36,7 @@ const Login = () => {
           className={`login-input ${invalidLogin ? "invalid-login" : ""}`}
         />
         <div className="login-info">
-          Kod znajdziesz z tyłu swojego identyfikatora
+          Kod znajdziesz z tyłu swojego identyfikatora.
         </div>
         <button type="submit" className="login-submit">
           ZALOGUJ

@@ -133,7 +133,7 @@ const Histogram = ({
         y: {
           stacked: true,
           min: 0,
-          max: 10,
+          suggestedMax: 10,
         },
       },
     },

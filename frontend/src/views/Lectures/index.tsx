@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { LectureDay, LectureCategory, Lecture, MappedLectures } from "@/types";
 import { useLectures } from "@/hooks/Lectures";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -9,6 +9,7 @@ import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/virtual";
 import "./view.css";
+import { data } from "react-router";
 
 const randomLectureCategory = () =>
   Math.random() < 0.5 ? LectureCategory.STOSOWANA : LectureCategory.TEORETYCZNA;
@@ -42,7 +43,19 @@ const Lectures = () => {
     return acc;
   }, {} as MappedLectures);
 
-  const days = Object.keys(mappedLectures) as LectureDay[];
+  const days = Object.keys(mappedLectures).sort(
+    (a, b) => new Date(a).getTime() - new Date(b).getTime()
+  ) as LectureDay[];
+  // ensure first selected day defaults to "today" when available, otherwise first day
+  useEffect(() => {
+    if (selectedDay) return;
+    if (!days || days.length === 0) return;
+    const todayKey = new Date().toISOString().split("T")[0];
+    const dayToSelect = (days.find((d) => d === todayKey) ??
+      days[0]) as LectureDay;
+    setSelectedDay(dayToSelect);
+  }, [days, selectedDay]);
+
   const dayIndex = selectedDay ? days.indexOf(selectedDay) : 0;
   const currentDay = selectedDay ?? days[0];
   const formattedDay = currentDay
@@ -66,11 +79,10 @@ const Lectures = () => {
             setSelectedDay(newDay);
           }}
         >
-          {Object.entries(mappedLectures).map(
-            (
-              [day, types]: [string, Record<LectureCategory, Lecture[]>],
-              index: number
-            ) => (
+          {days.map((day, index) => {
+            const types =
+              mappedLectures[day] || ({} as Record<LectureCategory, Lecture[]>);
+            return (
               <SwiperSlide key={day} virtualIndex={index}>
                 <DayCard
                   types={types}
@@ -80,8 +92,8 @@ const Lectures = () => {
                   }
                 />
               </SwiperSlide>
-            )
-          )}
+            );
+          })}
         </Swiper>
       </div>
     </div>
