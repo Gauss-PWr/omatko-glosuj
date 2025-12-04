@@ -5,19 +5,13 @@ import "./index.css";
 import App from "@/App";
 import { store } from "@/store";
 import { LoadingProvider } from "./providers/LoadingProvider";
-import { rehydratePostersCache } from "./utils/rehydrateCache";
+import { rehydrateVotesCache, setupVotesPersistence } from "./utils/rehydrateCache";
 
-// Register custom service worker for posters API caching
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker
-      .register(import.meta.env.BASE_URL + "service-worker.js")
-      .catch(() => {});
-  });
-}
+// Rehydrate votes cache from localStorage on startup
+rehydrateVotesCache(store.dispatch);
 
-// Rehydrate RTK Query cache from service worker cache
-rehydratePostersCache(store.dispatch).catch(() => {});
+// Persist votes to localStorage when they change
+setupVotesPersistence(store);
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
