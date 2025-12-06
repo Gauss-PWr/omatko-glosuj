@@ -1,11 +1,23 @@
-.lectures-change-day-container h2 {
-  text-align: center;
-  margin-bottom: 1rem;
-  text-transform: capitalize;
-  font-weight: 400;
-  font-style: normal;
-  transition: 0.3s ease;
+.lectures-change-day-container {
+  margin: 5px 0;
+  
 }
+
+.lectures-thumbs__slide {
+background-color: var(--omk-gray);
+border-radius: 5px;
+font-size: large;
+text-transform: capitalize;
+height: 40px!important;
+justify-content: center;
+transition: background-color 0.3s ease;
+}
+
+.active-day {
+  background-color: var(--omk-green);
+  color: white;
+}
+
 
 .lectures-view {
   flex: 1;
@@ -17,6 +29,11 @@
 
 .day-slider {
   width: 100%;
+  height: 100%;
+}
+
+.swiper {
+  height: 100%;
 }
 
 .swiper-slide {
