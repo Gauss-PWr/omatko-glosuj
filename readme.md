@@ -58,7 +58,7 @@ Schemat:
   login: str
   is_admin: boolean
 ```
-Najważniejsze żebyś sie nie pierdolnął z adminem bo inaczej wszyscy będą widzieć wyniki.
+Najważniejsze żebyś uważać z adminem bo inaczej wszyscy będą widzieć wyniki.
 
 ### Wykłady i plakaty
 
