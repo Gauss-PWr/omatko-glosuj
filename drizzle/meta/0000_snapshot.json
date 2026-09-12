@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "3d8b739f-0330-4690-a997-43de94f99063",
+  "id": "620cd855-4f95-488c-b381-f391e669b6db",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "app_events": {
@@ -69,6 +69,176 @@
       },
       "indexes": {},
       "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "current_slots": {
+      "name": "current_slots",
+      "columns": {
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "slot_id": {
+          "name": "slot_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "presentation_id": {
+          "name": "presentation_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "current_slots_user_id_slot_id_presentation_id_unique": {
+          "name": "current_slots_user_id_slot_id_presentation_id_unique",
+          "columns": [
+            "user_id",
+            "slot_id",
+            "presentation_id"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "current_slots_user_id_users_id_fk": {
+          "name": "current_slots_user_id_users_id_fk",
+          "tableFrom": "current_slots",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "current_slots_slot_id_slots_id_fk": {
+          "name": "current_slots_slot_id_slots_id_fk",
+          "tableFrom": "current_slots",
+          "tableTo": "slots",
+          "columnsFrom": [
+            "slot_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "current_slots_presentation_id_presentations_id_fk": {
+          "name": "current_slots_presentation_id_presentations_id_fk",
+          "tableFrom": "current_slots",
+          "tableTo": "presentations",
+          "columnsFrom": [
+            "presentation_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "current_votes": {
+      "name": "current_votes",
+      "columns": {
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "presenation_id": {
+          "name": "presenation_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "category": {
+          "name": "category",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "vote_id": {
+          "name": "vote_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "current_votes_user_id_presenation_id_category_vote_id_unique": {
+          "name": "current_votes_user_id_presenation_id_category_vote_id_unique",
+          "columns": [
+            "user_id",
+            "presenation_id",
+            "category",
+            "vote_id"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "current_votes_user_id_users_id_fk": {
+          "name": "current_votes_user_id_users_id_fk",
+          "tableFrom": "current_votes",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "current_votes_presenation_id_presentations_id_fk": {
+          "name": "current_votes_presenation_id_presentations_id_fk",
+          "tableFrom": "current_votes",
+          "tableTo": "presentations",
+          "columnsFrom": [
+            "presenation_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "current_votes_vote_id_votes_id_fk": {
+          "name": "current_votes_vote_id_votes_id_fk",
+          "tableFrom": "current_votes",
+          "tableTo": "votes",
+          "columnsFrom": [
+            "vote_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "checkConstraints": {}
@@ -146,6 +316,58 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
+    "sessions": {
+      "name": "sessions",
+      "columns": {
+        "token_hash": {
+          "name": "token_hash",
+          "type": "blob",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "role": {
+          "name": "role",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "expiresAt": {
+          "name": "expiresAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "sessions_user_id_users_id_fk": {
+          "name": "sessions_user_id_users_id_fk",
+          "tableFrom": "sessions",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
     "slots": {
       "name": "slots",
       "columns": {
@@ -208,8 +430,8 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
-    "vote": {
-      "name": "vote",
+    "votes": {
+      "name": "votes",
       "columns": {
         "id": {
           "name": "id",
@@ -258,9 +480,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "vote_user_id_users_id_fk": {
-          "name": "vote_user_id_users_id_fk",
-          "tableFrom": "vote",
+        "votes_user_id_users_id_fk": {
+          "name": "votes_user_id_users_id_fk",
+          "tableFrom": "votes",
           "tableTo": "users",
           "columnsFrom": [
             "user_id"
@@ -271,9 +493,9 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "vote_presentation_id_presentations_id_fk": {
-          "name": "vote_presentation_id_presentations_id_fk",
-          "tableFrom": "vote",
+        "votes_presentation_id_presentations_id_fk": {
+          "name": "votes_presentation_id_presentations_id_fk",
+          "tableFrom": "votes",
           "tableTo": "presentations",
           "columnsFrom": [
             "presentation_id"
