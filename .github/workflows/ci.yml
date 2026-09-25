@@ -1,0 +1,142 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  BUN_VERSION: 1.4.2
+
+jobs:
+  prepare:
+    name: Prepare environment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Package dependencies
+        run: tar -czf bun-dependencies.tar.gz node_modules
+
+      - name: Upload dependency artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bun-dependencies
+          path: bun-dependencies.tar.gz
+          if-no-files-found: error
+          retention-days: 1
+
+  lint:
+    name: Lint and format check
+    needs: prepare
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: Download dependency artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: bun-dependencies
+          path: .ci-artifacts
+
+      - name: Restore dependencies
+        run: tar -xzf .ci-artifacts/bun-dependencies.tar.gz
+
+      - name: Lint
+        run: bun run lint
+
+      - name: Check formatting
+        run: bun run format:check
+
+  typecheck:
+    name: Typecheck
+    needs: prepare
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: Download dependency artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: bun-dependencies
+          path: .ci-artifacts
+
+      - name: Restore dependencies
+        run: tar -xzf .ci-artifacts/bun-dependencies.tar.gz
+
+      - name: Typecheck
+        run: bun run typecheck
+
+  unit-tests:
+    name: Unit tests
+    needs: [prepare, lint, typecheck]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: Download dependency artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: bun-dependencies
+          path: .ci-artifacts
+
+      - name: Restore dependencies
+        run: tar -xzf .ci-artifacts/bun-dependencies.tar.gz
+
+      - name: Run unit tests
+        run: bun run test:junit
+
+      - name: Publish JUnit report
+        if: always()
+        uses: mikepenz/action-junit-report@v6
+        with:
+          report_paths: junit.xml
+          check_name: Unit test results
+          fail_on_failure: true
+          require_tests: true
+          annotate_only: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork }}
+
+      - name: Upload JUnit XML
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-report
+          path: junit.xml
+          if-no-files-found: warn
+          retention-days: 7

@@ -4,7 +4,7 @@ import * as AppError from "../../api/errors";
 import type { Role } from "$lib/domain/user";
 import { type DrizzleDb } from "db";
 import { createHash, randomBytes } from "node:crypto";
-import { sessions, users } from "$db/schema";
+import { sessions } from "$db/schema";
 import { eq } from "drizzle-orm";
 
 const EXPIRES_AT = 12 * 60 * 60 * 1000; //12h
@@ -27,7 +27,10 @@ export class Auth {
   async login(
     code: string,
   ): Promise<
-    Result<Pick<Session, "token" | "expiresAt">, AppError.UserNotFound>
+    Result<
+      Pick<Session, "token" | "expiresAt" | "userId" | "role">,
+      AppError.UserNotFound
+    >
   > {
     const codeHash = encode(code);
     const getUser = await this.db.query.users.findFirst({
@@ -53,6 +56,8 @@ export class Auth {
 
     return Ok({
       token,
+      userId: getUser.id,
+      role: getUser.role,
       expiresAt,
     });
   }

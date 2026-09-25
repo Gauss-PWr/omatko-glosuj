@@ -13,7 +13,7 @@ function setupDb(): DrizzleDb {
 
 const user: User = {
   accessCode: "user-1",
-  role: "attende",
+  role: "attendee",
 };
 
 const staff: User = {
@@ -43,13 +43,13 @@ async function migrateAndInsert(db: DrizzleDb) {
     {
       userId: 1,
       tokenHash: encode(TOKEN),
-      role: "attende",
+      role: "attendee",
       expiresAt: new Date(Date.now() + 60_000),
     },
     {
       userId: 2,
       tokenHash: encode(EXPIRED),
-      role: "attende",
+      role: "attendee",
       expiresAt: new Date(Date.now() - 60_000),
     },
   ]);
@@ -116,6 +116,9 @@ describe("auth service", async () => {
   test("rejects logout with bad token", async ({ authService }) => {
     const logoutResult = await authService.logout("bad-token");
     assert(!logoutResult.ok);
-    assert.strictEqual(logoutResult.error.code, ApiError.Code.SESSION_NOT_FOUND);
+    assert.strictEqual(
+      logoutResult.error.code,
+      ApiError.Code.SESSION_NOT_FOUND,
+    );
   });
 });

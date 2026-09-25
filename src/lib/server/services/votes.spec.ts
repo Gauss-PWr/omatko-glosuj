@@ -37,16 +37,34 @@ async function migrateAndSeed(db: DrizzleDb, votingEndsAt: Date | null) {
   migrate(db, { migrationsFolder: "drizzle" });
   await db.insert(users).values({
     accessCodeHash: encode("user-1"),
-    role: "attende",
+    role: "attendee",
   });
   await db.insert(slots).values({
     timestampStart: new Date(),
     timestampEnd: new Date(Date.now() + 3_600_000),
   });
   await db.insert(presentations).values([
-    { type: "talk", slotId: SLOT_ID, track: "applied", title: "Talk", author: "Ada" },
-    { type: "poster", slotId: null, track: "theory", title: "Poster", author: "Bob" },
-    { type: "talk", slotId: SLOT_ID, track: "theory", title: "Other", author: "Cy" },
+    {
+      type: "talk",
+      slotId: SLOT_ID,
+      track: "applied",
+      title: "Talk",
+      author: "Ada",
+    },
+    {
+      type: "poster",
+      slotId: null,
+      track: "theory",
+      title: "Poster",
+      author: "Bob",
+    },
+    {
+      type: "talk",
+      slotId: SLOT_ID,
+      track: "theory",
+      title: "Other",
+      author: "Cy",
+    },
   ]);
   await db.insert(appSettings).values({ votingEndsAt });
 }
@@ -103,7 +121,10 @@ describe("vote service", () => {
       { ...talkVote, score: 1 },
     ]);
 
-    const [, , recast] = await db.select().from(voteEvents).orderBy(voteEvents.id);
+    const [, , recast] = await db
+      .select()
+      .from(voteEvents)
+      .orderBy(voteEvents.id);
     assert(recast);
     assert.strictEqual(recast.kind, "score_cast");
     assert.strictEqual(recast.prevScore, 4);
@@ -133,7 +154,9 @@ describe("vote service", () => {
     voteService,
   }) => {
     assert((await voteService.vote(USER_ID, talkVote)).ok);
-    assert((await voteService.vote(USER_ID, { ...talkVote, category: "t_2" })).ok);
+    assert(
+      (await voteService.vote(USER_ID, { ...talkVote, category: "t_2" })).ok,
+    );
     assert((await voteService.pickTalk(USER_ID, OTHER_TALK_ID)).ok);
 
     assert.deepStrictEqual(await voteService.getVotes(USER_ID), []);
@@ -150,14 +173,20 @@ describe("vote service", () => {
     ]);
   });
 
-  test("withdraw deletes the score and logs it", async ({ db, voteService }) => {
+  test("withdraw deletes the score and logs it", async ({
+    db,
+    voteService,
+  }) => {
     assert((await voteService.vote(USER_ID, posterVote)).ok);
     assert(
       (await voteService.withdraw(USER_ID, POSTER_ID, posterVote.category)).ok,
     );
 
     assert.deepStrictEqual(await voteService.getVotes(USER_ID), []);
-    const [, withdrawn] = await db.select().from(voteEvents).orderBy(voteEvents.id);
+    const [, withdrawn] = await db
+      .select()
+      .from(voteEvents)
+      .orderBy(voteEvents.id);
     assert(withdrawn);
     assert.strictEqual(withdrawn.kind, "vote_withdrawn");
     assert.strictEqual(withdrawn.prevScore, posterVote.score);
@@ -203,18 +232,25 @@ describe("vote service", () => {
     [
       "category not matching presentation type",
       (s: VoteService) =>
-        s.vote(USER_ID, { presentationId: POSTER_ID, category: "t_1", score: 2 }),
+        s.vote(USER_ID, {
+          presentationId: POSTER_ID,
+          category: "t_1",
+          score: 2,
+        }),
     ],
     [
       "unknown presentation",
       (s: VoteService) => s.vote(USER_ID, { ...talkVote, presentationId: 999 }),
     ],
-  ] as const)("rejects %s as VOTE_INVALID", async ([, run], { db, voteService }) => {
-    const result = await run(voteService);
-    assert(!result.ok);
-    assert.strictEqual(result.error.code, ApiError.Code.VOTE_INVALID);
-    assert.deepStrictEqual(await eventKinds(db), []);
-    assert.deepStrictEqual(await db.select().from(votes), []);
-    assert.deepStrictEqual(await db.select().from(picks), []);
-  });
+  ] as const)(
+    "rejects %s as VOTE_INVALID",
+    async ([, run], { db, voteService }) => {
+      const result = await run(voteService);
+      assert(!result.ok);
+      assert.strictEqual(result.error.code, ApiError.Code.VOTE_INVALID);
+      assert.deepStrictEqual(await eventKinds(db), []);
+      assert.deepStrictEqual(await db.select().from(votes), []);
+      assert.deepStrictEqual(await db.select().from(picks), []);
+    },
+  );
 });

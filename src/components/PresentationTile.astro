@@ -17,31 +17,28 @@ const trackLabel =
     : talk.track === "theory"
       ? "Teoria"
       : null;
-const categories = kind === "talk" ? (["t_1", "t_2"] as const) : (["p_1", "p_2"] as const);
+const categories =
+  kind === "talk" ? (["t_1", "t_2"] as const) : (["p_1", "p_2"] as const);
 ---
 
 <BallotCard client:load presentationId={talk.id} categories={[...categories]}>
-  {
-    trackLabel && (
-      <p class="text-xs font-bold tracking-wider text-o-blue uppercase">
-        {trackLabel}
-      </p>
-    )
-  }
-  <h3 class="text-lg font-semibold leading-tight">
-    {talk.title}
-  </h3>
-  <p class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{talk.author}</p>
-  {
-    talk.abstract && (
-      <p class="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">{talk.abstract}</p>
-    )
-  }
-  {
-    kind === "talk" && slotId != null ? (
-      <TalkBallot client:load slotId={slotId} presentationId={talk.id} />
-    ) : (
-      <PosterBallot client:load presentationId={talk.id} />
-    )
-  }
+  {trackLabel && (
+    <p class="text-xs font-bold tracking-wider text-o-blue uppercase">
+      {trackLabel}
+    </p>
+  )}
+  <h3 class="text-lg font-semibold leading-tight">{talk.title}</h3>
+  <p class="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+    {talk.author}
+  </p>
+  {talk.abstract && (
+    <p class="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+      {talk.abstract}
+    </p>
+  )}
+  {kind === "talk" && slotId != null ? (
+    <TalkBallot client:load slotId={slotId} presentationId={talk.id} />
+  ) : (
+    <PosterBallot client:load presentationId={talk.id} />
+  )}
 </BallotCard>

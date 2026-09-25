@@ -103,7 +103,12 @@ export class VoteService {
         return invalid("only talks can be picked");
       if (talk.slotId === null) return invalid("talk has no slot");
 
-      this.pick(tx, userId, { id: presentationId, slotId: talk.slotId }, new Date());
+      this.pick(
+        tx,
+        userId,
+        { id: presentationId, slotId: talk.slotId },
+        new Date(),
+      );
       return Ok();
     });
   }

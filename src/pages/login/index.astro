@@ -9,9 +9,7 @@ const error = result?.error?.message;
 
 <Layout title="Logowanie · OMatKo!!!">
   <main class="relative flex min-h-dvh items-center justify-center p-6">
-    <section
-      class="w-full max-w-md rounded-2xl border border-zinc-200/80 bg-white/80 p-8 shadow-[0_20px_50px_-24px_rgba(30,41,59,0.45)] backdrop-blur dark:border-zinc-700/80 dark:bg-zinc-900/80 dark:shadow-black/40"
-    >
+    <section class="w-full max-w-md rounded-2xl border border-zinc-200/80 bg-white/80 p-8 shadow-[0_20px_50px_-24px_rgba(30,41,59,0.45)] backdrop-blur dark:border-zinc-700/80 dark:bg-zinc-900/80 dark:shadow-black/40">
       <div class="mb-8 flex items-start gap-4">
         <svg
           class="mt-1 shrink-0"
@@ -29,9 +27,7 @@ const error = result?.error?.message;
           <p class="text-sm font-semibold tracking-wide text-o-blue">
             XIII OMatKo!!! · 2026
           </p>
-          <h1 class="text-3xl font-semibold tracking-tight">
-            Głosowanie
-          </h1>
+          <h1 class="text-3xl font-semibold tracking-tight">Głosowanie</h1>
           <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
             Ogólnopolska Matematyczna Konferencja Studentów
           </p>
@@ -57,16 +53,14 @@ const error = result?.error?.message;
           />
         </label>
 
-        {
-          error && (
-            <p
-                class="rounded-lg bg-o-orange/15 px-3 py-2 text-sm font-medium text-orange-800 dark:text-orange-200"
-              role="alert"
-            >
-              {error}
-            </p>
-          )
-        }
+        {error && (
+          <p
+            class="rounded-lg bg-o-orange/15 px-3 py-2 text-sm font-medium text-orange-800 dark:text-orange-200"
+            role="alert"
+          >
+            {error}
+          </p>
+        )}
 
         <button
           type="submit"
