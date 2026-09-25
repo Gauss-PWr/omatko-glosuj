@@ -2,6 +2,7 @@
   "name": "astro",
   "type": "module",
   "version": "0.0.1",
+  "packageManager": "bun@1.4.2",
   "engines": {
     "bun": ">=1.4.0"
   },
@@ -11,7 +12,13 @@
     "preview": "bun --bun astro preview",
     "start": "bun ./dist/server/entry.mjs",
     "astro": "astro",
+    "prepare": "husky",
+    "lint": "eslint . --max-warnings=0",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "bun --bun astro check --minimumSeverity error",
     "test": "bun --bun vitest run",
+    "test:junit": "bun --bun vitest run --reporter=junit --outputFile=junit.xml",
     "test:watch": "bun --bun vitest",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
@@ -32,12 +39,33 @@
     "tailwindcss": "^4.3.3",
     "typescript": "^6.0.3"
   },
+  "lint-staged": {
+    "**/*.{js,mjs,cjs,ts,mts,cts,astro,svelte}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "**/*.{json,jsonc,css,md,yml,yaml}": [
+      "prettier --write"
+    ]
+  },
   "allowScripts": {
     "esbuild": true
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@eslint/js": "^10.0.1",
     "@types/bun": "^1.4.2",
     "drizzle-kit": "^1.0.0-rc.4",
+    "eslint": "^10.11.0",
+    "eslint-plugin-astro": "^3.2.1",
+    "eslint-plugin-svelte": "^3.23.0",
+    "globals": "^17.12.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.5.1",
+    "prettier": "^3.9.9",
+    "prettier-plugin-astro": "^1.1.0",
+    "prettier-plugin-svelte": "^4.1.1",
+    "typescript-eslint": "^8.70.1",
     "vitest": "^5.0.0"
   }
 }

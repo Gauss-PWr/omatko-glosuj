@@ -63,10 +63,7 @@ db.delete(picks).run();
 db.delete(presentations).run();
 db.delete(slots).run();
 
-const existing = db
-  .select({ id: users.id })
-  .from(users)
-  .all();
+const existing = db.select({ id: users.id }).from(users).all();
 if (existing.length === 0) {
   db.insert(users)
     .values({

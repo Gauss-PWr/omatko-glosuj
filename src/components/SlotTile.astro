@@ -4,18 +4,18 @@ import { formatClock } from "$lib/server/schedule";
 import SlotBoard from "./SlotBoard.svelte";
 
 interface Props {
-  slot: SlotCard;
+  slotCard: SlotCard;
 }
 
-const { slot } = Astro.props;
-const timeRange = `${formatClock(slot.start)} – ${formatClock(slot.end)}`;
+const { slotCard } = Astro.props;
+const timeRange = `${formatClock(slotCard.start)} – ${formatClock(slotCard.end)}`;
 ---
 
 <SlotBoard
   client:load
-  slotId={slot.id}
-  talks={slot.talks}
+  slotId={slotCard.id}
+  talks={slotCard.talks}
   timeRange={timeRange}
-  startMs={slot.start.getTime()}
-  endMs={slot.end.getTime()}
+  startMs={slotCard.start.getTime()}
+  endMs={slotCard.end.getTime()}
 />
