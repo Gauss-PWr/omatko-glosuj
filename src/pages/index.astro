@@ -12,6 +12,7 @@ const token = Astro.cookies.get("omatko-token")?.value;
 const auth = token ? await authService.auth(token) : undefined;
 
 if (!auth?.ok) return Astro.redirect("/login");
+const { role } = auth.value;
 const { days, posters } = await loadSchedule();
 
 const now = Date.now();
@@ -36,6 +37,16 @@ const navItems = [
 <Layout ballot={initialPanel}>
   <main class="relative mx-auto max-w-3xl px-4 pb-28 pt-6 sm:pt-8">
     <FilterBar client:load />
+    {role !== "attendee" && (
+      <div class="-mt-2 mb-4 flex justify-end">
+        <a
+          class="text-sm font-semibold text-o-blue underline-offset-4 hover:underline"
+          href="/stats"
+        >
+          Statystyki głosowania →
+        </a>
+      </div>
+    )}
     {days.length === 0 && posters.length === 0 && (
       <p class="rounded-xl bg-white/80 p-6 text-sm text-zinc-600 dark:bg-zinc-900/80 dark:text-zinc-300">
         Brak referatów. Uruchom <code class="font-mono">bun db:seed</code>.
@@ -45,7 +56,7 @@ const navItems = [
     {days.map((day, index) => (
       <section class={`ballot-panel panel-day-${index} flex-col gap-4`}>
         {day.slots.map((slot) => (
-          <SlotTile slotCard={slot} />
+          <SlotTile slotCard={slot} showStats={role !== "attendee"} />
         ))}
       </section>
     ))}
@@ -53,7 +64,11 @@ const navItems = [
     {posters.length > 0 && (
       <section class="ballot-panel panel-posters flex-col gap-4">
         {posters.map((talk) => (
-          <PresentationTile kind="poster" {talk} />
+          <PresentationTile
+            kind="poster"
+            {talk}
+            showStats={role !== "attendee"}
+          />
         ))}
       </section>
     )}

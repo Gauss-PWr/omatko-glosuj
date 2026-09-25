@@ -1,0 +1,134 @@
+---
+import type { Category } from "$lib/domain/vote";
+import type { Type } from "$lib/domain/presentation";
+import { authorizeStats } from "$lib/server/stats-access";
+import { statsService } from "$lib/server";
+import Layout from "../../layouts/Layout.astro";
+
+const access = await authorizeStats(Astro.cookies.get("omatko-token")?.value);
+if (!access.authorized) {
+  return Astro.redirect(access.status === 401 ? "/login" : "/");
+}
+
+const stats = await statsService.getOverview();
+
+const typeLabel: Record<Type, string> = {
+  talk: "Referaty",
+  poster: "Postery",
+};
+
+function categoryLabel(category: Category): string {
+  switch (category) {
+    case "t_1":
+    case "p_1":
+      return "Merytoryka";
+    case "t_2":
+      return "Forma";
+    case "p_2":
+      return "Estetyka";
+  }
+}
+
+function number(value: number): string {
+  return value.toLocaleString("pl-PL");
+}
+---
+
+<Layout title="Statystyki głosowania · OMatKo!!!">
+  <main class="mx-auto max-w-5xl px-4 pb-12 pt-6 sm:pt-8">
+    <a
+      class="inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-o-blue transition-colors hover:text-cyan-700"
+      href="/"
+    >
+      <span aria-hidden="true">←</span>
+      Wróć do głosowania
+    </a>
+
+    <header class="mb-7 mt-4">
+      <p class="text-sm font-bold tracking-wide text-o-blue">OMatKo!!! · 2026</p>
+      <h1 class="font-serif text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+        Statystyki głosowania
+      </h1>
+      <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+        Aktualne wyniki z oddanych głosów.
+      </p>
+    </header>
+
+    <section aria-label="Podsumowanie" class="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <article class="theme-surface rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700">
+        <p class="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Głosy</p>
+        <p class="mt-2 text-2xl font-bold tabular-nums">{number(stats.totalVotes)}</p>
+      </article>
+      <article class="theme-surface rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700">
+        <p class="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Głosujący</p>
+        <p class="mt-2 text-2xl font-bold tabular-nums">{number(stats.participantCount)}</p>
+      </article>
+      <article class="theme-surface rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700">
+        <p class="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Ocenione</p>
+        <p class="mt-2 text-2xl font-bold tabular-nums">{number(stats.ratedPresentationCount)}</p>
+        <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">prezentacje</p>
+      </article>
+      <article class="theme-surface rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700">
+        <p class="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Wszystkie</p>
+        <p class="mt-2 text-2xl font-bold tabular-nums">{number(stats.presentationCount)}</p>
+        <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">prezentacje</p>
+      </article>
+    </section>
+
+    <section aria-labelledby="leaderboards-heading">
+      <div class="mb-4">
+        <h2 id="leaderboards-heading" class="font-serif text-2xl font-semibold text-zinc-900 dark:text-zinc-100">
+          Rankingi
+        </h2>
+        <p class="text-sm text-zinc-600 dark:text-zinc-400">
+          Średnia ocena w każdej kategorii; przy remisie wyżej jest prezentacja z większą liczbą głosów.
+        </p>
+      </div>
+
+      <div class="grid gap-4 md:grid-cols-2">
+        {stats.leaderboards.map((leaderboard) => (
+          <article class="theme-surface rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-700">
+            <p class="text-xs font-bold uppercase tracking-wider text-o-blue">
+              {typeLabel[leaderboard.type]}
+            </p>
+            <h3 class="mb-3 mt-1 text-lg font-semibold">
+              {categoryLabel(leaderboard.category)}
+            </h3>
+            {leaderboard.entries.length === 0 ? (
+              <p class="rounded-xl bg-zinc-50 px-3 py-4 text-sm text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">
+                Nie oddano jeszcze głosów w tej kategorii.
+              </p>
+            ) : (
+              <ol class="divide-y divide-zinc-100 dark:divide-zinc-700">
+                {leaderboard.entries.map((entry, index) => (
+                  <li class="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
+                    <span class="w-6 shrink-0 text-sm font-bold tabular-nums text-zinc-400">
+                      {index + 1}.
+                    </span>
+                    <div class="min-w-0 flex-1">
+                      <a
+                        class="block truncate font-semibold text-zinc-900 underline-offset-4 hover:text-o-blue hover:underline dark:text-zinc-100"
+                        href={`/stats/${entry.presentationId}`}
+                      >
+                        {entry.title}
+                      </a>
+                      <p class="truncate text-sm text-zinc-500 dark:text-zinc-400">
+                        {entry.author}
+                      </p>
+                    </div>
+                    <div class="shrink-0 text-right">
+                      <p class="font-bold tabular-nums">{entry.averageScore.toFixed(2)}</p>
+                      <p class="text-xs text-zinc-500 dark:text-zinc-400">
+                        {number(entry.voteCount)} głosów
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </article>
+        ))}
+      </div>
+    </section>
+  </main>
+</Layout>

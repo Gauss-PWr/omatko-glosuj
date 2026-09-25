@@ -5,9 +5,10 @@ import SlotBoard from "./SlotBoard.svelte";
 
 interface Props {
   slotCard: SlotCard;
+  showStats?: boolean;
 }
 
-const { slotCard } = Astro.props;
+const { slotCard, showStats = false } = Astro.props;
 const timeRange = `${formatClock(slotCard.start)} – ${formatClock(slotCard.end)}`;
 ---
 
@@ -15,6 +16,7 @@ const timeRange = `${formatClock(slotCard.start)} – ${formatClock(slotCard.end
   client:load
   slotId={slotCard.id}
   talks={slotCard.talks}
+  {showStats}
   timeRange={timeRange}
   startMs={slotCard.start.getTime()}
   endMs={slotCard.end.getTime()}

@@ -13,12 +13,14 @@
     timeRange,
     startMs,
     endMs,
+    showStats = false,
   }: {
     slotId: number;
     talks: TalkCard[];
     timeRange: string;
     startMs: number;
     endMs: number;
+    showStats?: boolean;
   } = $props();
 
   let shownId = $state(talks[0]?.id ?? 0);
@@ -104,6 +106,14 @@
         >
           {talk.abstract}
         </p>
+      {/if}
+      {#if showStats}
+        <a
+          class="mt-3 inline-flex min-h-9 items-center text-sm font-semibold text-o-blue underline-offset-4 hover:underline"
+          href={`/stats/${talk.id}`}
+        >
+          Statystyki prezentacji →
+        </a>
       {/if}
       <TalkBallot {slotId} presentationId={talk.id}>
         {#snippet swap()}
