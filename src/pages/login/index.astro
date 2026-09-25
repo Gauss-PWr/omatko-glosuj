@@ -1,0 +1,80 @@
+---
+import { actions } from "astro:actions";
+import Layout from "../../layouts/Layout.astro";
+
+const result = Astro.getActionResult(actions.login);
+if (result && !result.error) return Astro.redirect("/");
+const error = result?.error?.message;
+---
+
+<Layout title="Logowanie · OMatKo!!!">
+  <main class="relative flex min-h-dvh items-center justify-center p-6">
+    <section
+      class="w-full max-w-md rounded-2xl border border-zinc-200/80 bg-white/80 p-8 shadow-[0_20px_50px_-24px_rgba(30,41,59,0.45)] backdrop-blur dark:border-zinc-700/80 dark:bg-zinc-900/80 dark:shadow-black/40"
+    >
+      <div class="mb-8 flex items-start gap-4">
+        <svg
+          class="mt-1 shrink-0"
+          width="44"
+          height="44"
+          viewBox="0 0 44 44"
+          aria-hidden="true"
+        >
+          <circle cx="14" cy="14" r="7" fill="var(--color-o-blue)"></circle>
+          <circle cx="30" cy="14" r="7" fill="var(--color-o-green)"></circle>
+          <circle cx="14" cy="30" r="7" fill="var(--color-o-orange)"></circle>
+          <circle cx="30" cy="30" r="7" fill="var(--color-o-gray)"></circle>
+        </svg>
+        <div>
+          <p class="text-sm font-semibold tracking-wide text-o-blue">
+            XIII OMatKo!!! · 2026
+          </p>
+          <h1 class="text-3xl font-semibold tracking-tight">
+            Głosowanie
+          </h1>
+          <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+            Ogólnopolska Matematyczna Konferencja Studentów
+          </p>
+        </div>
+      </div>
+
+      <form method="POST" action={actions.login} class="space-y-5">
+        <label class="block">
+          <span class="mb-2 block text-sm font-semibold text-zinc-700 dark:text-zinc-200">
+            Kod z identyfikatora
+          </span>
+          <input
+            type="text"
+            name="code"
+            inputmode="text"
+            autocomplete="one-time-code"
+            maxlength="6"
+            minlength="6"
+            required
+            spellcheck="false"
+            placeholder="••••••"
+            class="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 font-mono text-center text-2xl tracking-[0.4em] text-zinc-900 outline-none transition placeholder:tracking-[0.4em] placeholder:text-o-gray focus:border-o-blue focus:ring-4 focus:ring-o-blue/25 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
+          />
+        </label>
+
+        {
+          error && (
+            <p
+                class="rounded-lg bg-o-orange/15 px-3 py-2 text-sm font-medium text-orange-800 dark:text-orange-200"
+              role="alert"
+            >
+              {error}
+            </p>
+          )
+        }
+
+        <button
+          type="submit"
+          class="w-full rounded-xl bg-o-orange px-4 py-3 text-sm font-bold tracking-wide text-white shadow-sm transition hover:brightness-105 active:translate-y-px"
+        >
+          Zaloguj się
+        </button>
+      </form>
+    </section>
+  </main>
+</Layout>

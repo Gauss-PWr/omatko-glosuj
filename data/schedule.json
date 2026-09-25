@@ -1,0 +1,201 @@
+{
+  "days": [
+    {
+      "date": "2026-12-11",
+      "slots": [
+        {
+          "start": "10:00",
+          "end": "10:40",
+          "talks": [
+            {
+              "track": "applied",
+              "title": "Modele dyfuzji na grafach",
+              "author": "Anna Kowalska",
+              "abstract": "O zastosowaniu operatora Laplace'a na sieciach rzeczywistych."
+            },
+            {
+              "track": "theory",
+              "title": "Kategorie pochodne w algebrze homologicznej",
+              "author": "Piotr Nowak",
+              "abstract": "Krótki przegląd funktorów pochodnych i ich własności."
+            }
+          ]
+        },
+        {
+          "start": "11:00",
+          "end": "11:40",
+          "talks": [
+            {
+              "track": "applied",
+              "title": "Estymacja parametrów w modelach SIR",
+              "author": "Marek Wiśniewski",
+              "abstract": "Metoda największej wiarygodności dla danych epidemicznych."
+            },
+            {
+              "track": "theory",
+              "title": "Twierdzenie o odwzorowaniu zwężającym",
+              "author": "Ewa Zielińska",
+              "abstract": "Zastosowania punktu stałego w przestrzeniach Banacha."
+            }
+          ]
+        },
+        {
+          "start": "14:00",
+          "end": "14:40",
+          "talks": [
+            {
+              "track": "applied",
+              "title": "Uczenie reprezentacji na rozmaitościach",
+              "author": "Jakub Lewandowski",
+              "abstract": "Wykrywanie niskowymiarowej struktury w danych."
+            },
+            {
+              "track": "theory",
+              "title": "Kohomologie de Rhama na rozmaitościach",
+              "author": "Natalia Wójcik",
+              "abstract": "Formy różniczkowe i lemat Poincarégo."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-12-12",
+      "slots": [
+        {
+          "start": "10:00",
+          "end": "10:40",
+          "talks": [
+            {
+              "track": "applied",
+              "title": "Optymalizacja stochastyczna w logistyce",
+              "author": "Tomasz Grabowski",
+              "abstract": "Algorytmy SGD i ich warianty dla problemów dyskretnych."
+            },
+            {
+              "track": "theory",
+              "title": "Grupy Lie i algebry Lie",
+              "author": "Karolina Dąbrowska",
+              "abstract": "Korespondencja między grupami i algebrami."
+            }
+          ]
+        },
+        {
+          "start": "11:00",
+          "end": "11:40",
+          "talks": [
+            {
+              "track": "applied",
+              "title": "Filtry Kalmana w śledzeniu obiektów",
+              "author": "Adam Szymański",
+              "abstract": "Estymacja stanu w układach liniowych z szumem."
+            },
+            {
+              "track": "theory",
+              "title": "Teoria miary: twierdzenie Radona–Nikodyma",
+              "author": "Magdalena Król",
+              "abstract": "Rozkład miar i gęstości."
+            }
+          ]
+        },
+        {
+          "start": "14:00",
+          "end": "14:40",
+          "talks": [
+            {
+              "track": "applied",
+              "title": "Modele kolejkowe M/M/1 i M/G/1",
+              "author": "Paweł Jankowski",
+              "abstract": "Analiza czasu oczekiwania w systemach obsługi."
+            },
+            {
+              "track": "theory",
+              "title": "Przestrzenie Sobolewa i ślady",
+              "author": "Olga Kamińska",
+              "abstract": "Osadzenia i zastosowania do PDE."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-12-13",
+      "slots": [
+        {
+          "start": "10:00",
+          "end": "10:40",
+          "talks": [
+            {
+              "track": "applied",
+              "title": "Grafy losowe Erdősa–Rényiego w sieciach",
+              "author": "Kamil Baran",
+              "abstract": "Progi perkolacji i komponent olbrzymi."
+            },
+            {
+              "track": "theory",
+              "title": "Aksjomat wyboru i lemat Zorna",
+              "author": "Hanna Lis",
+              "abstract": "Równoważne sformułowania i konsekwencje."
+            }
+          ]
+        },
+        {
+          "start": "11:00",
+          "end": "11:40",
+          "talks": [
+            {
+              "track": "applied",
+              "title": "Analiza falkowa sygnałów biomedycznych",
+              "author": "Weronika Pawlak",
+              "abstract": "Dekompozycja i odszumianie EKG."
+            },
+            {
+              "track": "theory",
+              "title": "Krzywe eliptyczne nad ciałami skończonymi",
+              "author": "Bartosz Górski",
+              "abstract": "Grupa punktów i zastosowania kryptograficzne."
+            }
+          ]
+        },
+        {
+          "start": "14:00",
+          "end": "14:40",
+          "talks": [
+            {
+              "track": "applied",
+              "title": "Bayessowskie sieci przekonań",
+              "author": "Iga Mazur",
+              "abstract": "Wnioskowanie w grafach skierowanych bez cykli."
+            },
+            {
+              "track": "theory",
+              "title": "Twierdzenie Gödla o niezupełności",
+              "author": "Filip Ostrowski",
+              "abstract": "Arytmetyka Peano i zdania nierozstrzygalne."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "posters": [
+    {
+      "track": "applied",
+      "title": "Wizualizacja pól wektorowych w R³",
+      "author": "Zofia Adamczyk",
+      "abstract": "Interaktywne pole prędkości i linie prądu."
+    },
+    {
+      "track": "theory",
+      "title": "Fraktale i wymiar Hausdorffa",
+      "author": "Leon Majewski",
+      "abstract": "Zbiór Cantora i krzywa Kocha."
+    },
+    {
+      "track": "applied",
+      "title": "Klasyfikacja spektralna grafów chemicznych",
+      "author": "Nina Kalinowska",
+      "abstract": "Wartości własne laplasjanu a własności cząsteczek."
+    }
+  ]
+}
