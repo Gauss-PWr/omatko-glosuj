@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, test } from "vitest";
+import { and, eq } from "drizzle-orm";
 import Database from "bun:sqlite";
 import { migrate } from "drizzle-orm/bun-sqlite/migrator";
 import { createDb, type DrizzleDb } from "$db/index";
@@ -51,14 +52,69 @@ beforeEach(async () => {
     },
   ]);
   await db.insert(votes).values([
-    { userId: 1, presentationId: 1, category: "t_1", score: 5, updatedAt: new Date() },
-    { userId: 2, presentationId: 1, category: "t_1", score: 3, updatedAt: new Date() },
-    { userId: 1, presentationId: 1, category: "t_2", score: 3, updatedAt: new Date() },
-    { userId: 2, presentationId: 1, category: "t_2", score: 5, updatedAt: new Date() },
-    { userId: 2, presentationId: 2, category: "t_1", score: 4, updatedAt: new Date() },
-    { userId: 1, presentationId: 3, category: "p_1", score: 2, updatedAt: new Date() },
-    { userId: 3, presentationId: 3, category: "p_1", score: 4, updatedAt: new Date() },
-    { userId: 1, presentationId: 3, category: "p_2", score: 5, updatedAt: new Date() },
+    {
+      userId: 1,
+      presentationId: 1,
+      category: "t_1",
+      score: 5,
+      updatedAt: new Date(),
+    },
+    {
+      userId: 2,
+      presentationId: 1,
+      category: "t_1",
+      score: 3,
+      updatedAt: new Date(),
+    },
+    {
+      userId: 1,
+      presentationId: 1,
+      category: "t_2",
+      score: 3,
+      updatedAt: new Date(),
+    },
+    {
+      userId: 2,
+      presentationId: 1,
+      category: "t_2",
+      score: 5,
+      updatedAt: new Date(),
+    },
+    {
+      userId: 2,
+      presentationId: 2,
+      category: "t_1",
+      score: 4,
+      updatedAt: new Date(),
+    },
+    {
+      userId: 3,
+      presentationId: 2,
+      category: "t_2",
+      score: 2,
+      updatedAt: new Date(),
+    },
+    {
+      userId: 1,
+      presentationId: 3,
+      category: "p_1",
+      score: 2,
+      updatedAt: new Date(),
+    },
+    {
+      userId: 3,
+      presentationId: 3,
+      category: "p_1",
+      score: 4,
+      updatedAt: new Date(),
+    },
+    {
+      userId: 1,
+      presentationId: 3,
+      category: "p_2",
+      score: 5,
+      updatedAt: new Date(),
+    },
   ]);
   stats = new StatsService(db);
 });
@@ -71,25 +127,45 @@ describe("stats service", () => {
       presentationCount: 4,
       ratedPresentationCount: 3,
       participantCount: 3,
-      totalVotes: 8,
+      totalVotes: 9,
     });
-    expect(overview.leaderboards).toHaveLength(4);
-    expect(overview.leaderboards.find((board) => board.category === "t_1"))
-      .toMatchObject({
-        type: "talk",
-        entries: [
-          { presentationId: 1, averageScore: 4, voteCount: 2 },
-          { presentationId: 2, averageScore: 4, voteCount: 1 },
-        ],
-      });
-    expect(overview.leaderboards.find((board) => board.category === "p_1"))
-      .toMatchObject({
-        type: "poster",
-        entries: [{ presentationId: 3, averageScore: 3, voteCount: 2 }],
-      });
+    expect(overview.leaderboards).toHaveLength(3);
     expect(
-      overview.leaderboards.find((board) => board.category === "t_2")?.entries,
-    ).toHaveLength(1);
+      overview.leaderboards.find((board) => board.group === "applied"),
+    ).toMatchObject({
+      entries: [
+        {
+          presentationId: 1,
+          score: 40,
+          voteCount: 4,
+          categoryScores: [
+            { category: "t_1", averageScore: 4, voteCount: 2 },
+            { category: "t_2", averageScore: 4, voteCount: 2 },
+          ],
+        },
+      ],
+    });
+    expect(
+      overview.leaderboards.find((board) => board.group === "theory"),
+    ).toMatchObject({
+      entries: [{ presentationId: 2, score: 32, voteCount: 2 }],
+    });
+    expect(
+      overview.leaderboards.find((board) => board.group === "poster"),
+    ).toMatchObject({
+      entries: [{ presentationId: 3, score: 38, voteCount: 3 }],
+    });
+  });
+
+  test("keeps incomplete presentations out of the weighted leaderboard", async () => {
+    await db
+      .delete(votes)
+      .where(and(eq(votes.presentationId, 2), eq(votes.category, "t_2")));
+
+    const theoryLeaderboard = (await stats.getOverview()).leaderboards.find(
+      (leaderboard) => leaderboard.group === "theory",
+    );
+    expect(theoryLeaderboard?.entries).toEqual([]);
   });
 
   test("includes per-category averages and score distributions", async () => {
@@ -98,6 +174,7 @@ describe("stats service", () => {
     expect(result).not.toBeNull();
     expect(result).toMatchObject({
       presentation: { id: 1, title: "Talk A", type: "talk" },
+      score: 40,
       totalVotes: 4,
       categories: [
         {
@@ -121,6 +198,7 @@ describe("stats service", () => {
   test("returns empty category results for unrated presentations", async () => {
     const result = await stats.getPresentationStats(4);
 
+    expect(result?.score).toBeNull();
     expect(result?.totalVotes).toBe(0);
     expect(result?.categories).toEqual([
       {

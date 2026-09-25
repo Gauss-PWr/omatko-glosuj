@@ -1,4 +1,4 @@
-import { asc, count, eq, sql } from "drizzle-orm";
+import { count, eq, sql } from "drizzle-orm";
 import { presentations, votes } from "$db/schema";
 import {
   presentationType,
@@ -8,24 +8,32 @@ import {
 import type { Category } from "$lib/domain/vote";
 import type { DrizzleDb } from "$db/index";
 
-const CATEGORIES_BY_TYPE: Record<Type, readonly Category[]> = {
+const CATEGORIES_BY_TYPE: Record<Type, readonly [Category, Category]> = {
   [presentationType.TALK]: ["t_1", "t_2"],
   [presentationType.POSTER]: ["p_1", "p_2"],
 };
 
-export type CategoryLeaderboardEntry = {
-  presentationId: number;
-  title: string;
-  author: string;
-  track: Track | null;
+export type StatsGroup = "applied" | "theory" | "poster";
+
+export type CategoryScore = {
+  category: Category;
   averageScore: number;
   voteCount: number;
 };
 
-export type CategoryLeaderboard = {
-  type: Type;
-  category: Category;
-  entries: CategoryLeaderboardEntry[];
+export type LeaderboardEntry = {
+  presentationId: number;
+  title: string;
+  author: string;
+  track: Track | null;
+  score: number;
+  voteCount: number;
+  categoryScores: [CategoryScore, CategoryScore];
+};
+
+export type Leaderboard = {
+  group: StatsGroup;
+  entries: LeaderboardEntry[];
 };
 
 export type StatsOverview = {
@@ -33,7 +41,7 @@ export type StatsOverview = {
   ratedPresentationCount: number;
   participantCount: number;
   totalVotes: number;
-  leaderboards: CategoryLeaderboard[];
+  leaderboards: Leaderboard[];
 };
 
 export type ScoreDistribution = {
@@ -57,20 +65,46 @@ export type PresentationStats = {
     type: Type;
     track: Track | null;
   };
+  score: number | null;
   totalVotes: number;
   categories: PresentationCategoryStats[];
 };
 
-function roundedAverage(total: number, count: number): number | null {
-  return count === 0 ? null : Math.round((total / count) * 100) / 100;
+type GroupedPresentationVotes = {
+  presentationId: number;
+  type: Type;
+  title: string;
+  author: string;
+  track: Track | null;
+  categoryScores: Map<Category, { averageScore: number; voteCount: number }>;
+};
+
+const STATS_GROUPS: StatsGroup[] = ["applied", "theory", "poster"];
+
+function groupFor(type: Type, track: Track | null): StatsGroup | null {
+  if (type === presentationType.POSTER) return "poster";
+  if (track === "applied" || track === "theory") return track;
+  return null;
 }
 
-function leaderboardOrder(
-  a: CategoryLeaderboardEntry,
-  b: CategoryLeaderboardEntry,
-): number {
+function roundedScore(score: number): number {
+  return Math.round(score * 100) / 100;
+}
+
+function weightedScore(
+  type: Type,
+  categoryAverages: ReadonlyMap<Category, number | null>,
+): number | null {
+  const [first, second] = CATEGORIES_BY_TYPE[type];
+  const firstAverage = categoryAverages.get(first);
+  const secondAverage = categoryAverages.get(second);
+  if (firstAverage == null || secondAverage == null) return null;
+  return roundedScore(6 * firstAverage + 4 * secondAverage);
+}
+
+function leaderboardOrder(a: LeaderboardEntry, b: LeaderboardEntry): number {
   return (
-    b.averageScore - a.averageScore ||
+    b.score - a.score ||
     b.voteCount - a.voteCount ||
     a.title.localeCompare(b.title, "pl")
   );
@@ -110,25 +144,66 @@ export class StatsService {
       .innerJoin(votes, eq(votes.presentationId, presentations.id))
       .groupBy(presentations.id, votes.category);
 
-    const leaderboards = (
-      Object.entries(CATEGORIES_BY_TYPE) as [Type, readonly Category[]][]
-    ).flatMap(([type, categories]) =>
-      categories.map((category) => {
-        const entries = groupedVotes
-          .filter((row) => row.type === type && row.category === category)
-          .map((row) => ({
-            presentationId: row.presentationId,
-            title: row.title,
-            author: row.author,
-            track: row.track,
-            averageScore: Math.round(row.averageScore * 100) / 100,
-            voteCount: row.voteCount,
-          }))
-          .sort(leaderboardOrder);
+    const presentationsById = new Map<number, GroupedPresentationVotes>();
+    for (const row of groupedVotes) {
+      const item = presentationsById.get(row.presentationId) ?? {
+        presentationId: row.presentationId,
+        type: row.type,
+        title: row.title,
+        author: row.author,
+        track: row.track,
+        categoryScores: new Map(),
+      };
+      item.categoryScores.set(row.category, {
+        averageScore: row.averageScore,
+        voteCount: row.voteCount,
+      });
+      presentationsById.set(row.presentationId, item);
+    }
 
-        return { type, category, entries };
-      }),
-    );
+    const leaderboards = STATS_GROUPS.map((group) => {
+      const entries: LeaderboardEntry[] = [];
+      for (const item of presentationsById.values()) {
+        if (groupFor(item.type, item.track) !== group) continue;
+
+        const categoryScores = CATEGORIES_BY_TYPE[item.type].map((category) => {
+          const result = item.categoryScores.get(category);
+          if (!result) return null;
+          return {
+            category,
+            averageScore: roundedScore(result.averageScore),
+            voteCount: result.voteCount,
+          };
+        });
+        const firstCategoryScore = categoryScores[0];
+        const secondCategoryScore = categoryScores[1];
+        if (!firstCategoryScore || !secondCategoryScore) continue;
+
+        const score = weightedScore(
+          item.type,
+          new Map(
+            [...item.categoryScores].map(([category, result]) => [
+              category,
+              result.averageScore,
+            ]),
+          ),
+        );
+        if (score === null) continue;
+
+        entries.push({
+          presentationId: item.presentationId,
+          title: item.title,
+          author: item.author,
+          track: item.track,
+          score,
+          voteCount:
+            firstCategoryScore.voteCount + secondCategoryScore.voteCount,
+          categoryScores: [firstCategoryScore, secondCategoryScore],
+        });
+      }
+
+      return { group, entries: entries.sort(leaderboardOrder) };
+    });
 
     return {
       presentationCount: presentationTotals?.presentationCount ?? 0,
@@ -167,6 +242,7 @@ export class StatsService {
       .where(eq(votes.presentationId, presentationId))
       .groupBy(votes.category, votes.score);
 
+    const rawAverages = new Map<Category, number | null>();
     const categories = CATEGORIES_BY_TYPE[presentation.type].map((category) => {
       const distribution = new Map<number, number>();
       for (const row of groupedScores) {
@@ -182,10 +258,12 @@ export class StatsService {
         (total, [score, votesForScore]) => total + score * votesForScore,
         0,
       );
+      const average = voteCount === 0 ? null : scoreTotal / voteCount;
+      rawAverages.set(category, average);
 
       return {
         category,
-        averageScore: roundedAverage(scoreTotal, voteCount),
+        averageScore: average === null ? null : roundedScore(average),
         voteCount,
         distribution: Array.from({ length: 6 }, (_, score) => ({
           score,
@@ -199,6 +277,7 @@ export class StatsService {
         ...presentation,
         track: presentation.track ?? null,
       },
+      score: weightedScore(presentation.type, rawAverages),
       totalVotes: categories.reduce(
         (total, category) => total + category.voteCount,
         0,
