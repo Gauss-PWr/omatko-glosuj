@@ -8,9 +8,10 @@ interface Props {
   talk: TalkCard;
   kind: "talk" | "poster";
   slotId?: number;
+  showStats?: boolean;
 }
 
-const { talk, kind, slotId } = Astro.props;
+const { talk, kind, slotId, showStats = false } = Astro.props;
 const trackLabel =
   talk.track === "applied"
     ? "Zastosowania"
@@ -35,6 +36,14 @@ const categories =
     <p class="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
       {talk.abstract}
     </p>
+  )}
+  {showStats && (
+    <a
+      class="mt-3 inline-flex min-h-9 items-center text-sm font-semibold text-o-blue underline-offset-4 hover:underline"
+      href={`/stats/${talk.id}`}
+    >
+      Statystyki prezentacji →
+    </a>
   )}
   {kind === "talk" && slotId != null ? (
     <TalkBallot client:load slotId={slotId} presentationId={talk.id} />
