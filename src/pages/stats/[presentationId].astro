@@ -7,143 +7,188 @@ import Layout from "../../layouts/Layout.astro";
 
 const access = await authorizeStats(Astro.cookies.get("omatko-token")?.value);
 if (!access.authorized) {
-  return Astro.redirect(access.status === 401 ? "/login" : "/");
+    return Astro.redirect(access.status === 401 ? "/login" : "/");
 }
 
 const presentationId = Number(Astro.params.presentationId);
 if (!Number.isSafeInteger(presentationId) || presentationId < 0) {
-  return Astro.redirect("/stats");
+    return Astro.redirect("/stats");
 }
 
 const stats = await statsService.getPresentationStats(presentationId);
 if (!stats) Astro.response.status = 404;
 
 const typeLabel: Record<Type, string> = {
-  talk: "Referat",
-  poster: "Poster",
+    talk: "Referat",
+    poster: "Poster",
 };
 
 function categoryLabel(category: Category): string {
-  switch (category) {
-    case "t_1":
-    case "p_1":
-      return "Merytoryka";
-    case "t_2":
-      return "Forma";
-    case "p_2":
-      return "Estetyka";
-  }
+    switch (category) {
+        case "t_1":
+        case "p_1":
+            return "Merytoryka";
+        case "t_2":
+            return "Forma";
+        case "p_2":
+            return "Estetyka";
+    }
 }
 
 function formatScore(score: number | null): string {
-  return score === null ? "–" : score.toFixed(2);
+    return score === null ? "–" : score.toFixed(2);
 }
 
 const categoryStats = stats?.categories.map((category) => ({
-  ...category,
-  maxVotes: Math.max(1, ...category.distribution.map((item) => item.voteCount)),
+    ...category,
+    maxVotes: Math.max(
+        1,
+        ...category.distribution.map((item) => item.voteCount),
+    ),
 }));
 ---
 
-<Layout title={stats ? `Statystyki · ${stats.presentation.title}` : "Nie znaleziono prezentacji · OMatKo!!!"}>
-  <main class="mx-auto max-w-4xl px-4 pb-12 pt-6 sm:pt-8">
-    <a
-      class="inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-o-blue transition-colors hover:text-cyan-700"
-      href="/stats"
-    >
-      <span aria-hidden="true">←</span>
-      Wszystkie statystyki
-    </a>
+<Layout
+    title={
+        stats
+            ? `Statystyki · ${stats.presentation.title}`
+            : "Nie znaleziono prezentacji · OMatKo!!!"
+    }
+>
+    <main class="mx-auto max-w-4xl px-4 pb-12 pt-6 sm:pt-8">
+        <a
+            class="inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-o-blue transition-colors hover:text-cyan-700"
+            href="/stats"
+        >
+            <span aria-hidden="true">←</span>
+            Wszystkie statystyki
+        </a>
 
-    {stats ? (
-      <>
-        <header class="mb-7 mt-4">
-          <p class="text-sm font-bold tracking-wide text-o-blue">
-            {typeLabel[stats.presentation.type]}
-            {stats.presentation.track ? ` · ${stats.presentation.track === "applied" ? "Zastosowania" : "Teoria"}` : ""}
-          </p>
-          <h1 class="font-serif text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-            {stats.presentation.title}
-          </h1>
-          <p class="mt-1 font-medium text-zinc-700 dark:text-zinc-300">
-            {stats.presentation.author}
-          </p>
-          {stats.presentation.abstract && (
-            <p class="mt-3 max-w-3xl text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-              {stats.presentation.abstract}
-            </p>
-          )}
-        </header>
+        {stats ? (
+            <>
+                <header class="mb-7 mt-4">
+                    <p class="text-sm font-bold tracking-wide text-o-blue">
+                        {typeLabel[stats.presentation.type]}
+                        {stats.presentation.track
+                            ? ` · ${stats.presentation.track === "applied" ? "Matematyka stosowana" : "Matematyka teoretyczna"}`
+                            : ""}
+                    </p>
+                    <h1 class="font-serif text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+                        {stats.presentation.title}
+                    </h1>
+                    <p class="mt-1 font-medium text-zinc-700 dark:text-zinc-300">
+                        {stats.presentation.author}
+                    </p>
+                    {stats.presentation.abstract && (
+                        <p class="mt-3 max-w-3xl text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+                            {stats.presentation.abstract}
+                        </p>
+                    )}
+                </header>
 
-        <section aria-label="Podsumowanie" class="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
-          <article class="theme-surface rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700">
-            <p class="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Wszystkie głosy</p>
-            <p class="mt-2 text-2xl font-bold tabular-nums">{stats.totalVotes.toLocaleString("pl-PL")}</p>
-          </article>
-          {stats.categories.map((category) => (
-            <article class="theme-surface rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700">
-              <p class="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                {categoryLabel(category.category)}
-              </p>
-              <p class="mt-2 text-2xl font-bold tabular-nums">
-                {formatScore(category.averageScore)}
-                <span class="ml-1 text-sm font-medium text-zinc-500 dark:text-zinc-400">/ 5</span>
-              </p>
-              <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                {category.voteCount.toLocaleString("pl-PL")} głosów
-              </p>
-            </article>
-          ))}
-        </section>
+                <section
+                    aria-label="Podsumowanie"
+                    class="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4"
+                >
+                    <article class="theme-surface rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700">
+                        <p class="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                            Wszystkie oceny
+                        </p>
+                        <p class="mt-2 text-2xl font-bold tabular-nums">
+                            {stats.totalVotes.toLocaleString("pl-PL")}
+                        </p>
+                    </article>
+                    <article class="theme-surface rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700">
+                        <p class="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                            Wynik końcowy
+                        </p>
+                        <p class="mt-2 text-2xl font-bold tabular-nums">
+                            {formatScore(stats.score)}
+                            <span class="ml-1 text-sm font-medium text-zinc-500 dark:text-zinc-400">
+                                / 50
+                            </span>
+                        </p>
+                        <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                            6 × kat. 1 + 4 × kat. 2
+                        </p>
+                    </article>
+                    {stats.categories.map((category) => (
+                        <article class="theme-surface rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700">
+                            <p class="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                                {categoryLabel(category.category)}
+                            </p>
+                            <p class="mt-2 text-2xl font-bold tabular-nums">
+                                {formatScore(category.averageScore)}
+                                <span class="ml-1 text-sm font-medium text-zinc-500 dark:text-zinc-400">
+                                    / 5
+                                </span>
+                            </p>
+                            <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                                {category.voteCount.toLocaleString("pl-PL")}{" "}
+                                głosów
+                            </p>
+                        </article>
+                    ))}
+                </section>
 
-        <section aria-labelledby="distribution-heading">
-          <div class="mb-4">
-            <h2 id="distribution-heading" class="font-serif text-2xl font-semibold text-zinc-900 dark:text-zinc-100">
-              Rozkład ocen
-            </h2>
-            <p class="text-sm text-zinc-600 dark:text-zinc-400">
-              Liczba głosów dla każdej oceny w poszczególnych kategoriach.
-            </p>
-          </div>
-          <div class="grid gap-4 md:grid-cols-2">
-            {categoryStats?.map((category) => (
-              <article class="theme-surface rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-700">
-                <h3 class="mb-4 font-semibold">{categoryLabel(category.category)}</h3>
-                <ol class="space-y-3">
-                  {category.distribution.map((item) => (
-                    <li class="grid grid-cols-[1.5rem_minmax(0,1fr)_2rem] items-center gap-3">
-                      <span class="text-sm font-semibold tabular-nums text-zinc-600 dark:text-zinc-300">{item.score}</span>
-                      <div class="h-2 overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-700">
-                        <div
-                          class="h-full rounded-full bg-o-blue transition-[width] duration-300"
-                          style={`width: ${(item.voteCount / category.maxVotes) * 100}%`}
-                        ></div>
-                      </div>
-                      <span class="text-right text-sm tabular-nums text-zinc-500 dark:text-zinc-400">
-                        {item.voteCount}
-                      </span>
-                    </li>
-                  ))}
-                </ol>
-                {category.voteCount === 0 && (
-                  <p class="mt-4 text-sm text-zinc-500 dark:text-zinc-400">
-                    Nie oddano jeszcze głosów w tej kategorii.
-                  </p>
-                )}
-              </article>
-            ))}
-          </div>
-        </section>
-      </>
-    ) : (
-      <section class="theme-surface mt-5 rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-700">
-        <h1 class="font-serif text-2xl font-semibold text-zinc-900 dark:text-zinc-100">
-          Nie znaleziono prezentacji
-        </h1>
-        <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-          Ta prezentacja nie istnieje albo nie jest już dostępna.
-        </p>
-      </section>
-    )}
-  </main>
+                <section aria-labelledby="distribution-heading">
+                    <div class="mb-4">
+                        <h2
+                            id="distribution-heading"
+                            class="font-serif text-2xl font-semibold text-zinc-900 dark:text-zinc-100"
+                        >
+                            Rozkład ocen
+                        </h2>
+                        <p class="text-sm text-zinc-600 dark:text-zinc-400">
+                            Liczba głosów dla każdej oceny w poszczególnych
+                            kategoriach. Wynik końcowy wymaga głosów w obu
+                            kategoriach.
+                        </p>
+                    </div>
+                    <div class="grid gap-4 md:grid-cols-2">
+                        {categoryStats?.map((category) => (
+                            <article class="theme-surface rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-700">
+                                <h3 class="mb-4 font-semibold">
+                                    {categoryLabel(category.category)}
+                                </h3>
+                                <ol class="space-y-3">
+                                    {category.distribution.map((item) => (
+                                        <li class="grid grid-cols-[1.5rem_minmax(0,1fr)_2rem] items-center gap-3">
+                                            <span class="text-sm font-semibold tabular-nums text-zinc-600 dark:text-zinc-300">
+                                                {item.score}
+                                            </span>
+                                            <div class="h-2 overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-700">
+                                                <div
+                                                    class="h-full rounded-full bg-o-blue transition-[width] duration-300"
+                                                    style={`width: ${(item.voteCount / category.maxVotes) * 100}%`}
+                                                ></div>
+                                            </div>
+                                            <span class="text-right text-sm tabular-nums text-zinc-500 dark:text-zinc-400">
+                                                {item.voteCount}
+                                            </span>
+                                        </li>
+                                    ))}
+                                </ol>
+                                {category.voteCount === 0 && (
+                                    <p class="mt-4 text-sm text-zinc-500 dark:text-zinc-400">
+                                        Nie oddano jeszcze głosów w tej
+                                        kategorii.
+                                    </p>
+                                )}
+                            </article>
+                        ))}
+                    </div>
+                </section>
+            </>
+        ) : (
+            <section class="theme-surface mt-5 rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-700">
+                <h1 class="font-serif text-2xl font-semibold text-zinc-900 dark:text-zinc-100">
+                    Nie znaleziono prezentacji
+                </h1>
+                <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+                    Ta prezentacja nie istnieje albo nie jest już dostępna.
+                </p>
+            </section>
+        )}
+    </main>
 </Layout>
