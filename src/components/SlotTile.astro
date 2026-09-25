@@ -1,0 +1,21 @@
+---
+import type { SlotCard } from "$lib/server/schedule";
+import { formatClock } from "$lib/server/schedule";
+import SlotBoard from "./SlotBoard.svelte";
+
+interface Props {
+  slot: SlotCard;
+}
+
+const { slot } = Astro.props;
+const timeRange = `${formatClock(slot.start)} – ${formatClock(slot.end)}`;
+---
+
+<SlotBoard
+  client:load
+  slotId={slot.id}
+  talks={slot.talks}
+  timeRange={timeRange}
+  startMs={slot.start.getTime()}
+  endMs={slot.end.getTime()}
+/>

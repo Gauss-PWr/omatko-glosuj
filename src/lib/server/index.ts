@@ -1,6 +1,8 @@
-import { db } from '$lib/server/db';
-import { Auth } from './modules/auth';
-import { VoteSerivce } from './modules/votes';
+import { db } from "db";
+import { Auth } from "./services/auth";
+import { VoteService } from "./services/votes";
+import { configureLogging } from "./log";
 
+await configureLogging();
 export const authService = new Auth(db);
-export const votingService = new VoteSerivce(db);
+export const votingService = new VoteService(db);

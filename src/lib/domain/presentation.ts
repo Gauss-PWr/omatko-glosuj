@@ -1,6 +1,11 @@
 import * as z from 'zod';
 
-export const type = z.enum(['talk', 'poster']).nonoptional();
+export const presentationType = {
+	TALK: 'talk',
+	POSTER: 'poster'
+} as const;
+
+export const type = z.enum(presentationType).nonoptional();
 
 export const track = z.enum(['applied', 'theory']).optional();
 

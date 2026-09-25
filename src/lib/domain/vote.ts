@@ -1,8 +1,13 @@
 import * as z from 'zod';
+import { presentationType, type Type } from './presentation';
 
 export const category = z.enum(['t_1', 't_2', 'p_1', 'p_2']);
 
 export type Category = z.infer<typeof category>;
+
+export function categoryPresentationType(cat: Category): Type {
+	return cat.startsWith('t_') ? presentationType.TALK : presentationType.POSTER;
+}
 
 export const vote = z.strictObject({
 	presentationId: z.int().nonnegative(),

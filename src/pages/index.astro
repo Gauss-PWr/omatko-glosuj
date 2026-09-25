@@ -1,0 +1,69 @@
+---
+import { authService } from "$lib/server";
+import { loadSchedule } from "$lib/server/schedule";
+import Layout from "../layouts/Layout.astro";
+import SlotTile from "../components/SlotTile.astro";
+import PresentationTile from "../components/PresentationTile.astro";
+import BottomNav from "../components/BottomNav.svelte";
+import SettingsPanel from "../components/SettingsPanel.svelte";
+import FilterBar from "../components/FilterBar.svelte";
+
+const token = Astro.cookies.get("omatko-token")?.value;
+const auth = token ? await authService.auth(token) : undefined;
+
+if (!auth?.ok) return Astro.redirect("/login");
+const { userId, role } = auth.value;
+
+const { days, posters } = await loadSchedule();
+
+const now = Date.now();
+const liveDay = days.findIndex((day) =>
+    day.slots.some(
+        (slot) => slot.start.getTime() <= now && now < slot.end.getTime(),
+    ),
+);
+const initialPanel =
+    liveDay >= 0 ? `day-${liveDay}` : days.length > 0 ? "day-0" : "poster";
+
+const navItems = [
+    ...days.map((day, index) => ({
+        id: `day-${index}`,
+        label: `Dzień ${index + 1}`,
+    })),
+    ...(posters.length > 0 ? [{ id: "poster", label: "Postery" }] : []),
+    { id: "settings", label: "Ustawienia" },
+];
+---
+
+<Layout ballot={initialPanel}>
+    <main class="relative mx-auto max-w-3xl px-4 pb-28 pt-6 sm:pt-8">
+        <FilterBar client:load />
+        {days.length === 0 && posters.length === 0 && (
+            <p class="rounded-xl bg-white/80 p-6 text-sm text-zinc-600 dark:bg-zinc-900/80 dark:text-zinc-300">
+                Brak referatów. Uruchom{" "}
+                <code class="font-mono">bun db:seed</code>.
+            </p>
+        )}
+
+        {days.map((day, index) => (
+            <section class={`ballot-panel panel-day-${index} flex-col gap-4`}>
+                {day.slots.map((slot) => (
+                    <SlotTile slot={slot} />
+                ))}
+            </section>
+        ))}
+
+        {posters.length > 0 && (
+            <section class="ballot-panel panel-posters flex-col gap-4">
+                {posters.map((talk) => (
+                    <PresentationTile kind="poster" {talk} />
+                ))}
+            </section>
+        )}
+
+        <section class="ballot-panel panel-settings flex-col gap-4">
+            <SettingsPanel client:load />
+        </section>
+    </main>
+    <BottomNav client:load items={navItems} initial={initialPanel} />
+</Layout>

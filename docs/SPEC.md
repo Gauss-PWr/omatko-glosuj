@@ -17,11 +17,11 @@
 
 ### Vote events
 
-| kind           | description                        |
-| -------------- | ---------------------------------- |
-| talk_picked    | Talk has been but not voted on yet |
-| score_cast     | Talk has been voted on             |
-| vote_withdrawn | Vote has been deleted              |
+| kind           | description                                                      |
+| -------------- | ---------------------------------------------------------------- |
+| talk_picked    | Talk became the user's pick for its slot (explicit or via score) |
+| score_cast     | Score set for a (presentation, category); `prev_score` if re-cast |
+| vote_withdrawn | Score deleted, by the user or by switching talks in the slot     |
 
 ### Presentation category
 
@@ -77,38 +77,48 @@ stateDiagram-v2
 | author   | text                              |
 | abstract | text \| null                      |
 
+`picks` and `votes` are the current state (source of truth). `vote_events` is an
+append-only log written in the same transaction, used only for analysis.
+
+### picks
+
+which talk the user attends in a slot; one row per (user, slot)
+
+| column          | type                            |
+| --------------- | ------------------------------- |
+| user_id         | integer (FK `users.id`), PK     |
+| slot_id         | integer (FK `slots.id`), PK     |
+| presentation_id | integer (FK `presentations.id`) |
+
 ### votes
 
-| column          | type                                                     |
-| --------------- | -------------------------------------------------------- |
-| id              | integer PK                                               |
-| user_id         | integer (FK `users.id`)                                  |
-| presentation_id | integer (FK `presentations.id`)                          |
-| kind            | vote_event enum                                          |
-| category        | `'t_cat_1'` \| `'t_cat_2'` \| `'p_cat_1'` \| `'p_cat_2'` |
-| score           | integer (default `0`)                                    |
-| timestamp       | integer (timestamp_ms, default server time)              |
+current score per (user, presentation, category); withdrawing deletes the row.
+Scoring a talk implies picking it; picking another talk in the slot deletes
+the scores of the previous one.
 
-### current_votes
+| column          | type                                     |
+| --------------- | ---------------------------------------- |
+| user_id         | integer (FK `users.id`), PK              |
+| presentation_id | integer (FK `presentations.id`), PK      |
+| category        | `'t_1'` \| `'t_2'` \| `'p_1'` \| `'p_2'`, PK |
+| score           | integer 0–5                              |
+| updated_at      | integer (timestamp_ms)                   |
 
-pointer table to the current vote
+### vote_events
 
-| column          | type           |
-| --------------- | -------------- |
-| user_id         | FK, partial UK |
-| presentation_id | FK, partial UK |
-| category        | partial UK     |
-| vote_id         | FK             |
+| column          | type                                        |
+| --------------- | ------------------------------------------- |
+| id              | integer PK                                  |
+| user_id         | integer (FK `users.id`)                     |
+| kind            | vote_event enum                             |
+| presentation_id | integer (FK `presentations.id`)             |
+| slot_id         | integer \| null (FK `slots.id`)             |
+| category        | category \| null (null for `talk_picked`)   |
+| score           | integer \| null (new score, `score_cast`)   |
+| prev_score      | integer \| null (`score_cast`, `vote_withdrawn`) |
+| at              | integer (timestamp_ms)                      |
 
-### current_slots
-
-pointer table to picked presentation
-
-| column          | type           |
-| --------------- | -------------- |
-| user_id         | FK, partial UK |
-| slot_id         | FK, partial UK |
-| presentation_id | FK             |
+indexes: `(at)`, `(presentation_id, at)`
 
 ### app_settings
 
