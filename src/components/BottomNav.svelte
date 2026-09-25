@@ -1,7 +1,7 @@
 <script lang="ts">
   import { ui } from "$lib/client/ballot.svelte";
 
-  type Item = { id: string; label: string };
+  type Item = { id: string; label: string; href?: string };
 
   let { items, initial }: { items: Item[]; initial: string } = $props();
 
@@ -28,15 +28,19 @@
     {#each items as item (item.id)}
       {@const day = dayNumber(item.id)}
       <li>
-        <button
-          type="button"
+        <svelte:element
+          this={item.href ? "a" : "button"}
+          href={item.href}
+          type={item.href ? undefined : "button"}
           aria-label={item.label}
           aria-current={ui.panel === item.id ? "page" : undefined}
           class="flex h-16 w-full flex-col items-center justify-center gap-0.5 rounded-xl px-1 transition-[background-color,color,transform] duration-200 active:scale-[0.97]
             {ui.panel === item.id
             ? 'bg-o-blue text-white shadow-sm'
             : 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800'}"
-          onclick={() => (ui.panel = item.id)}
+          onclick={() => {
+            if (!item.href) ui.panel = item.id;
+          }}
         >
           {#if day != null}
             <span class="relative block size-6" aria-hidden="true">
@@ -109,7 +113,7 @@
           <span class="max-w-full truncate text-[10px] font-bold tracking-wide">
             {item.label}
           </span>
-        </button>
+        </svelte:element>
       </li>
     {/each}
   </ul>

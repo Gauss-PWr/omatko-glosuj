@@ -87,7 +87,7 @@ html[data-ballot="day-0"] .panel-day-0,
 html[data-ballot="day-1"] .panel-day-1,
 html[data-ballot="day-2"] .panel-day-2,
 html[data-ballot="poster"] .panel-posters,
-html[data-ballot="settings"] .panel-settings {
+html[data-ballot="options"] .panel-options {
   display: flex;
   animation: panel-enter 220ms ease-out both;
 }

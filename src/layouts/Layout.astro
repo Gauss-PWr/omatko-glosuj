@@ -1,12 +1,29 @@
 ---
 import "../styles/global.css";
+import { loadSchedule } from "$lib/server/schedule";
+import { buildNavigationItems } from "$lib/navigation";
+import BottomNav from "../components/BottomNav.svelte";
+import LiveStatsSnapshot from "../components/LiveStatsSnapshot.svelte";
 
 interface Props {
   title?: string;
   ballot?: string;
 }
 
-const { title = "Głosowanie · OMatKo!!!", ballot } = Astro.props;
+const { title = "Głosowanie · OMatKo!!!", ballot: requestedBallot } =
+  Astro.props;
+const isStatsPage = Astro.url.pathname.startsWith("/stats");
+if (isStatsPage)
+  Astro.response.headers.set("Cache-Control", "private, no-store");
+const ballot = requestedBallot ?? (isStatsPage ? "options" : undefined);
+const statsSchedule = isStatsPage ? await loadSchedule() : null;
+const statsNavItems = statsSchedule
+  ? buildNavigationItems(
+      statsSchedule.days.length,
+      statsSchedule.posters.length > 0,
+      true,
+    )
+  : [];
 ---
 
 <!doctype html>
@@ -30,7 +47,13 @@ const { title = "Głosowanie · OMatKo!!!", ballot } = Astro.props;
     </script>
     <title>{title}</title>
   </head>
-  <body class="min-h-dvh font-sans antialiased">
+  <body
+    class:list={["min-h-dvh font-sans antialiased", isStatsPage && "pb-24"]}
+  >
     <slot />
+    {isStatsPage && <LiveStatsSnapshot client:load />}
+    {isStatsPage && (
+      <BottomNav client:load items={statsNavItems} initial="options" />
+    )}
   </body>
 </html>
