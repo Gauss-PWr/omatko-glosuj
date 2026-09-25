@@ -1,5 +1,5 @@
-import { count, eq, sql } from "drizzle-orm";
-import { presentations, votes } from "$db/schema";
+import { count, eq, max, sql } from "drizzle-orm";
+import { presentations, voteEvents, votes } from "$db/schema";
 import {
   presentationType,
   type Track,
@@ -112,6 +112,13 @@ function leaderboardOrder(a: LeaderboardEntry, b: LeaderboardEntry): number {
 
 export class StatsService {
   constructor(private readonly db: DrizzleDb) {}
+
+  async getLatestVoteEventId(): Promise<number> {
+    const [result] = await this.db
+      .select({ id: max(voteEvents.id) })
+      .from(voteEvents);
+    return result?.id ?? 0;
+  }
 
   async getOverview(): Promise<StatsOverview> {
     const [presentationTotals] = await this.db

@@ -3,7 +3,7 @@ import { and, eq } from "drizzle-orm";
 import Database from "bun:sqlite";
 import { migrate } from "drizzle-orm/bun-sqlite/migrator";
 import { createDb, type DrizzleDb } from "$db/index";
-import { presentations, users, votes } from "$db/schema";
+import { presentations, users, voteEvents, votes } from "$db/schema";
 import { StatsService } from "./stats";
 
 let db: DrizzleDb;
@@ -120,6 +120,31 @@ beforeEach(async () => {
 });
 
 describe("stats service", () => {
+  test("returns the latest durable vote event cursor", async () => {
+    expect(await stats.getLatestVoteEventId()).toBe(0);
+
+    await db.insert(voteEvents).values([
+      {
+        userId: 1,
+        kind: "score_cast",
+        presentationId: 1,
+        category: "t_1",
+        score: 4,
+        at: new Date(),
+      },
+      {
+        userId: 1,
+        kind: "score_cast",
+        presentationId: 1,
+        category: "t_2",
+        score: 3,
+        at: new Date(),
+      },
+    ]);
+
+    expect(await stats.getLatestVoteEventId()).toBe(2);
+  });
+
   test("builds totals and separate type/category leaderboards", async () => {
     const overview = await stats.getOverview();
 
