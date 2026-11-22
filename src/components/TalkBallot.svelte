@@ -67,7 +67,7 @@
     <button
       type="button"
       disabled={pending || !fullyVoted}
-      class="h-9 w-16 rounded-lg border border-zinc-300 px-2 text-xs font-bold text-zinc-600 transition-colors duration-150 hover:border-zinc-400 hover:bg-zinc-50 disabled:hover:bg-transparent dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-800"
+      class="h-9 w-16 rounded-lg border border-[color:var(--line)] px-2 text-xs font-bold text-[color:var(--muted-ink)] transition-colors duration-150 hover:bg-[var(--hover-tint)] disabled:hover:bg-transparent"
       class:invisible={!fullyVoted}
       aria-hidden={!fullyVoted}
       onclick={reset}
@@ -80,8 +80,8 @@
         disabled={pending}
         class="h-9 w-19 shrink-0 rounded-lg px-1 text-xs font-bold transition-[background-color,color,transform] duration-150 active:scale-[0.98] disabled:opacity-60
                     {picked
-          ? 'border border-zinc-300 text-zinc-600 dark:border-zinc-600 dark:text-zinc-300'
-          : 'bg-o-blue text-white'}"
+          ? 'border border-[color:var(--line)] text-[color:var(--muted-ink)]'
+          : 'bg-o-green text-white'}"
         onclick={() => (picked ? unpick() : pick())}
       >
         {picked ? "Usuń głos" : "Wybieram"}

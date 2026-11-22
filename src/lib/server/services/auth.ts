@@ -2,7 +2,7 @@ import type { Result } from "$lib/core/result";
 import { Err, Ok } from "$lib/core/result";
 import * as AppError from "../../api/errors";
 import type { Role } from "$lib/domain/user";
-import { type DrizzleDb } from "db";
+import { type DrizzleDb } from "$db/index";
 import { createHash, randomBytes } from "node:crypto";
 import { sessions } from "$db/schema";
 import { eq } from "drizzle-orm";
@@ -101,4 +101,14 @@ export class Auth {
 
     return Ok();
   }
+
+  power(role: Role) {
+    return rolePowerMap[role];
+  }
 }
+
+const rolePowerMap: Record<Role, number> = {
+  admin: 0,
+  staff: 1,
+  attendee: 2,
+};

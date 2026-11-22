@@ -5,8 +5,9 @@ import Layout from "../layouts/Layout.astro";
 import SlotTile from "../components/SlotTile.astro";
 import PresentationTile from "../components/PresentationTile.astro";
 import BottomNav from "../components/BottomNav.svelte";
-import SettingsPanel from "../components/SettingsPanel.svelte";
+import OptionsPanel from "../components/OptionsPanel.astro";
 import FilterBar from "../components/FilterBar.svelte";
+import { buildNavigationItems } from "$lib/navigation";
 
 const token = Astro.cookies.get("omatko-token")?.value;
 const auth = token ? await authService.auth(token) : undefined;
@@ -21,34 +22,24 @@ const liveDay = days.findIndex((day) =>
     (slot) => slot.start.getTime() <= now && now < slot.end.getTime(),
   ),
 );
-const initialPanel =
-  liveDay >= 0 ? `day-${liveDay}` : days.length > 0 ? "day-0" : "poster";
-
-const navItems = [
-  ...days.map((day, index) => ({
-    id: `day-${index}`,
-    label: `Dzień ${index + 1}`,
-  })),
-  ...(posters.length > 0 ? [{ id: "poster", label: "Postery" }] : []),
-  { id: "settings", label: "Ustawienia" },
-];
+const navItems = buildNavigationItems(days.length, posters.length > 0);
+const requestedPanel = Astro.url.searchParams.get("panel");
+const initialPanel = navItems.some((item) => item.id === requestedPanel)
+  ? requestedPanel!
+  : liveDay >= 0
+    ? `day-${liveDay}`
+    : days.length > 0
+      ? "day-0"
+      : posters.length > 0
+        ? "poster"
+        : "options";
 ---
 
 <Layout ballot={initialPanel}>
   <main class="relative mx-auto max-w-3xl px-4 pb-28 pt-6 sm:pt-8">
     <FilterBar client:load />
-    {role !== "attendee" && (
-      <div class="-mt-2 mb-4 flex justify-end">
-        <a
-          class="text-sm font-semibold text-o-blue underline-offset-4 hover:underline"
-          href="/stats"
-        >
-          Statystyki głosowania →
-        </a>
-      </div>
-    )}
     {days.length === 0 && posters.length === 0 && (
-      <p class="rounded-xl bg-white/80 p-6 text-sm text-zinc-600 dark:bg-zinc-900/80 dark:text-zinc-300">
+      <p class="theme-surface p-6 text-sm text-[color:var(--muted-ink)]">
         Brak referatów. Uruchom <code class="font-mono">bun db:seed</code>.
       </p>
     )}
@@ -73,8 +64,8 @@ const navItems = [
       </section>
     )}
 
-    <section class="ballot-panel panel-settings flex-col gap-4">
-      <SettingsPanel client:load />
+    <section class="ballot-panel panel-options flex-col gap-4">
+      <OptionsPanel canViewStats={role !== "attendee"} />
     </section>
   </main>
   <BottomNav client:load items={navItems} initial={initialPanel} />

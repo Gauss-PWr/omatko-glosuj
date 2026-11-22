@@ -1,5 +1,5 @@
 import { asc, eq } from "drizzle-orm";
-import { db } from "db";
+import { db } from "$db/index";
 import { presentations, slots } from "$db/schema";
 import type { Track } from "$lib/domain/presentation";
 

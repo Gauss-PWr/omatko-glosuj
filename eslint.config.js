@@ -3,8 +3,9 @@ import globals from "globals";
 import astro from "eslint-plugin-astro";
 import svelte from "eslint-plugin-svelte";
 import tseslint from "typescript-eslint";
+import { defineConfig } from "eslint/config";
 
-export default tseslint.config(
+export default defineConfig(
   {
     ignores: [
       "dist/**",

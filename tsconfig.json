@@ -4,11 +4,10 @@
   "exclude": ["dist"],
   "compilerOptions": {
     "types": ["bun"],
-    "baseUrl": "src",
     "paths": {
-      "$lib/*": ["lib/*"],
-      "$components/*": ["components/*"],
-      "$db/*": ["db/*"]
+      "$lib/*": ["./src/lib/*"],
+      "$components/*": ["./src/components/*"],
+      "$db/*": ["./src/db/*"]
     }
   }
 }
