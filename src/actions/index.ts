@@ -3,7 +3,7 @@ import { authService } from "$lib/server";
 import { z } from "astro/zod";
 import { getLogger } from "@logtape/logtape";
 
-const TOKEN = "omatko-token";
+export const TOKEN = "omatko-token";
 const logger = getLogger(["server", "actions"]);
 
 export const server = {

@@ -29,7 +29,7 @@
     <button
       type="button"
       disabled={pending || !fullyVoted}
-      class="h-9 w-16 rounded-lg border border-zinc-300 px-2 text-xs font-bold text-zinc-600 transition-colors duration-150 hover:border-zinc-400 hover:bg-zinc-50 disabled:hover:bg-transparent dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-800"
+      class="h-9 w-16 rounded-lg border border-[color:var(--line)] px-2 text-xs font-bold text-[color:var(--muted-ink)] transition-colors duration-150 hover:bg-[var(--hover-tint)] disabled:hover:bg-transparent"
       class:invisible={!fullyVoted}
       aria-hidden={!fullyVoted}
       onclick={reset}

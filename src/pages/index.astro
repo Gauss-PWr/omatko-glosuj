@@ -39,7 +39,7 @@ const initialPanel = navItems.some((item) => item.id === requestedPanel)
   <main class="relative mx-auto max-w-3xl px-4 pb-28 pt-6 sm:pt-8">
     <FilterBar client:load />
     {days.length === 0 && posters.length === 0 && (
-      <p class="rounded-xl bg-white/80 p-6 text-sm text-zinc-600 dark:bg-zinc-900/80 dark:text-zinc-300">
+      <p class="theme-surface p-6 text-sm text-[color:var(--muted-ink)]">
         Brak referatów. Uruchom <code class="font-mono">bun db:seed</code>.
       </p>
     )}

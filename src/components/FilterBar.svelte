@@ -4,7 +4,7 @@
 
 {#if ui.panel !== "settings"}
   <div
-    class="theme-filter sticky top-0 z-10 -mx-4 mb-4 border-b border-zinc-200 bg-[#f6f5f1]/95 px-4 py-3 backdrop-blur-sm"
+    class="theme-filter sticky top-0 z-10 -mx-4 mb-4 border-b px-4 py-3 backdrop-blur-sm"
   >
     <label
       class="flex cursor-pointer items-center justify-between gap-3 text-sm font-semibold"

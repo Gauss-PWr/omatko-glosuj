@@ -69,7 +69,7 @@
     >
       <header class="mb-3">
         <p
-          class="flex h-5 items-center gap-2 text-xs font-bold tracking-wide text-zinc-500 dark:text-zinc-400"
+          class="flex h-5 items-center gap-2 text-xs font-bold tracking-wide text-[color:var(--muted-ink)]"
         >
           <span
             class="rounded-full bg-o-orange px-2 py-0.5 text-[10px] font-bold tracking-wider text-white uppercase"
@@ -80,7 +80,7 @@
           </span>
           <span>
             {timeRange}
-            <span class="font-medium text-zinc-400 dark:text-zinc-500">
+            <span class="font-medium text-[color:var(--muted-ink)]">
               · {shownIndex + 1}/{talks.length}
             </span>
           </span>
@@ -97,13 +97,11 @@
       <h3 class="text-lg font-semibold leading-tight">
         {talk.title}
       </h3>
-      <p class="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+      <p class="text-sm font-medium text-[color:var(--ink)]">
         {talk.author}
       </p>
       {#if talk.abstract}
-        <p
-          class="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400"
-        >
+        <p class="mt-2 text-sm leading-relaxed text-[color:var(--muted-ink)]">
           {talk.abstract}
         </p>
       {/if}

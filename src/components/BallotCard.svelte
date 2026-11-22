@@ -26,13 +26,13 @@
     if (voted) return "border-o-green";
     if (picked && track === "applied") return "border-o-blue";
     if (picked && track === "theory") return "border-o-orange";
-    return "border-zinc-200/80 dark:border-zinc-700/80";
+    return "border-transparent";
   });
 </script>
 
 <article
   hidden={hidden || filteredOut}
-  class="theme-surface w-full rounded-2xl border-2 bg-white p-4 shadow-[0_8px_28px_-18px_rgba(41,45,50,0.3)] transition-[border-color,box-shadow] duration-200 {border}"
+  class="theme-surface w-full border-l-[5px] p-4 transition-[border-color] duration-200 {border}"
 >
   {@render children()}
 </article>

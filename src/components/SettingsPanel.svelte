@@ -26,16 +26,14 @@
   }
 </script>
 
-<article
-  class="theme-surface w-full rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-700"
->
+<article class="theme-surface w-full p-5">
   <h2 class="text-lg font-semibold">Ustawienia</h2>
   <label
-    class="mt-5 flex cursor-pointer items-center justify-between gap-4 border-t border-zinc-200 pt-4 dark:border-zinc-700"
+    class="mt-5 flex cursor-pointer items-center justify-between gap-4 border-t border-[color:var(--line)] pt-4"
   >
     <span>
       <span class="block text-sm font-semibold">Tryb ciemny</span>
-      <span class="block text-xs text-zinc-500 dark:text-zinc-400"
+      <span class="block text-xs text-[color:var(--muted-ink)]"
         >Zapisz wygląd na tym urządzeniu</span
       >
     </span>
@@ -48,7 +46,7 @@
         aria-label="Włącz tryb ciemny"
       />
       <span
-        class="h-7 w-12 rounded-full bg-zinc-300 transition-colors duration-200 peer-checked:bg-o-blue dark:bg-zinc-700 peer-checked:dark:bg-o-blue"
+        class="h-7 w-12 rounded-full bg-zinc-300 transition-colors duration-200 peer-checked:bg-o-green dark:bg-zinc-700 peer-checked:dark:bg-o-green"
       ></span>
       <span
         class="absolute left-0.5 size-6 rounded-full bg-white shadow transition-transform duration-200 peer-checked:translate-x-5"
@@ -57,7 +55,7 @@
   </label>
   <section
     aria-labelledby="event-information"
-    class="mt-6 border-t border-zinc-200 pt-4 dark:border-zinc-700"
+    class="mt-6 border-t border-[color:var(--line)] pt-4"
   >
     <img
       src={logo.src}
@@ -69,12 +67,10 @@
     <h3 id="event-information" class="text-sm font-semibold">
       Informacje o wydarzeniu
     </h3>
-    <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-300">
+    <p class="mt-2 text-sm text-[color:var(--muted-ink)]">
       XIII Ogólnopolska Matematyczna Konferencja Studentów „OMatKo!!!”
     </p>
-    <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-      11–13 grudnia 2026
-    </p>
+    <p class="mt-1 text-sm text-[color:var(--muted-ink)]">11–13 grudnia 2026</p>
     <a
       class="mt-2 inline-block text-sm font-semibold text-o-blue underline-offset-4 hover:underline"
       href="https://omatko.pwr.edu.pl/"

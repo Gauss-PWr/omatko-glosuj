@@ -1,4 +1,4 @@
-import { db } from "db";
+import { db } from "$db/index";
 import { Auth } from "./services/auth";
 import { VoteService } from "./services/votes";
 import { StatsService } from "./services/stats";

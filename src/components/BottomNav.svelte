@@ -18,8 +18,8 @@
 </script>
 
 <nav
-  class="theme-nav fixed inset-x-0 bottom-0 z-20 border-t border-zinc-200 bg-white/95 px-1 pt-1.5 shadow-[0_-8px_24px_-18px_rgba(41,45,50,0.32)] backdrop-blur-sm"
-  style="padding-bottom: max(0.5rem, env(safe-area-inset-bottom))"
+  class="theme-nav fixed inset-x-2 z-20 mx-auto max-w-3xl p-1"
+  style="bottom: max(0.5rem, env(safe-area-inset-bottom))"
 >
   <ul
     class="mx-auto grid max-w-3xl items-stretch gap-1"
@@ -34,10 +34,10 @@
           type={item.href ? undefined : "button"}
           aria-label={item.label}
           aria-current={ui.panel === item.id ? "page" : undefined}
-          class="flex h-16 w-full flex-col items-center justify-center gap-0.5 rounded-xl px-1 transition-[background-color,color,transform] duration-200 active:scale-[0.97]
+          class="flex h-16 w-full flex-col items-center justify-center gap-0.5 rounded-[12px] px-1 transition-[background-color,color,transform] duration-200 active:scale-[0.97]
             {ui.panel === item.id
-            ? 'bg-o-blue text-white shadow-sm'
-            : 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800'}"
+            ? 'nav-active text-o-orange'
+            : 'text-[color:var(--nav-text)] hover:bg-[var(--hover-tint)]'}"
           onclick={() => {
             if (!item.href) ui.panel = item.id;
           }}
@@ -110,7 +110,9 @@
               />
             </svg>
           {/if}
-          <span class="max-w-full truncate text-[10px] font-bold tracking-wide">
+          <span
+            class="max-w-full truncate text-[10px] font-semibold tracking-wide"
+          >
             {item.label}
           </span>
         </svelte:element>
