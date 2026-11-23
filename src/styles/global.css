@@ -171,6 +171,11 @@ input:focus-visible {
   display: none;
 }
 
+/* Hide server-rendered picks/scores until the client store is hydrated. */
+html[data-ballot-loading] main {
+  visibility: hidden;
+}
+
 html:not([data-ballot]) .panel-day-0,
 html[data-ballot="day-0"] .panel-day-0,
 html[data-ballot="day-1"] .panel-day-1,

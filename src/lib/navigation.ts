@@ -1,3 +1,5 @@
+import { url } from "$lib/url";
+
 export type NavigationItem = {
   id: string;
   label: string;
@@ -19,5 +21,5 @@ export function buildNavigationItems(
   ];
 
   if (!routeToHome) return items;
-  return items.map((item) => ({ ...item, href: `/?panel=${item.id}` }));
+  return items.map((item) => ({ ...item, href: url(`/?panel=${item.id}`) }));
 }

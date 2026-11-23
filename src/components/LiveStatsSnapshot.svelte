@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { url } from "$lib/url";
   import { onMount } from "svelte";
 
   onMount(() => {
@@ -48,7 +49,7 @@
       }
     }
 
-    const events = new EventSource("/api/stats/events");
+    const events = new EventSource(url("/api/stats/events"));
     events.addEventListener("refresh", () => void refreshSnapshot());
 
     return () => {

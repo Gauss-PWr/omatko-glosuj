@@ -22,6 +22,7 @@ export type Vote = z.infer<typeof vote>;
 
 export const voteEvents = {
   TALK_PICKED: "talk_picked",
+  TALK_UNPICKED: "talk_unpicked",
   SCORE_CAST: "score_cast",
   VOTE_WITHDRAWN: "vote_withdrawn",
 };

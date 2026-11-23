@@ -1,22 +1,35 @@
 ---
 import "../styles/global.css";
+import { url } from "$lib/url";
 import { loadSchedule } from "$lib/server/schedule";
 import { buildNavigationItems } from "$lib/navigation";
 import BottomNav from "../components/BottomNav.svelte";
 import LiveStatsSnapshot from "../components/LiveStatsSnapshot.svelte";
+import BallotHydrator from "../components/BallotHydrator.svelte";
+import type { BallotState } from "$lib/domain/ballot";
 
 interface Props {
   title?: string;
   ballot?: string;
+  /** Current user picks/scores to mirror into the client store. */
+  ballotState?: BallotState;
+  /** Panel (day / posters) the page belongs to; shows the nav with it active. */
+  navPanel?: string;
 }
 
-const { title = "Głosowanie · OMatKo!!!", ballot: requestedBallot } =
-  Astro.props;
-const isStatsPage = Astro.url.pathname.startsWith("/stats");
-if (isStatsPage)
+const {
+  title = "Głosowanie · OMatKo!!!",
+  ballot: requestedBallot,
+  ballotState,
+  navPanel,
+} = Astro.props;
+const isStatsPage = Astro.url.pathname.startsWith(url("/stats"));
+if (isStatsPage || ballotState)
   Astro.response.headers.set("Cache-Control", "private, no-store");
-const ballot = requestedBallot ?? (isStatsPage ? "options" : undefined);
-const statsSchedule = isStatsPage ? await loadSchedule() : null;
+const ballot =
+  requestedBallot ?? navPanel ?? (isStatsPage ? "options" : undefined);
+const showHomeNav = isStatsPage || navPanel !== undefined;
+const statsSchedule = showHomeNav ? await loadSchedule() : null;
 const statsNavItems = statsSchedule
   ? buildNavigationItems(
       statsSchedule.days.length,
@@ -27,7 +40,11 @@ const statsNavItems = statsSchedule
 ---
 
 <!doctype html>
-<html lang="pl" data-ballot={ballot}>
+<html
+  lang="pl"
+  data-ballot={ballot}
+  data-ballot-loading={ballotState ? "" : undefined}
+>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -44,17 +61,26 @@ const statsNavItems = statsSchedule
           document.documentElement.classList.add("dark");
         }
       } catch {}
+      // Never leave the page hidden if the state hydrator fails to run.
+      setTimeout(() => {
+        document.documentElement.removeAttribute("data-ballot-loading");
+      }, 3000);
     </script>
     <title>{title}</title>
   </head>
   <body
-    class:list={["min-h-dvh font-sans antialiased", isStatsPage && "pb-24"]}
+    class:list={["min-h-dvh font-sans antialiased", showHomeNav && "pb-24"]}
   >
     <div class="floating-bg" aria-hidden="true"></div>
     <slot />
+    {ballotState && <BallotHydrator client:load initial={ballotState} />}
     {isStatsPage && <LiveStatsSnapshot client:load />}
-    {isStatsPage && (
-      <BottomNav client:load items={statsNavItems} initial="options" />
+    {showHomeNav && (
+      <BottomNav
+        client:load
+        items={statsNavItems}
+        initial={navPanel ?? "options"}
+      />
     )}
   </body>
 </html>

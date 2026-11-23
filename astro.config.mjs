@@ -7,6 +7,8 @@ import tailwindcss from "@tailwindcss/vite";
 
 // https://astro.build/config
 export default defineConfig({
+  // Served by the omatko.pwr.edu.pl reverse proxy under /glosuj/.
+  base: "/glosuj",
   output: "server",
   adapter: bun({ mode: "standalone" }),
   integrations: [svelte()],

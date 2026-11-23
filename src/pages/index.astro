@@ -1,5 +1,6 @@
 ---
 import { authService } from "$lib/server";
+import { url } from "$lib/url";
 import { loadSchedule } from "$lib/server/schedule";
 import Layout from "../layouts/Layout.astro";
 import SlotTile from "../components/SlotTile.astro";
@@ -8,13 +9,17 @@ import BottomNav from "../components/BottomNav.svelte";
 import OptionsPanel from "../components/OptionsPanel.astro";
 import FilterBar from "../components/FilterBar.svelte";
 import { buildNavigationItems } from "$lib/navigation";
+import { loadBallotState } from "$lib/server/ballot-state";
 
 const token = Astro.cookies.get("omatko-token")?.value;
 const auth = token ? await authService.auth(token) : undefined;
 
-if (!auth?.ok) return Astro.redirect("/login");
+if (!auth?.ok) return Astro.redirect(url("/login"));
 const { role } = auth.value;
-const { days, posters } = await loadSchedule();
+const [{ days, posters }, ballotState] = await Promise.all([
+  loadSchedule(),
+  loadBallotState(auth.value.userId),
+]);
 
 const now = Date.now();
 const liveDay = days.findIndex((day) =>
@@ -22,6 +27,10 @@ const liveDay = days.findIndex((day) =>
     (slot) => slot.start.getTime() <= now && now < slot.end.getTime(),
   ),
 );
+const posterIndex = posters.map((poster) => ({
+  id: poster.id,
+  text: [poster.title, poster.author, poster.abstract ?? ""].join(" "),
+}));
 const navItems = buildNavigationItems(days.length, posters.length > 0);
 const requestedPanel = Astro.url.searchParams.get("panel");
 const initialPanel = navItems.some((item) => item.id === requestedPanel)
@@ -35,9 +44,9 @@ const initialPanel = navItems.some((item) => item.id === requestedPanel)
         : "options";
 ---
 
-<Layout ballot={initialPanel}>
+<Layout ballot={initialPanel} {ballotState}>
   <main class="relative mx-auto max-w-3xl px-4 pb-28 pt-6 sm:pt-8">
-    <FilterBar client:load />
+    <FilterBar client:load posters={posterIndex} />
     {days.length === 0 && posters.length === 0 && (
       <p class="theme-surface p-6 text-sm text-[color:var(--muted-ink)]">
         Brak referatów. Uruchom <code class="font-mono">bun db:seed</code>.
@@ -55,11 +64,7 @@ const initialPanel = navItems.some((item) => item.id === requestedPanel)
     {posters.length > 0 && (
       <section class="ballot-panel panel-posters flex-col gap-4">
         {posters.map((talk) => (
-          <PresentationTile
-            kind="poster"
-            {talk}
-            showStats={role !== "attendee"}
-          />
+          <PresentationTile {talk} showStats={role !== "attendee"} />
         ))}
       </section>
     )}

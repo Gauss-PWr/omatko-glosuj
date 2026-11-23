@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { url } from "$lib/url";
   import { onMount } from "svelte";
   import { actions } from "astro:actions";
   import logo from "../assets/logo.webp";
@@ -22,7 +23,7 @@
     if (pending) return;
     pending = true;
     await actions.logout();
-    window.location.assign("/login");
+    window.location.assign(url("/login"));
   }
 </script>
 

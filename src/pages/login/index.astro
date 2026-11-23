@@ -1,12 +1,29 @@
 ---
-import { actions } from "astro:actions";
+import { actions, isInputError } from "astro:actions";
+import { url } from "$lib/url";
 import { Image } from "astro:assets";
+import { authService } from "$lib/server";
 import Layout from "../../layouts/Layout.astro";
 import logo from "../../assets/logo.webp";
 
+// Already signed in: nothing to do here.
+const token = Astro.cookies.get("omatko-token")?.value;
+if (token && (await authService.auth(token)).ok)
+  return Astro.redirect(url("/"));
+
 const result = Astro.getActionResult(actions.login);
-if (result && !result.error) return Astro.redirect("/");
-const error = result?.error?.message;
+if (result && !result.error) return Astro.redirect(url("/"));
+
+function errorMessage(error: NonNullable<typeof result>["error"]): string {
+  if (!error) return "";
+  if (isInputError(error)) return "Kod składa się z 6 znaków.";
+  if (error.code === "UNAUTHORIZED") {
+    return "Kod jest niepoprawny. Sprawdź go na identyfikatorze i spróbuj ponownie.";
+  }
+  return "Coś poszło nie tak. Spróbuj ponownie za chwilę.";
+}
+
+const error = result?.error ? errorMessage(result.error) : undefined;
 ---
 
 <Layout title="Logowanie · OMatKo!!!">
@@ -27,37 +44,68 @@ const error = result?.error?.message;
         </p>
       </div>
 
-      <form method="POST" action={actions.login} class="space-y-5">
-        <label class="block">
-          <span class="mb-2 block text-sm font-semibold text-[color:var(--ink)]">
-            Kod z identyfikatora
-          </span>
+      <form
+        id="login-form"
+        method="POST"
+        action={actions.login}
+        class="space-y-5"
+      >
+        <div>
+          <div class="relative mb-2 flex items-center gap-2">
+            <label for="code" class="text-sm font-semibold">
+              Kod z identyfikatora
+            </label>
+            <button
+              id="badge-help-toggle"
+              type="button"
+              aria-expanded="false"
+              aria-controls="badge-help"
+              aria-label="Gdzie znajdę kod?"
+              class="peer flex size-6 items-center justify-center rounded-full border border-[color:var(--line)] text-xs font-bold text-[color:var(--muted-ink)] transition-colors hover:bg-[var(--hover-tint)]"
+            >
+              i
+            </button>
+            <div
+              id="badge-help"
+              role="tooltip"
+              class="invisible absolute top-full right-0 left-0 z-10 mt-2 rounded-[12px] bg-[var(--ink)] px-3 py-2 text-sm leading-snug text-[var(--surface)] opacity-0 shadow-lg transition-opacity duration-150 peer-hover:visible peer-hover:opacity-100 peer-focus-visible:visible peer-focus-visible:opacity-100 peer-aria-expanded:visible peer-aria-expanded:opacity-100"
+            >
+              Kod znajdziesz na odwrocie identyfikatora. Możesz też zeskanować
+              kod QR z identyfikatora.
+            </div>
+          </div>
           <input
+            id="code"
             type="text"
             name="code"
             inputmode="text"
             autocomplete="one-time-code"
+            autocapitalize="off"
+            autocorrect="off"
             maxlength="6"
             minlength="6"
             required
+            autofocus
             spellcheck="false"
             placeholder="••••••"
-            class="w-full rounded-xl border border-[color:var(--line)] bg-white px-4 py-3 font-mono text-center text-2xl tracking-[0.4em] text-[color:var(--ink)] outline-none transition placeholder:tracking-[0.4em] placeholder:text-o-gray focus:border-o-blue focus:ring-4 focus:ring-o-blue/25 dark:bg-zinc-950"
+            aria-invalid={error ? "true" : undefined}
+            aria-describedby={error ? "login-error" : undefined}
+            class="w-full rounded-xl border border-[color:var(--line)] bg-white px-4 py-3 font-mono text-center text-2xl tracking-[0.4em] text-[color:var(--ink)] outline-none transition placeholder:tracking-[0.4em] placeholder:text-o-gray focus:border-o-blue focus:ring-4 focus:ring-o-blue/25 aria-invalid:border-o-orange dark:bg-zinc-950"
           />
-        </label>
+        </div>
 
-        {error && (
-          <p
-            class="rounded-lg bg-o-orange/15 px-3 py-2 text-sm font-medium text-orange-800 dark:text-orange-200"
-            role="alert"
-          >
-            {error}
-          </p>
-        )}
+        <p
+          id="login-error"
+          class="rounded-lg bg-o-orange/15 px-3 py-2 text-sm font-medium text-orange-800 dark:text-orange-200"
+          role="alert"
+          hidden={!error}
+        >
+          {error}
+        </p>
 
         <button
           type="submit"
-          class="w-full rounded-[15px] bg-o-green px-4 py-3 text-base font-semibold text-white transition hover:brightness-95 active:translate-y-px"
+          class="w-full rounded-[15px] bg-o-green px-4 py-3 text-base font-semibold text-white transition hover:brightness-95 active:translate-y-px disabled:opacity-60"
         >
           Zaloguj się
         </button>
@@ -65,3 +113,60 @@ const error = result?.error?.message;
     </section>
   </main>
 </Layout>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>("#login-form")!;
+  const input = form.querySelector<HTMLInputElement>("#code")!;
+  const submit = form.querySelector<HTMLButtonElement>("button[type=submit]")!;
+  const errorBox = document.querySelector<HTMLElement>("#login-error")!;
+
+  function showError(message: string) {
+    errorBox.textContent = message;
+    errorBox.hidden = false;
+  }
+
+  // Prevent double submits and show progress.
+  form.addEventListener("submit", () => {
+    submit.disabled = true;
+    submit.textContent = "Logowanie…";
+  });
+  // Coming back via the browser's back button must not leave it disabled.
+  window.addEventListener("pageshow", () => {
+    submit.disabled = false;
+    submit.textContent = "Zaloguj się";
+  });
+
+  // Badge QR codes link to /login#<code>. The fragment is never sent to the
+  // server (so it stays out of logs and referrers); we remove it from the URL
+  // and sign in with the normal login form.
+  function signInFromFragment() {
+    const scanned = decodeURIComponent(location.hash.slice(1)).trim();
+    if (!scanned) return;
+    history.replaceState(null, "", location.pathname + location.search);
+    if (scanned.length === 6) {
+      input.value = scanned;
+      form.requestSubmit();
+    } else {
+      input.value = "";
+      showError("Nie udało się odczytać kodu z QR. Wpisz kod ręcznie.");
+    }
+  }
+  signInFromFragment();
+  // Also when a badge link is opened in a tab that already shows this page.
+  window.addEventListener("hashchange", signInFromFragment);
+
+  // Tooltip: tap/click toggles, outside click or Escape closes.
+  const helpToggle =
+    document.querySelector<HTMLButtonElement>("#badge-help-toggle")!;
+  function setHelp(open: boolean) {
+    helpToggle.setAttribute("aria-expanded", String(open));
+  }
+  helpToggle.addEventListener("click", (event) => {
+    event.stopPropagation();
+    setHelp(helpToggle.getAttribute("aria-expanded") !== "true");
+  });
+  document.addEventListener("click", () => setHelp(false));
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") setHelp(false);
+  });
+</script>

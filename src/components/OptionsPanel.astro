@@ -1,5 +1,6 @@
 ---
 import SettingsPanel from "./SettingsPanel.svelte";
+import { url } from "$lib/url";
 
 interface Props {
   canViewStats: boolean;
@@ -19,7 +20,7 @@ const { canViewStats } = Astro.props;
       </p>
       <a
         class="mt-4 inline-flex min-h-10 items-center justify-center rounded-[15px] bg-o-green px-5 py-2 text-sm font-semibold text-white transition-[filter,transform] duration-150 hover:brightness-95 active:scale-[0.98]"
-        href="/stats"
+        href={url("/stats")}
       >
         Otwórz statystyki
       </a>

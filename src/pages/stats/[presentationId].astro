@@ -1,5 +1,6 @@
 ---
 import type { Category } from "$lib/domain/vote";
+import { url } from "$lib/url";
 import type { Type } from "$lib/domain/presentation";
 import { authorizeStats } from "$lib/server/stats-access";
 import { statsService } from "$lib/server";
@@ -7,12 +8,12 @@ import Layout from "../../layouts/Layout.astro";
 
 const access = await authorizeStats(Astro.cookies.get("omatko-token")?.value);
 if (!access.authorized) {
-  return Astro.redirect(access.status === 401 ? "/login" : "/");
+  return Astro.redirect(url(access.status === 401 ? "/login" : "/"));
 }
 
 const presentationId = Number(Astro.params.presentationId);
 if (!Number.isSafeInteger(presentationId) || presentationId < 0) {
-  return Astro.redirect("/stats");
+  return Astro.redirect(url("/stats"));
 }
 
 const stats = await statsService.getPresentationStats(presentationId);
@@ -55,7 +56,7 @@ const categoryStats = stats?.categories.map((category) => ({
   <main class="mx-auto max-w-4xl px-4 pb-12 pt-6 sm:pt-8">
     <a
       class="inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-o-blue transition-colors hover:text-cyan-700"
-      href="/stats"
+      href={url("/stats")}
     >
       <span aria-hidden="true">←</span>
       Wszystkie statystyki

@@ -109,3 +109,43 @@ export async function loadSchedule(): Promise<{
     posters: posterRows.map(toTalk),
   };
 }
+
+export type PresentationPage = {
+  talk: TalkCard;
+  kind: "talk" | "poster";
+  slot: SlotCard | null;
+  /** Panel on the home page that lists this presentation (day-N / poster). */
+  panel: string;
+  /** Talks running in parallel in the same slot. */
+  parallel: TalkCard[];
+};
+
+export async function loadPresentation(
+  id: number,
+): Promise<PresentationPage | null> {
+  const { days, posters } = await loadSchedule();
+
+  for (const [index, day] of days.entries()) {
+    for (const slot of day.slots) {
+      const talk = slot.talks.find((t) => t.id === id);
+      if (!talk) continue;
+      return {
+        talk,
+        kind: "talk",
+        slot,
+        panel: `day-${index}`,
+        parallel: slot.talks.filter((t) => t.id !== id),
+      };
+    }
+  }
+
+  const poster = posters.find((p) => p.id === id);
+  if (!poster) return null;
+  return {
+    talk: poster,
+    kind: "poster",
+    slot: null,
+    panel: "poster",
+    parallel: [],
+  };
+}

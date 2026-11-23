@@ -1,0 +1,118 @@
+---
+import { authService } from "$lib/server";
+import { url } from "$lib/url";
+import { formatClock, loadPresentation } from "$lib/server/schedule";
+import { loadBallotState } from "$lib/server/ballot-state";
+import Layout from "../../layouts/Layout.astro";
+import TalkBallot from "../../components/TalkBallot.svelte";
+import PosterBallot from "../../components/PosterBallot.svelte";
+
+const token = Astro.cookies.get("omatko-token")?.value;
+const auth = token ? await authService.auth(token) : undefined;
+if (!auth?.ok) return Astro.redirect(url("/login"));
+const { userId, role } = auth.value;
+
+const id = Number(Astro.params.id);
+const page = Number.isInteger(id) ? await loadPresentation(id) : null;
+if (!page) return new Response("Not found", { status: 404 });
+
+const { talk, kind, slot, panel, parallel } = page;
+const ballotState = await loadBallotState(userId);
+
+const anchor = slot ? `slot-${slot.id}` : `p-${talk.id}`;
+const backHref = url(`/?panel=${panel}#${anchor}`);
+const trackLabel =
+  talk.track === "applied"
+    ? "Zastosowania"
+    : talk.track === "theory"
+      ? "Teoria"
+      : kind === "poster"
+        ? "Plakat"
+        : null;
+const timeRange = slot
+  ? `${formatClock(slot.start)} – ${formatClock(slot.end)}`
+  : null;
+const paragraphs = (talk.abstract ?? "")
+  .split(/\n{2,}/)
+  .map((p) => p.trim())
+  .filter(Boolean);
+---
+
+<Layout title={`${talk.title} · OMatKo!!!`} navPanel={panel} {ballotState}>
+  <main class="relative mx-auto max-w-3xl px-4 pb-8 pt-6 sm:pt-8">
+    <a
+      class="inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-o-blue hover:underline"
+      href={backHref}
+    >
+      <span aria-hidden="true">←</span>
+      Wróć do listy
+    </a>
+
+    <article class="theme-surface mt-3 p-5 sm:p-8">
+      <header>
+        <p class="flex flex-wrap items-center gap-x-3 text-xs font-bold tracking-wider uppercase">
+          {trackLabel && (
+            <span
+              class={talk.track === "theory" ? "text-o-orange" : "text-o-blue"}
+            >
+              {trackLabel}
+            </span>
+          )}
+          {timeRange && (
+            <span class="text-[color:var(--muted-ink)]">{timeRange}</span>
+          )}
+        </p>
+        <h1 class="mt-2 text-2xl font-bold leading-tight sm:text-3xl">
+          {talk.title}
+        </h1>
+        <p class="mt-1 text-base font-semibold text-[color:var(--muted-ink)]">
+          {talk.author}
+        </p>
+        {role !== "attendee" && (
+          <a
+            class="mt-2 inline-flex min-h-9 items-center text-sm font-semibold text-o-blue underline-offset-4 hover:underline"
+            href={url(`/stats/${talk.id}`)}
+          >
+            Statystyki prezentacji →
+          </a>
+        )}
+      </header>
+
+      {paragraphs.length > 0 && (
+        <div class="mt-6 max-w-prose space-y-4 text-base leading-relaxed">
+          {paragraphs.map((p) => (
+            <p class="whitespace-pre-line">{p}</p>
+          ))}
+        </div>
+      )}
+
+      {parallel.length > 0 && (
+        <aside class="mt-8 rounded-[9px] bg-[var(--hover-tint)] p-4">
+          <p class="text-sm font-bold">W tym samym czasie</p>
+          <p class="text-sm text-[color:var(--muted-ink)]">
+            Możesz wybrać tylko jeden referat z tego terminu.
+          </p>
+          {parallel.map((other) => (
+            <a
+              class="mt-2 block text-sm font-semibold text-o-blue underline-offset-4 hover:underline"
+              href={url(`/prezentacja/${other.id}`)}
+            >
+              {other.title} — {other.author} →
+            </a>
+          ))}
+        </aside>
+      )}
+
+      <section class="mt-8 border-t border-[color:var(--line)] pt-6">
+        <h2 class="mb-4 text-lg font-bold">
+          {kind === "talk" ? "Twój wybór i ocena" : "Twoja ocena"}
+        </h2>
+        {kind === "talk" && slot ? (
+          <TalkBallot client:load slotId={slot.id} presentationId={talk.id} />
+        ) : (
+          <PosterBallot client:load presentationId={talk.id} />
+        )}
+      </section>
+    </article>
+  </main>
+</Layout>

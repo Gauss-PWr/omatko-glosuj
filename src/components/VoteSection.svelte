@@ -16,17 +16,22 @@
   } = $props();
 
   let pending = $state(false);
+  let error = $state<string | null>(null);
 
   async function cast(category: Category, score: number) {
     if (!enabled || pending) return;
     pending = true;
+    error = null;
     const result = await actions.vote({
       presentationId,
       category,
       score,
     });
     pending = false;
-    if (result.error) return;
+    if (result.error) {
+      error = result.error.message;
+      return;
+    }
     scores[scoreKey(presentationId, category)] = score;
   }
 </script>
@@ -66,4 +71,9 @@
       </div>
     {/each}
   </div>
+  {#if error}
+    <p role="alert" class="mt-2 text-sm font-semibold text-o-orange">
+      {error}
+    </p>
+  {/if}
 </div>

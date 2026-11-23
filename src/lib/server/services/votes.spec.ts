@@ -192,6 +192,52 @@ describe("vote service", () => {
     assert.strictEqual(withdrawn.prevScore, posterVote.score);
   });
 
+  test("unpicking drops the pick and its scores", async ({
+    db,
+    voteService,
+  }) => {
+    assert((await voteService.vote(USER_ID, talkVote)).ok);
+    assert((await voteService.unpickTalk(USER_ID, TALK_ID)).ok);
+
+    assert.deepStrictEqual(await voteService.getVotes(USER_ID), []);
+    assert.deepStrictEqual(await voteService.getPicks(USER_ID), []);
+    assert.deepStrictEqual(await eventKinds(db), [
+      "talk_picked",
+      "score_cast",
+      "vote_withdrawn",
+      "talk_unpicked",
+    ]);
+  });
+
+  test("unpicking a talk that is not picked is a no-op", async ({
+    db,
+    voteService,
+  }) => {
+    assert((await voteService.pickTalk(USER_ID, TALK_ID)).ok);
+    assert((await voteService.unpickTalk(USER_ID, OTHER_TALK_ID)).ok);
+
+    assert.strictEqual((await voteService.getPicks(USER_ID)).length, 1);
+    assert.deepStrictEqual(await eventKinds(db), ["talk_picked"]);
+  });
+
+  test("resetting votes keeps the pick but removes all scores", async ({
+    db,
+    voteService,
+  }) => {
+    assert((await voteService.vote(USER_ID, talkVote)).ok);
+    assert(
+      (await voteService.vote(USER_ID, { ...talkVote, category: "t_2" })).ok,
+    );
+    assert((await voteService.resetVotes(USER_ID, TALK_ID)).ok);
+
+    assert.deepStrictEqual(await voteService.getVotes(USER_ID), []);
+    assert.strictEqual((await voteService.getPicks(USER_ID)).length, 1);
+    assert.deepStrictEqual(
+      (await eventKinds(db)).filter((k) => k === "vote_withdrawn"),
+      ["vote_withdrawn", "vote_withdrawn"],
+    );
+  });
+
   test("withdrawing a missing score logs nothing", async ({
     db,
     voteService,

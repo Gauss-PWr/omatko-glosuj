@@ -149,6 +149,70 @@ export class VoteService {
     });
   }
 
+  /** Removes the user's pick for this talk together with its scores. */
+  async unpickTalk(
+    userId: number,
+    presentationId: number,
+  ): Promise<VoteResult> {
+    return this.db.transaction((tx) => {
+      const open = this.requireVotingOpen(tx);
+      if (!open.ok) return open;
+
+      const talk = this.findPresentation(tx, presentationId);
+      if (!talk) return invalid("presentation not found");
+      if (talk.type !== presentationType.TALK)
+        return invalid("only talks can be picked");
+      if (talk.slotId === null) return invalid("talk has no slot");
+
+      const removed = tx
+        .delete(picks)
+        .where(
+          and(
+            eq(picks.userId, userId),
+            eq(picks.slotId, talk.slotId),
+            eq(picks.presentationId, presentationId),
+          ),
+        )
+        .returning({ slotId: picks.slotId })
+        .get();
+      if (!removed) return Ok();
+
+      const now = new Date();
+      this.dropScores(tx, userId, presentationId, talk.slotId, now);
+      this.log(tx, {
+        userId,
+        kind: EventKind.TALK_UNPICKED,
+        presentationId,
+        slotId: talk.slotId,
+        at: now,
+      });
+      return Ok();
+    });
+  }
+
+  /** Withdraws every score the user gave this presentation. */
+  async resetVotes(
+    userId: number,
+    presentationId: number,
+  ): Promise<VoteResult> {
+    return this.db.transaction((tx) => {
+      const open = this.requireVotingOpen(tx);
+      if (!open.ok) return open;
+
+      const presentation = this.findPresentation(tx, presentationId);
+      if (!presentation) return invalid("presentation not found");
+
+      this.dropScores(
+        tx,
+        userId,
+        presentationId,
+        presentation.slotId,
+        new Date(),
+      );
+      return Ok();
+    });
+  }
+
   async getVotes(userId: number): Promise<Vote[]> {
     return this.db
       .select({
@@ -193,28 +257,7 @@ export class VoteService {
     if (current?.presentationId === talk.id) return;
 
     if (current) {
-      const dropped = tx
-        .delete(votes)
-        .where(
-          and(
-            eq(votes.userId, userId),
-            eq(votes.presentationId, current.presentationId),
-          ),
-        )
-        .returning({ category: votes.category, score: votes.score })
-        .all();
-
-      for (const v of dropped) {
-        this.log(tx, {
-          userId,
-          kind: EventKind.VOTE_WITHDRAWN,
-          presentationId: current.presentationId,
-          slotId: talk.slotId,
-          category: v.category,
-          prevScore: v.score,
-          at: now,
-        });
-      }
+      this.dropScores(tx, userId, current.presentationId, talk.slotId, now);
     }
 
     tx.insert(picks)
@@ -232,6 +275,34 @@ export class VoteService {
       slotId: talk.slotId,
       at: now,
     });
+  }
+
+  private dropScores(
+    tx: DrizzleTx,
+    userId: number,
+    presentationId: number,
+    slotId: number | null,
+    now: Date,
+  ): void {
+    const dropped = tx
+      .delete(votes)
+      .where(
+        and(eq(votes.userId, userId), eq(votes.presentationId, presentationId)),
+      )
+      .returning({ category: votes.category, score: votes.score })
+      .all();
+
+    for (const v of dropped) {
+      this.log(tx, {
+        userId,
+        kind: EventKind.VOTE_WITHDRAWN,
+        presentationId,
+        slotId,
+        category: v.category,
+        prevScore: v.score,
+        at: now,
+      });
+    }
   }
 
   private log(tx: DrizzleTx, event: NewVoteEventRow): void {

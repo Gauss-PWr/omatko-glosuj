@@ -1,7 +1,6 @@
 <script lang="ts">
-  import { actions } from "astro:actions";
-  import type { Snippet } from "svelte";
   import VoteSection from "./VoteSection.svelte";
+  import PickButton from "./PickButton.svelte";
   import { slotPick, isVoted, resetScores } from "$lib/client/ballot.svelte";
   import type { Category } from "$lib/domain/vote";
 
@@ -15,41 +14,17 @@
   let {
     slotId,
     presentationId,
-    swap,
+    showPick = true,
   }: {
     slotId: number;
     presentationId: number;
-    swap?: Snippet;
+    /** False when the pick button is already rendered by the parent. */
+    showPick?: boolean;
   } = $props();
 
   let pending = $state(false);
   const picked = $derived(slotPick[slotId] === presentationId);
   const fullyVoted = $derived(isVoted(presentationId, categoryIds));
-
-  async function pick() {
-    if (pending) return;
-    pending = true;
-    const result = await actions.pickTalk({ presentationId });
-    if (result.error) {
-      pending = false;
-      return;
-    }
-    const previous = slotPick[slotId];
-    if (previous != null && previous !== presentationId) {
-      await resetScores(previous, categoryIds);
-    }
-    slotPick[slotId] = presentationId;
-    pending = false;
-  }
-
-  async function unpick() {
-    if (pending || !picked) return;
-    pending = true;
-    const result = await actions.unpickTalk({ presentationId });
-    pending = false;
-    if (result.error) return;
-    slotPick[slotId] = null;
-  }
 
   async function reset() {
     if (pending || !fullyVoted) return;
@@ -59,34 +34,23 @@
   }
 </script>
 
-<div class="mt-4">
+<div class="flex flex-col gap-4">
+  {#if showPick}
+    <div class="flex flex-wrap items-center gap-2">
+      <PickButton {slotId} {presentationId} />
+    </div>
+  {/if}
   <VoteSection {presentationId} categories={TALK_CATEGORIES} enabled={picked} />
-  <div
-    class="mt-3 grid h-9 w-full grid-cols-[4rem_minmax(0,1fr)] items-center gap-2"
-  >
+  <div class="flex h-9 items-center">
     <button
       type="button"
       disabled={pending || !fullyVoted}
-      class="h-9 w-16 rounded-lg border border-[color:var(--line)] px-2 text-xs font-bold text-[color:var(--muted-ink)] transition-colors duration-150 hover:bg-[var(--hover-tint)] disabled:hover:bg-transparent"
+      class="h-9 rounded-lg border border-[color:var(--line)] px-3 text-xs font-bold text-[color:var(--muted-ink)] transition-colors duration-150 hover:bg-[var(--hover-tint)] disabled:hover:bg-transparent"
       class:invisible={!fullyVoted}
       aria-hidden={!fullyVoted}
       onclick={reset}
     >
-      Resetuj
+      Resetuj oceny
     </button>
-    <div class="flex min-w-0 items-center justify-end gap-1">
-      <button
-        type="button"
-        disabled={pending}
-        class="h-9 w-19 shrink-0 rounded-lg px-1 text-xs font-bold transition-[background-color,color,transform] duration-150 active:scale-[0.98] disabled:opacity-60
-                    {picked
-          ? 'border border-[color:var(--line)] text-[color:var(--muted-ink)]'
-          : 'bg-o-green text-white'}"
-        onclick={() => (picked ? unpick() : pick())}
-      >
-        {picked ? "Usuń głos" : "Wybieram"}
-      </button>
-      {@render swap?.()}
-    </div>
   </div>
 </div>
